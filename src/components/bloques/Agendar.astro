@@ -1,0 +1,211 @@
+---
+import type { AgendarBloque, Ajustes } from '../../tipos';
+
+interface Props {
+  bloque: AgendarBloque;
+  ajustes: Ajustes;
+  distritos: string[];
+}
+
+const { bloque, ajustes, distritos } = Astro.props;
+
+const franjas = ajustes.franjas?.length
+  ? ajustes.franjas
+  : [
+      { etiqueta: 'Manana (8:00 - 12:00)', cupo: 3 },
+      { etiqueta: 'Tarde (13:00 - 18:00)', cupo: 3 },
+    ];
+
+const SERVICIOS = ['Instalacion', 'Mantenimiento', 'Reparacion', 'Limpieza de ductos', 'Otro / no estoy seguro'];
+// "No estoy seguro" va primero a proposito: la mayoria de clientes no sabe que equipo tiene,
+// y un formulario que los obliga a saberlo los expulsa.
+const EQUIPOS = ['No estoy seguro', 'Split (pared)', 'Ventana', 'Ducteado / central', 'Portatil', 'Extractor / ventilacion'];
+
+const clasesCampo =
+  'w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm shadow-sm outline-none transition focus:border-marca-500 focus:ring-2 focus:ring-marca-500/20';
+---
+
+<section id="agendar" class="bg-marca-50 py-20">
+  <div class="contenedor max-w-3xl">
+    {bloque.titulo && <h2 class="titulo-seccion text-center">{bloque.titulo}</h2>}
+    {bloque.texto && <p class="mx-auto mt-4 max-w-xl text-center text-slate-600 text-pretty">{bloque.texto}</p>}
+
+    <form id="form-agendar" class="mt-10 rounded-2xl bg-white p-6 shadow-sm sm:p-8" novalidate>
+      <div class="grid gap-5 sm:grid-cols-2">
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium text-slate-700">Nombre y apellido *</span>
+          <input name="nombre" type="text" required autocomplete="name" class={clasesCampo} />
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium text-slate-700">Telefono / WhatsApp *</span>
+          <input name="telefono" type="tel" required autocomplete="tel" inputmode="tel" class={clasesCampo} />
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium text-slate-700">Distrito *</span>
+          <select name="distrito" required class={clasesCampo}>
+            <option value="">Elegi tu distrito</option>
+            {distritos.map((distrito) => <option value={distrito}>{distrito}</option>)}
+            <option value="Otro">Otro (no figura en la lista)</option>
+          </select>
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium text-slate-700">Direccion *</span>
+          <input name="direccion" type="text" required autocomplete="street-address" class={clasesCampo} />
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium text-slate-700">Que necesitas *</span>
+          <select name="tipoServicio" required class={clasesCampo}>
+            <option value="">Elegi un servicio</option>
+            {SERVICIOS.map((servicio) => <option value={servicio}>{servicio}</option>)}
+          </select>
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium text-slate-700">Tipo de equipo</span>
+          <select name="tipoEquipo" class={clasesCampo}>
+            {EQUIPOS.map((equipo) => <option value={equipo}>{equipo}</option>)}
+          </select>
+        </label>
+
+        <label class="block sm:col-span-2">
+          <span class="mb-1.5 block text-sm font-medium text-slate-700">Contanos que pasa</span>
+          <textarea
+            name="descripcion"
+            rows="3"
+            class={clasesCampo}
+            placeholder="Ej: el equipo enfria poco y hace ruido desde hace una semana"></textarea>
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium text-slate-700">Dia preferido *</span>
+          <input name="fechaPreferida" type="date" required class={clasesCampo} />
+        </label>
+
+        <fieldset class="block">
+          <legend class="mb-1.5 block text-sm font-medium text-slate-700">Franja horaria *</legend>
+          <div class="flex flex-col gap-2">
+            {
+              franjas.map((franja, indice) => (
+                <label class="flex cursor-pointer items-center gap-2.5 rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm has-checked:border-marca-500 has-checked:bg-marca-50">
+                  <input
+                    type="radio"
+                    name="franja"
+                    value={franja.etiqueta}
+                    required
+                    checked={indice === 0}
+                    class="accent-marca-600"
+                  />
+                  {franja.etiqueta}
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+      </div>
+
+      {/* Campo trampa: invisible para personas, tentador para bots. Si llega con
+          contenido, el servidor descarta la solicitud sin avisar. */}
+      <div class="absolute -left-[9999px]" aria-hidden="true">
+        <label>
+          No completar
+          <input name="sitioWeb" type="text" tabindex="-1" autocomplete="off" />
+        </label>
+      </div>
+
+      <p id="error-agendar" class="mt-5 hidden rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert"></p>
+
+      <button
+        type="submit"
+        class="mt-6 w-full rounded-lg bg-acento-500 px-6 py-3.5 font-semibold text-white shadow-sm transition hover:bg-acento-600 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        Solicitar visita
+      </button>
+
+      <p class="mt-3 text-center text-xs text-slate-500">
+        No cobramos nada por agendar. Confirmamos la hora exacta por WhatsApp.
+      </p>
+    </form>
+
+    <div id="exito-agendar" class="mt-10 hidden rounded-2xl bg-white p-8 text-center shadow-sm">
+      <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-whatsapp/15 text-whatsapp">
+        <svg class="size-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m5 13 4 4L19 7" />
+        </svg>
+      </div>
+      <h3 class="mt-4 text-xl font-semibold text-marca-900">¡Listo!</h3>
+      <p class="mx-auto mt-2 max-w-md text-slate-600 text-pretty">{bloque.mensajeExito}</p>
+      <a
+        href={`https://wa.me/${ajustes.whatsapp}?text=${encodeURIComponent('Hola, acabo de solicitar una visita por la web y les mando fotos del equipo.')}`}
+        target="_blank"
+        rel="noopener"
+        class="mt-6 inline-block rounded-lg bg-whatsapp px-6 py-3 font-semibold text-white transition hover:bg-whatsapp-oscuro"
+      >
+        Enviar fotos del equipo por WhatsApp
+      </a>
+      <p class="mt-3 text-xs text-slate-500">Con una foto podemos estimar el trabajo antes de ir.</p>
+    </div>
+  </div>
+</section>
+
+<script is:inline define:vars={{ diasAnticipacion: ajustes.diasAnticipacion ?? 1 }}>
+  (() => {
+    const form = document.getElementById('form-agendar');
+    if (!form) return;
+
+    const exito = document.getElementById('exito-agendar');
+    const error = document.getElementById('error-agendar');
+    const boton = form.querySelector('button[type="submit"]');
+    const fecha = form.querySelector('input[name="fechaPreferida"]');
+
+    // La pagina es estatica: si calculamos la fecha minima al construirla, quedaria
+    // congelada en el dia del deploy. Por eso se calcula aca, en el navegador.
+    const minimo = new Date();
+    minimo.setDate(minimo.getDate() + Number(diasAnticipacion));
+    const aIso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    fecha.min = aIso(minimo);
+    fecha.value = aIso(minimo);
+
+    const mostrarError = (mensaje) => {
+      error.textContent = mensaje;
+      error.classList.remove('hidden');
+    };
+
+    form.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      error.classList.add('hidden');
+
+      if (!form.reportValidity()) return;
+
+      boton.disabled = true;
+      boton.textContent = 'Enviando...';
+
+      try {
+        const respuesta = await fetch('/api/reservar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(Object.fromEntries(new FormData(form))),
+        });
+
+        const datos = await respuesta.json().catch(() => ({}));
+
+        if (!respuesta.ok) {
+          mostrarError(datos.mensaje ?? 'No pudimos enviar la solicitud. Escribinos por WhatsApp y te atendemos igual.');
+          return;
+        }
+
+        form.classList.add('hidden');
+        exito.classList.remove('hidden');
+        exito.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch {
+        mostrarError('Parece que se corto la conexion. Escribinos por WhatsApp y te atendemos igual.');
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'Solicitar visita';
+      }
+    });
+  })();
+</script>

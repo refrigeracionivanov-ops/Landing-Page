@@ -1,0 +1,42 @@
+---
+import { urlImagen } from '../../sanity/imagen';
+import type { ConfianzaBloque } from '../../tipos';
+
+interface Props {
+  bloque: ConfianzaBloque;
+}
+
+const { bloque } = Astro.props;
+---
+
+<section class="bg-marca-900 py-16 text-white">
+  <div class="contenedor">
+    {bloque.titulo && <h2 class="text-center text-2xl font-bold sm:text-3xl">{bloque.titulo}</h2>}
+
+    <dl class="mt-10 grid grid-cols-2 gap-8 lg:grid-cols-4">
+      {
+        bloque.items?.map((item) => (
+          <div class="text-center">
+            <dt class="text-3xl font-extrabold tracking-tight text-acento-500 sm:text-4xl">{item.valor}</dt>
+            <dd class="mt-1 text-sm text-marca-100">{item.etiqueta}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    {
+      bloque.marcas && bloque.marcas.length > 0 && (
+        <div class="mt-12 flex flex-wrap items-center justify-center gap-x-10 gap-y-6 border-t border-white/10 pt-10">
+          {bloque.marcas.map((marca) => (
+            <img
+              src={urlImagen(marca).height(80).url()}
+              alt={marca.alt ?? ''}
+              class="h-8 w-auto opacity-70 brightness-0 invert transition hover:opacity-100"
+              loading="lazy"
+            />
+          ))}
+        </div>
+      )
+    }
+  </div>
+</section>

@@ -1,0 +1,28 @@
+---
+import type { CoberturaBloque } from '../../tipos';
+
+interface Props {
+  bloque: CoberturaBloque;
+}
+
+const { bloque } = Astro.props;
+---
+
+<section class="contenedor py-20">
+  <div class="rounded-3xl bg-marca-50 px-6 py-12 sm:px-12">
+    {bloque.titulo && <h2 class="titulo-seccion text-center">{bloque.titulo}</h2>}
+    {bloque.texto && <p class="mx-auto mt-4 max-w-2xl text-center text-slate-600 text-pretty">{bloque.texto}</p>}
+
+    <ul class="mx-auto mt-8 flex max-w-3xl flex-wrap justify-center gap-2">
+      {
+        bloque.distritos?.map((distrito) => (
+          <li class="rounded-full border border-marca-100 bg-white px-4 py-1.5 text-sm font-medium text-marca-700">
+            {distrito}
+          </li>
+        ))
+      }
+    </ul>
+
+    {bloque.notaFueraDeZona && <p class="mt-8 text-center text-sm text-slate-500">{bloque.notaFueraDeZona}</p>}
+  </div>
+</section>

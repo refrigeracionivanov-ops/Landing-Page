@@ -1,0 +1,46 @@
+@import 'tailwindcss';
+
+/* Los tokens de diseno viven aca y NO se exponen en el panel de administracion.
+   Es deliberado: quien edita el contenido no puede romper el diseno. */
+@theme {
+  --color-marca-50: oklch(0.97 0.02 230);
+  --color-marca-100: oklch(0.93 0.05 230);
+  --color-marca-500: oklch(0.62 0.16 230);
+  --color-marca-600: oklch(0.54 0.16 230);
+  --color-marca-700: oklch(0.45 0.14 230);
+  --color-marca-900: oklch(0.28 0.09 230);
+
+  --color-acento-500: oklch(0.72 0.18 55);
+  --color-acento-600: oklch(0.64 0.18 55);
+
+  --color-whatsapp: oklch(0.72 0.17 145);
+  --color-whatsapp-oscuro: oklch(0.62 0.17 145);
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Deja aire bajo el header fijo cuando se salta a un ancla. */
+  scroll-padding-top: 5rem;
+}
+
+body {
+  @apply bg-white text-slate-800 antialiased;
+  /* Espacio para la barra flotante de contacto en movil. */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (max-width: 767px) {
+  body:has(#barra-contacto) {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+}
+
+.contenedor {
+  @apply mx-auto w-full max-w-6xl px-5;
+}
+
+.titulo-seccion {
+  @apply text-3xl font-bold tracking-tight text-marca-900 sm:text-4xl;
+}

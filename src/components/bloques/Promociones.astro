@@ -1,0 +1,40 @@
+---
+import type { PromocionesBloque } from '../../tipos';
+
+interface Props {
+  bloque: PromocionesBloque;
+}
+
+const { bloque } = Astro.props;
+
+const formatearFecha = (iso: string) =>
+  new Date(`${iso}T00:00:00`).toLocaleDateString('es-PE', { day: 'numeric', month: 'long' });
+---
+
+{/* Si todas las promos vencieron, la consulta devuelve una lista vacia y la seccion no se dibuja. */}
+{
+  bloque.promos && bloque.promos.length > 0 && (
+    <section class="contenedor py-20">
+      {bloque.titulo && <h2 class="titulo-seccion text-center">{bloque.titulo}</h2>}
+
+      <div class="mt-12 grid gap-6 md:grid-cols-3">
+        {bloque.promos.map((promo) => (
+          <article class="flex flex-col rounded-2xl border-2 border-dashed border-acento-500 bg-acento-500/5 p-7 text-center">
+            <p class="text-4xl font-extrabold tracking-tight text-acento-600">{promo.destacado}</p>
+            <h3 class="mt-3 text-lg font-semibold text-marca-900">{promo.titulo}</h3>
+            {promo.descripcion && <p class="mt-2 text-sm text-slate-600">{promo.descripcion}</p>}
+            {promo.vigenciaHasta && (
+              <p class="mt-4 text-xs font-medium text-slate-500">Valido hasta el {formatearFecha(promo.vigenciaHasta)}</p>
+            )}
+            <a
+              href="#agendar"
+              class="mt-5 rounded-lg bg-acento-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-acento-600"
+            >
+              Quiero esta promo
+            </a>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}

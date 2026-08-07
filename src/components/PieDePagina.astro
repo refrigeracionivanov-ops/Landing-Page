@@ -1,0 +1,52 @@
+---
+import type { Ajustes } from '../tipos';
+
+interface Props {
+  ajustes: Ajustes;
+}
+
+const { ajustes } = Astro.props;
+const anio = new Date().getFullYear();
+---
+
+<footer class="mt-20 bg-marca-900 text-marca-100">
+  <div class="contenedor grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-3">
+    <div>
+      <p class="text-lg font-bold text-white">{ajustes.nombre}</p>
+      {ajustes.direccion && <p class="mt-2 text-sm">{ajustes.direccion}</p>}
+      {ajustes.horario && <p class="mt-1 text-sm">{ajustes.horario}</p>}
+    </div>
+
+    <div class="text-sm">
+      <p class="font-semibold text-white">Contacto</p>
+      <p class="mt-2">
+        <a href={`tel:${ajustes.telefono.replace(/\s/g, '')}`} class="hover:text-white">{ajustes.telefono}</a>
+      </p>
+      {
+        ajustes.email && (
+          <p class="mt-1">
+            <a href={`mailto:${ajustes.email}`} class="hover:text-white">
+              {ajustes.email}
+            </a>
+          </p>
+        )
+      }
+    </div>
+
+    <div class="text-sm">
+      <p class="font-semibold text-white">Atencion</p>
+      <p class="mt-2">
+        <a href="#agendar" class="hover:text-white">Agendar una visita</a>
+      </p>
+      <p class="mt-1">
+        <a href={`https://wa.me/${ajustes.whatsapp}`} target="_blank" rel="noopener" class="hover:text-white">
+          Escribir por WhatsApp
+        </a>
+      </p>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10 py-5 text-center text-xs text-marca-100/70">
+    &copy; {anio} {ajustes.nombre}. Todos los derechos reservados.
+  </div>
+</footer>

@@ -1,0 +1,30 @@
+---
+import Icono from '../Icono.astro';
+import type { BeneficiosBloque } from '../../tipos';
+
+interface Props {
+  bloque: BeneficiosBloque;
+}
+
+const { bloque } = Astro.props;
+---
+
+<section class="bg-marca-50 py-20">
+  <div class="contenedor">
+    {bloque.titulo && <h2 class="titulo-seccion text-center">{bloque.titulo}</h2>}
+
+    <div class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        bloque.items?.map((item) => (
+          <div class="text-center">
+            <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-white text-marca-600 shadow-sm">
+              <Icono nombre={item.icono} class="size-7" />
+            </div>
+            <h3 class="mt-4 font-semibold text-marca-900">{item.titulo}</h3>
+            {item.texto && <p class="mt-2 text-sm text-slate-600 text-pretty">{item.texto}</p>}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

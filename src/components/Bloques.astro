@@ -1,0 +1,55 @@
+---
+import Hero from './bloques/Hero.astro';
+import Servicios from './bloques/Servicios.astro';
+import Beneficios from './bloques/Beneficios.astro';
+import AntesDespues from './bloques/AntesDespues.astro';
+import Cobertura from './bloques/Cobertura.astro';
+import Promociones from './bloques/Promociones.astro';
+import Confianza from './bloques/Confianza.astro';
+import Testimonios from './bloques/Testimonios.astro';
+import Faq from './bloques/Faq.astro';
+import Agendar from './bloques/Agendar.astro';
+import Cta from './bloques/Cta.astro';
+import type { Bloque, Ajustes } from '../tipos';
+
+interface Props {
+  secciones?: Bloque[];
+  ajustes: Ajustes;
+  distritos: string[];
+}
+
+const { secciones = [], ajustes, distritos } = Astro.props;
+
+/**
+ * Une cada tipo de bloque del panel con su componente.
+ * Para sumar un bloque nuevo: se crea el esquema en `bloques.ts`, el componente
+ * en `components/bloques/`, y se agrega una linea aca.
+ */
+const COMPONENTES = {
+  heroBloque: Hero,
+  serviciosBloque: Servicios,
+  beneficiosBloque: Beneficios,
+  antesDespuesBloque: AntesDespues,
+  coberturaBloque: Cobertura,
+  promocionesBloque: Promociones,
+  confianzaBloque: Confianza,
+  testimoniosBloque: Testimonios,
+  faqBloque: Faq,
+  agendarBloque: Agendar,
+  ctaBloque: Cta,
+} as const;
+---
+
+{
+  secciones.map((bloque) => {
+    // El `any` es sobre el componente, no sobre el dato: TypeScript intersecta las
+    // props de los 11 bloques y el resultado es `never`. El tipo correcto de cada
+    // bloque ya lo garantiza su propio componente.
+    const Componente = COMPONENTES[bloque._type as keyof typeof COMPONENTES] as any;
+
+    // Un bloque publicado cuyo componente todavia no existe no debe romper la pagina.
+    if (!Componente) return null;
+
+    return <Componente bloque={bloque} ajustes={ajustes} distritos={distritos} />;
+  })
+}

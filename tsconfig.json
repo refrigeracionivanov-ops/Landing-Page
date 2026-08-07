@@ -1,0 +1,12 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"],
+  "compilerOptions": {
+    // `node` habilita process.env en astro.config.mjs y sanity.config.ts.
+    // `@sanity/astro/module` declara el modulo virtual `sanity:client`.
+    "types": ["node", "@sanity/astro/module"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
+  }
+}

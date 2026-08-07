@@ -1,0 +1,57 @@
+---
+import '../styles/global.css';
+import Encabezado from '../components/Encabezado.astro';
+import PieDePagina from '../components/PieDePagina.astro';
+import BarraContacto from '../components/BarraContacto.astro';
+import type { Ajustes } from '../tipos';
+
+interface Props {
+  titulo: string;
+  descripcion?: string;
+  ajustes: Ajustes;
+}
+
+const { titulo, descripcion, ajustes } = Astro.props;
+const canonica = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titulo}</title>
+    {descripcion && <meta name="description" content={descripcion} />}
+    <link rel="canonical" href={canonica} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={titulo} />
+    {descripcion && <meta property="og:description" content={descripcion} />}
+
+    <link rel="preconnect" href="https://cdn.sanity.io" />
+
+    {/* Datos estructurados: le dicen a Google que esto es un negocio local con telefono y horario. */}
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'HVACBusiness',
+        name: ajustes.nombre,
+        telephone: ajustes.telefono,
+        email: ajustes.email,
+        address: ajustes.direccion,
+        openingHours: ajustes.horario,
+      })}
+    />
+  </head>
+
+  <body>
+    <Encabezado ajustes={ajustes} />
+    <main>
+      <slot />
+    </main>
+    <PieDePagina ajustes={ajustes} />
+    <BarraContacto ajustes={ajustes} />
+  </body>
+</html>

@@ -1,0 +1,44 @@
+---
+import Icono from './Icono.astro';
+import { urlImagen } from '../sanity/imagen';
+import type { Ajustes } from '../tipos';
+
+interface Props {
+  ajustes: Ajustes;
+}
+
+const { ajustes } = Astro.props;
+---
+
+<header class="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
+  <div class="contenedor flex h-16 items-center justify-between gap-4">
+    <a href="/" class="flex items-center gap-2 font-bold text-marca-900">
+      {
+        ajustes.logo?.asset ? (
+          <img src={urlImagen(ajustes.logo).height(64).url()} alt={ajustes.nombre} class="h-8 w-auto" />
+        ) : (
+          <>
+            <Icono nombre="aire" class="size-7 text-marca-500" />
+            <span>{ajustes.nombre}</span>
+          </>
+        )
+      }
+    </a>
+
+    <div class="flex items-center gap-3">
+      <a
+        href={`tel:${ajustes.telefono.replace(/\s/g, '')}`}
+        class="hidden items-center gap-2 text-sm font-semibold text-marca-700 hover:text-marca-900 sm:flex"
+      >
+        <Icono nombre="telefono" class="size-4" />
+        {ajustes.telefono}
+      </a>
+      <a
+        href="#agendar"
+        class="rounded-lg bg-acento-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-acento-600"
+      >
+        Agendar visita
+      </a>
+    </div>
+  </div>
+</header>

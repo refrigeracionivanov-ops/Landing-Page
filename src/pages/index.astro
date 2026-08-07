@@ -1,0 +1,38 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Bloques from '../components/Bloques.astro';
+import { obtenerPagina, obtenerAjustes, obtenerDistritos } from '../sanity/consultas';
+
+const [pagina, ajustes, distritos] = await Promise.all([
+  obtenerPagina('inicio'),
+  obtenerAjustes(),
+  obtenerDistritos(),
+]);
+
+// Sin ajustes cargados no hay telefono ni WhatsApp, y medio sitio depende de eso.
+if (!ajustes) {
+  throw new Error(
+    'Falta el documento "Ajustes del negocio" en Sanity. Entra a /admin y completalo, o corre `npm run sembrar`.',
+  );
+}
+---
+
+<Layout
+  titulo={pagina?.seo?.titulo ?? `${ajustes.nombre} — Instalacion y mantenimiento de aire acondicionado`}
+  descripcion={pagina?.seo?.descripcion}
+  ajustes={ajustes}
+>
+  {
+    pagina ? (
+      <Bloques secciones={pagina.secciones} ajustes={ajustes} distritos={distritos} />
+    ) : (
+      <div class="contenedor py-32 text-center">
+        <h1 class="titulo-seccion">Todavia no hay contenido</h1>
+        <p class="mt-4 text-slate-600">
+          Entra a <a href="/admin" class="font-semibold text-marca-600 underline">/admin</a> y crea una pagina con la
+          direccion <code class="rounded bg-slate-100 px-1.5 py-0.5">inicio</code>.
+        </p>
+      </div>
+    )
+  }
+</Layout>

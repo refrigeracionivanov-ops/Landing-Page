@@ -1,0 +1,32 @@
+---
+import type { CtaBloque, Ajustes } from '../../tipos';
+
+interface Props {
+  bloque: CtaBloque;
+  ajustes: Ajustes;
+}
+
+const { bloque, ajustes } = Astro.props;
+---
+
+<section class="contenedor py-20">
+  <div class="rounded-3xl bg-gradient-to-br from-marca-700 to-marca-900 px-6 py-14 text-center sm:px-12">
+    <h2 class="text-3xl font-bold tracking-tight text-white text-balance sm:text-4xl">{bloque.titulo}</h2>
+    {bloque.texto && <p class="mx-auto mt-4 max-w-xl text-marca-100 text-pretty">{bloque.texto}</p>}
+
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a
+        href="#agendar"
+        class="rounded-lg bg-acento-500 px-6 py-3.5 font-semibold text-white shadow-lg transition hover:bg-acento-600"
+      >
+        {bloque.textoBoton ?? 'Agendar visita'}
+      </a>
+      <a
+        href={`tel:${ajustes.telefono.replace(/\s/g, '')}`}
+        class="rounded-lg bg-white/10 px-6 py-3.5 font-semibold text-white ring-1 ring-white/25 transition hover:bg-white/20"
+      >
+        Llamar {ajustes.telefono}
+      </a>
+    </div>
+  </div>
+</section>
