@@ -21,9 +21,11 @@ export interface Solicitud {
   fecha_preferida: string;
   franja: string;
   notas: string | null;
+  /** Id del evento espejado en Google Calendar. Null si no llego a agendarse. */
+  evento_id: string | null;
 }
 
-export type SolicitudNueva = Omit<Solicitud, 'id' | 'creada_en' | 'estado' | 'notas'>;
+export type SolicitudNueva = Omit<Solicitud, 'id' | 'creada_en' | 'estado' | 'notas' | 'evento_id'>;
 
 const marcadores = (cantidad: number) => Array.from({ length: cantidad }, () => '?').join(', ');
 
@@ -91,6 +93,14 @@ export async function contarPorEstado(db: D1Database): Promise<Record<string, nu
     .all<{ estado: string; total: number }>();
 
   return Object.fromEntries((results ?? []).map((f) => [f.estado, f.total]));
+}
+
+export async function obtenerSolicitud(db: D1Database, id: number): Promise<Solicitud | null> {
+  return db.prepare(`SELECT * FROM solicitudes WHERE id = ?`).bind(id).first<Solicitud>();
+}
+
+export async function guardarEventoId(db: D1Database, id: number, eventoId: string | null): Promise<void> {
+  await db.prepare(`UPDATE solicitudes SET evento_id = ? WHERE id = ?`).bind(eventoId, id).run();
 }
 
 export async function actualizarSolicitud(

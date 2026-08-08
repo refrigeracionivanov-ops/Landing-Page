@@ -7,6 +7,7 @@ técnica. Pensada para que la mantenga alguien sin formación técnica.
 - **Sanity** — contenido de la landing y panel de edición (`/admin`)
 - **Cloudflare D1** — solicitudes de visita (datos personales de clientes)
 - **Cloudflare Access** — protege `/solicitudes`
+- **Google Calendar** — espejo de las visitas agendadas (opcional)
 - **Cloudflare Pages** — hosting (su plan gratuito permite uso comercial)
 - **Tailwind v4** — estilos, con los tokens cerrados en `src/styles/global.css`
 
@@ -141,9 +142,34 @@ Ese valor va en `CF_ACCESS_AUD`, y tu dominio de equipo
 > Sin esas dos variables la página devuelve 403 en producción. Es a propósito: es
 > preferible que no cargue a que muestre datos de clientes sin verificar quién entra.
 
+## Espejo en Google Calendar
+
+D1 es la fuente de verdad; el calendario es la vista para el día a día. La idea es
+que la persona trabaje en la app que ya conoce y abra `/solicitudes` solo para lo que
+Calendar no sabe hacer: ver las nuevas sin atender y cambiar estados.
+
+Se sincroniza al guardar un cambio de estado:
+
+| Estado | Qué pasa con el evento |
+|---|---|
+| `agendada` | Se crea, o se actualiza si ya existía |
+| `completada` | Se mantiene, como registro histórico |
+| `nueva`, `contactada`, `cancelada` | Se borra si existía |
+
+El horario del evento sale de la etiqueta de la franja: de `Manana (8:00 - 12:00)`
+saca 8:00 a 12:00. Si la etiqueta no trae horas, el evento se crea de día completo en
+vez de inventar un horario.
+
+**Autenticación por cuenta de servicio, no OAuth.** No hay refresh token que caduque
+ni sesión que alguien tenga que volver a iniciar: se comparte el calendario con el
+correo de la cuenta de servicio y listo. Los pasos están en `.env.example`.
+
+Si Google falla, el cambio de estado igual queda guardado y la página avisa que el
+evento hay que revisarlo a mano. Nunca se pierde el trabajo de quien está usando el
+panel por un problema de red.
+
 ## Pendientes
 
 - Rebuild automático al publicar contenido (webhook de Sanity → deploy hook de
   Cloudflare). Sin esto, un cambio en el panel no se ve hasta el próximo build.
-- Espejar las visitas confirmadas a Google Calendar.
 - Mercado Pago, si en algún momento se cobra seña de diagnóstico.

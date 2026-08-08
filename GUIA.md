@@ -43,6 +43,17 @@ A medida que la vas atendiendo, cambiá el **Estado** y apretá *Guardar*:
 la web. El cupo se configura en Ajustes (ver abajo). Las solicitudes canceladas
 liberan el lugar.
 
+**Cuando pasás una a "Agendada", aparece sola en tu Google Calendar**, con la
+dirección y el teléfono del cliente adentro. A partir de ahí podés trabajar desde el
+calendario de siempre: te suena el celular y lo ves junto al resto de tu día.
+
+Si después la pasás a "Cancelada", el evento se borra solo. Si la pasás a
+"Completada", queda como registro de que la visita se hizo.
+
+> No borres ni muevas el evento a mano desde Google Calendar: el sistema lo vuelve a
+> acomodar la próxima vez que toques esa solicitud. Cambiá el estado acá y el
+> calendario se actualiza solo.
+
 ### 2. Cambiar textos y fotos de la página
 
 Entrá a **tudominio.com/admin**, y en el menú de la izquierda: **Páginas → Inicio**.

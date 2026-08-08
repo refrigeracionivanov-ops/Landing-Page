@@ -3,6 +3,7 @@ import '../styles/global.css';
 import { env } from 'cloudflare:workers';
 import { verificarAcceso } from '../lib/acceso';
 import { actualizarSolicitud, contarPorEstado, listarSolicitudes, ESTADOS } from '../lib/solicitudes';
+import { sincronizar } from '../lib/calendario';
 
 // Datos personales: nunca se genera de forma estatica ni se cachea.
 export const prerender = false;
@@ -27,14 +28,24 @@ if (Astro.request.method === 'POST') {
   const formulario = await Astro.request.formData();
   const id = Number(formulario.get('id'));
 
+  let espejoOk = true;
+
   if (Number.isInteger(id) && id > 0) {
     await actualizarSolicitud(db, id, {
       estado: String(formulario.get('estado') ?? '') || undefined,
       notas: formulario.has('notas') ? String(formulario.get('notas')).slice(0, 2000) : undefined,
     });
+
+    // El calendario se alinea despues de guardar, no antes: si Google falla,
+    // el cambio de estado igual quedo registrado.
+    espejoOk = await sincronizar(db, id);
   }
 
-  return Astro.redirect(`/solicitudes${Astro.url.search}`, 303);
+  const destino = new URL(Astro.url);
+  destino.searchParams.delete('aviso');
+  if (!espejoOk) destino.searchParams.set('aviso', 'calendario');
+
+  return Astro.redirect(`${destino.pathname}${destino.search}`, 303);
 }
 
 const filtro = Astro.url.searchParams.get('estado') ?? '';
@@ -73,6 +84,14 @@ const formatearFecha = (iso: string) =>
     </header>
 
     <main class="contenedor py-8">
+      {
+        Astro.url.searchParams.get('aviso') === 'calendario' && (
+          <p class="mb-6 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800" role="alert">
+            El cambio se guardo, pero no se pudo actualizar Google Calendar. Revisa el evento a mano.
+          </p>
+        )
+      }
+
       <nav class="flex flex-wrap gap-2">
         <a
           href="/solicitudes"

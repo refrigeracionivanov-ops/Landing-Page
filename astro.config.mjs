@@ -46,6 +46,12 @@ export default defineConfig({
       // pagina devuelve 403 en vez de mostrar datos de clientes.
       CF_ACCESS_TEAM_DOMAIN: envField.string({ context: 'server', access: 'secret', optional: true }),
       CF_ACCESS_AUD: envField.string({ context: 'server', access: 'secret', optional: true }),
+      // Google Calendar: espeja las visitas agendadas. Si faltan, el espejo
+      // simplemente no ocurre y el resto sigue funcionando igual.
+      GOOGLE_SA_EMAIL: envField.string({ context: 'server', access: 'secret', optional: true }),
+      GOOGLE_SA_PRIVATE_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
+      GOOGLE_CALENDAR_ID: envField.string({ context: 'server', access: 'secret', optional: true }),
+      GOOGLE_CALENDAR_TIMEZONE: envField.string({ context: 'server', access: 'secret', optional: true }),
     },
   },
 });
