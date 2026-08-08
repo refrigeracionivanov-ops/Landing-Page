@@ -1,8 +1,15 @@
 # Guía para administrar la página
 
-Todo se hace desde un solo lugar: **tudominio.com/admin**
+Hay **dos direcciones** que vas a usar. No hace falta instalar nada; funcionan desde
+la computadora o el celular.
 
-No hace falta instalar nada. Funciona desde la computadora o el celular.
+| Dirección | Para qué |
+|---|---|
+| **tudominio.com/solicitudes** | Ver quién pidió una visita |
+| **tudominio.com/admin** | Cambiar textos, fotos, precios y teléfono |
+
+La primera te va a pedir iniciar sesión con tu correo. Es la que tiene los datos de
+los clientes, así que está protegida y solo entran los correos autorizados.
 
 ---
 
@@ -10,12 +17,16 @@ No hace falta instalar nada. Funciona desde la computadora o el celular.
 
 ### 1. Ver quién pidió una visita
 
-En el menú de la izquierda: **Solicitudes de visita**.
+Entrá a **tudominio.com/solicitudes**.
 
 Aparecen ordenadas de la más reciente a la más vieja. Cada una trae el nombre,
-teléfono, dirección, qué necesita y para qué día la pidió.
+teléfono, dirección, qué necesita y para qué día la pidió. Arriba tenés los filtros
+por estado, con la cantidad de cada uno.
 
-A medida que la vas atendiendo, cambiá el **Estado**:
+Cada solicitud tiene dos botones: **WhatsApp**, que abre el chat con ese cliente ya
+listo para escribir, y el **teléfono**, que llama directo.
+
+A medida que la vas atendiendo, cambiá el **Estado** y apretá *Guardar*:
 
 | Estado | Cuándo ponerlo |
 |---|---|
@@ -34,7 +45,7 @@ liberan el lugar.
 
 ### 2. Cambiar textos y fotos de la página
 
-En el menú: **Páginas → Inicio**.
+Entrá a **tudominio.com/admin**, y en el menú de la izquierda: **Páginas → Inicio**.
 
 Vas a ver la lista de secciones en el orden en que aparecen en el sitio.
 
@@ -50,7 +61,7 @@ ya está todo publicado.
 
 ### 3. Cambiar el teléfono, el horario o los cupos
 
-En el menú: **Ajustes del negocio**.
+En **tudominio.com/admin**, menú de la izquierda: **Ajustes del negocio**.
 
 Ahí está el teléfono, el WhatsApp, el correo, la dirección y el horario. Se usan en
 toda la página a la vez: lo cambiás una vez y se actualiza en todos lados.
@@ -81,9 +92,13 @@ un lector de pantalla. Con tres o cuatro palabras alcanza.
 agregás un distrito ahí, aparece solo en la lista desplegable del formulario. No hay
 que cargarlo dos veces.
 
-**Si algo se rompió, no borres nada.** El sistema guarda todas las versiones
-anteriores. En el ícono de reloj arriba a la derecha podés ver el historial y volver
-a como estaba antes.
+**Si algo se rompió, no borres nada.** En `/admin`, el sistema guarda todas las
+versiones anteriores del contenido. En el ícono de reloj arriba a la derecha podés
+ver el historial y volver a como estaba antes.
+
+**Las solicitudes de los clientes no aparecen en `/admin`.** Están aparte, en
+`/solicitudes`, justamente porque tienen datos personales y ese lugar está protegido
+con inicio de sesión.
 
 ---
 

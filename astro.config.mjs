@@ -14,6 +14,8 @@ export default defineConfig({
   // Todo el sitio se genera estatico. Solo /api/reservar corre en el servidor
   // (lleva `export const prerender = false`).
   output: 'static',
+  // Los bindings de wrangler.jsonc (la base D1) quedan disponibles en
+  // `Astro.locals.runtime.env` tanto en `astro dev` como en produccion.
   adapter: cloudflare(),
 
   integrations: [
@@ -36,10 +38,14 @@ export default defineConfig({
     schema: {
       PUBLIC_SANITY_PROJECT_ID: envField.string({ context: 'client', access: 'public' }),
       PUBLIC_SANITY_DATASET: envField.string({ context: 'client', access: 'public', default: 'production' }),
-      // Token con permiso de escritura. Solo lo usa /api/reservar, nunca llega al navegador.
-      SANITY_WRITE_TOKEN: envField.string({ context: 'server', access: 'secret' }),
+      // Token con permiso de escritura. Solo lo usa `npm run sembrar`.
+      SANITY_WRITE_TOKEN: envField.string({ context: 'server', access: 'secret', optional: true }),
       RESEND_API_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
       NOTIFY_EMAIL: envField.string({ context: 'server', access: 'secret', optional: true }),
+      // Cloudflare Access: protegen /solicitudes. Sin ellas, en produccion la
+      // pagina devuelve 403 en vez de mostrar datos de clientes.
+      CF_ACCESS_TEAM_DOMAIN: envField.string({ context: 'server', access: 'secret', optional: true }),
+      CF_ACCESS_AUD: envField.string({ context: 'server', access: 'secret', optional: true }),
     },
   },
 });

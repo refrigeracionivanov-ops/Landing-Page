@@ -21,15 +21,11 @@ export const estructura: StructureResolver = (S) =>
         .title('Paginas')
         .schemaType('pagina')
         .child(S.documentTypeList('pagina').title('Paginas')),
-
-      S.divider(),
-
-      S.listItem()
-        .title('Solicitudes de visita')
-        .schemaType('solicitud')
-        .child(
-          S.documentTypeList('solicitud')
-            .title('Solicitudes de visita')
-            .defaultOrdering([{ field: '_createdAt', direction: 'desc' }]),
-        ),
     ]);
+
+// Las solicitudes de visita NO estan en este panel. Viven en Cloudflare D1 y se
+// administran en /solicitudes, detras de Cloudflare Access.
+//
+// El motivo: el plan gratuito de Sanity solo permite datasets publicos, y el
+// project ID va embebido en el HTML del sitio. Cualquiera podria leer los
+// nombres, telefonos y direcciones de los clientes.

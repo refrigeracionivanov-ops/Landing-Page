@@ -11,7 +11,11 @@
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
-    "sembrar": "node --env-file=.env scripts/sembrar.mjs"
+    "sembrar": "node --env-file=.env scripts/sembrar.mjs",
+    "tipos": "wrangler types",
+    "db:crear": "wrangler d1 create landing-ventilacion",
+    "db:migrar": "wrangler d1 migrations apply landing-ventilacion --local",
+    "db:migrar:prod": "wrangler d1 migrations apply landing-ventilacion --remote"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.2.0",
@@ -29,7 +33,9 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@cloudflare/workers-types": "^5.20260808.1",
     "@types/node": "^26.1.2",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "wrangler": "^4.120.0"
   }
 }

@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "landing-ventilacion",
+  "compatibility_date": "2025-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "pages_build_output_dir": "./dist",
+
+  // Base de datos de las solicitudes de visita.
+  //
+  // Vive aca y no en Sanity porque el plan gratuito de Sanity solo permite
+  // datasets publicos, y "publico" significa que cualquiera con el project ID
+  // (que va embebido en el HTML) puede leer todos los documentos. Los nombres,
+  // telefonos y direcciones de los clientes no pueden estar ahi.
+  //
+  // El `database_id` lo devuelve `npx wrangler d1 create landing-ventilacion`.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "landing-ventilacion",
+      "database_id": "REEMPLAZAR_CON_EL_ID_QUE_DEVUELVE_WRANGLER"
+    }
+  ]
+}

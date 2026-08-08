@@ -1,5 +1,5 @@
 import type { SchemaTypeDefinition } from 'sanity';
 import { bloques } from './bloques';
-import { pagina, ajustes, solicitud } from './documentos';
+import { pagina, ajustes } from './documentos';
 
-export const schemaTypes: SchemaTypeDefinition[] = [pagina, ajustes, solicitud, ...bloques];
+export const schemaTypes: SchemaTypeDefinition[] = [pagina, ajustes, ...bloques];

@@ -149,52 +149,13 @@ export const ajustes = defineType({
   preview: { prepare: () => ({ title: 'Ajustes del negocio' }) },
 });
 
-/* --------------------------------------------------------- Solicitud */
-
-const ESTADOS = [
-  { title: 'Nueva', value: 'nueva' },
-  { title: 'Contactada', value: 'contactada' },
-  { title: 'Agendada', value: 'agendada' },
-  { title: 'Completada', value: 'completada' },
-  { title: 'Cancelada', value: 'cancelada' },
-];
-
-export const solicitud = defineType({
-  name: 'solicitud',
-  title: 'Solicitud de visita',
-  type: 'document',
-  // Las crea el formulario del sitio, no una persona.
-  __experimental_omnisearch_visibility: false,
-  fields: [
-    defineField({
-      name: 'estado',
-      title: 'Estado',
-      type: 'string',
-      options: { list: ESTADOS, layout: 'radio' },
-      initialValue: 'nueva',
-    }),
-    defineField({ name: 'nombre', title: 'Nombre', type: 'string', readOnly: true }),
-    defineField({ name: 'telefono', title: 'Telefono', type: 'string', readOnly: true }),
-    defineField({ name: 'distrito', title: 'Distrito', type: 'string', readOnly: true }),
-    defineField({ name: 'direccion', title: 'Direccion', type: 'string', readOnly: true }),
-    defineField({ name: 'tipoServicio', title: 'Servicio', type: 'string', readOnly: true }),
-    defineField({ name: 'tipoEquipo', title: 'Equipo', type: 'string', readOnly: true }),
-    defineField({ name: 'descripcion', title: 'Descripcion del problema', type: 'text', readOnly: true }),
-    defineField({ name: 'fechaPreferida', title: 'Dia preferido', type: 'date', readOnly: true }),
-    defineField({ name: 'franja', title: 'Franja', type: 'string', readOnly: true }),
-    defineField({
-      name: 'notas',
-      title: 'Notas internas',
-      type: 'text',
-      rows: 3,
-      description: 'Lo unico editable. El resto lo cargo el cliente y se deja como registro.',
-    }),
-  ],
-  preview: {
-    select: { nombre: 'nombre', fecha: 'fechaPreferida', franja: 'franja', estado: 'estado', distrito: 'distrito' },
-    prepare: ({ nombre, fecha, franja, estado, distrito }) => ({
-      title: `${nombre ?? 'Sin nombre'} — ${distrito ?? ''}`,
-      subtitle: `${estado ?? ''} · ${fecha ?? 'sin fecha'} · ${franja ?? ''}`,
-    }),
-  },
-});
+/* ------------------------------------------------------------------------
+ * Las solicitudes de visita NO se modelan aca.
+ *
+ * Contienen nombre, telefono y direccion de clientes reales. El plan gratuito
+ * de Sanity solo permite datasets publicos, y el project ID viaja en el HTML
+ * del sitio, asi que cualquiera podria consultarlas sin autenticarse.
+ *
+ * Viven en Cloudflare D1 (`migrations/0001_solicitudes.sql`) y se administran
+ * en /solicitudes, detras de Cloudflare Access.
+ * ---------------------------------------------------------------------- */
