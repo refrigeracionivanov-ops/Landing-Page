@@ -8,37 +8,50 @@ interface Props {
 }
 
 const { ajustes } = Astro.props;
+const telefonoLimpio = ajustes.telefono.replace(/\s/g, '');
 ---
 
-<header class="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
-  <div class="contenedor flex h-16 items-center justify-between gap-4">
-    <a href="/" class="flex items-center gap-2 font-bold text-marca-900">
+{/* Barra de utilidades: la cinta gris fina de Carbon. Se oculta en movil,
+    donde la barra flotante de contacto cumple la misma funcion. */}
+<div class="hidden border-b border-filete bg-superficie md:block">
+  <div class="contenedor flex h-8 items-center justify-between">
+    <p class="leyenda text-tinta-media">
+      {ajustes.horario ?? 'Atencion de lunes a sabado'}
+    </p>
+    <a href={`tel:${telefonoLimpio}`} class="leyenda flex items-center gap-1.5 text-tinta-media hover:text-azul">
+      <Icono nombre="telefono" class="size-3.5" />
+      {ajustes.telefono}
+    </a>
+  </div>
+</div>
+
+<header class="sticky top-0 z-40 border-b border-filete bg-lienzo">
+  <div class="contenedor flex h-12 items-center justify-between gap-4">
+    <a href="/" class="flex items-center gap-2 text-tinta">
       {
         ajustes.logo?.asset ? (
-          <img src={urlImagen(ajustes.logo).height(64).url()} alt={ajustes.nombre} class="h-8 w-auto" />
+          <img src={urlImagen(ajustes.logo).height(64).url()} alt={ajustes.nombre} class="h-6 w-auto" />
         ) : (
           <>
-            <Icono nombre="aire" class="size-7 text-marca-500" />
-            <span>{ajustes.nombre}</span>
+            <Icono nombre="aire" class="size-5 text-azul" />
+            <span class="cuerpo-sm font-semibold">{ajustes.nombre}</span>
           </>
         )
       }
     </a>
 
-    <div class="flex items-center gap-3">
-      <a
-        href={`tel:${ajustes.telefono.replace(/\s/g, '')}`}
-        class="hidden items-center gap-2 text-sm font-semibold text-marca-700 hover:text-marca-900 sm:flex"
-      >
-        <Icono nombre="telefono" class="size-4" />
-        {ajustes.telefono}
-      </a>
-      <a
-        href="#agendar"
-        class="rounded-lg bg-acento-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-acento-600"
-      >
-        Agendar visita
-      </a>
-    </div>
+    {/* Los enlaces ocupan el alto completo de la barra: el texto mide 18px, pero
+        el area pulsable tiene que llegar a 48px. */}
+    <nav class="hidden self-stretch md:flex" aria-label="Secciones">
+      <a href="#servicios" class="cuerpo-sm flex items-center px-4 text-tinta-media hover:text-azul">Servicios</a>
+      <a href="#cobertura" class="cuerpo-sm flex items-center px-4 text-tinta-media hover:text-azul">Cobertura</a>
+      <a href="#preguntas" class="cuerpo-sm flex items-center px-4 text-tinta-media hover:text-azul">Preguntas</a>
+    </nav>
+
+    {/* El CTA ocupa todo el alto de la barra: los botones de Carbon se pegan
+        al borde del contenedor en vez de flotar dentro con margenes. */}
+    <a href="#agendar" class="boton boton-primario -mr-4 self-stretch md:-mr-8">
+      Agendar visita
+    </a>
   </div>
 </header>

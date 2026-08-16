@@ -1,13 +1,19 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Bloques from '../components/Bloques.astro';
-import { obtenerPagina, obtenerAjustes, obtenerDistritos } from '../sanity/consultas';
+import { obtenerContenido } from '../sanity/consultas';
 
-const [pagina, ajustes, distritos] = await Promise.all([
-  obtenerPagina('inicio'),
-  obtenerAjustes(),
-  obtenerDistritos(),
-]);
+/**
+ * Se renderiza en cada visita, no al compilar.
+ *
+ * Antes era estatica y el HTML quedaba congelado en el momento del deploy: se
+ * guardaba desde /administrador, el contenido cambiaba en Sanity, y la pagina publica
+ * seguia mostrando lo viejo hasta el siguiente compilado. Con el editor en vivo
+ * eso no tiene sentido; lo que se guarda tiene que verse.
+ */
+export const prerender = false;
+
+const { pagina, ajustes, distritos } = await obtenerContenido('inicio');
 
 // Sin ajustes cargados no hay telefono ni WhatsApp, y medio sitio depende de eso.
 if (!ajustes) {
@@ -26,11 +32,11 @@ if (!ajustes) {
     pagina ? (
       <Bloques secciones={pagina.secciones} ajustes={ajustes} distritos={distritos} />
     ) : (
-      <div class="contenedor py-32 text-center">
+      <div class="contenedor py-32">
         <h1 class="titulo-seccion">Todavia no hay contenido</h1>
-        <p class="mt-4 text-slate-600">
-          Entra a <a href="/admin" class="font-semibold text-marca-600 underline">/admin</a> y crea una pagina con la
-          direccion <code class="rounded bg-slate-100 px-1.5 py-0.5">inicio</code>.
+        <p class="cuerpo-lg mt-4 text-tinta-media">
+          Entra a <a href="/admin" class="text-azul underline">/admin</a> y crea una pagina con la direccion{' '}
+          <code class="bg-superficie px-1.5 py-0.5">inicio</code>.
         </p>
       </div>
     )

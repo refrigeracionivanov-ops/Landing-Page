@@ -1,5 +1,6 @@
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
+import { presentationTool } from 'sanity/presentation';
 import { visionTool } from '@sanity/vision';
 import { schemaTypes } from './src/sanity/schemaTypes';
 import { estructura } from './src/sanity/estructura';
@@ -26,6 +27,25 @@ export default defineConfig({
 
   plugins: [
     structureTool({ structure: estructura }),
+
+    /**
+     * "Vista previa": el sitio embebido al lado del formulario. Se edita un
+     * campo y se ve el cambio al instante, sin publicar.
+     *
+     * `initial: '/'` apunta al mismo origen donde vive el studio, asi que
+     * funciona igual en localhost:4321 que en el dominio final.
+     *
+     * Ojo: el sitio se genera estatico (`output: 'static'`). En `astro dev`
+     * cada pedido se renderiza al vuelo y esto anda; en produccion el HTML se
+     * congela al compilar, asi que la vista previa refleja el contenido del
+     * ultimo deploy. Para verla en vivo ahi haria falta que la pagina se
+     * renderice en el servidor con modo borrador.
+     */
+    presentationTool({
+      title: 'Vista previa',
+      previewUrl: { initial: '/' },
+    }),
+
     // Consola de consultas. Util para vos, invisible para quien edita contenido.
     visionTool({ defaultApiVersion: '2024-10-01' }),
   ],

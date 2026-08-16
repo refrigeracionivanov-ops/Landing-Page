@@ -412,8 +412,167 @@ export const ctaBloque = defineType({
   },
 });
 
+/* ------------------------------------------------------------- Texto */
+
+export const textoBloque = defineType({
+  name: 'textoBloque',
+  title: 'Texto libre',
+  type: 'object',
+  fields: [
+    defineField({ name: 'titulo', title: 'Titulo', type: 'string' }),
+    defineField({
+      name: 'texto',
+      title: 'Texto',
+      type: 'text',
+      rows: 8,
+      description: 'Deja una linea en blanco entre parrafos para separarlos.',
+    }),
+    defineField({
+      name: 'fondoGris',
+      title: 'Fondo gris',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Sirve para separarlo de la seccion de arriba cuando las dos son blancas.',
+    }),
+  ],
+  preview: {
+    select: { title: 'titulo' },
+    prepare: ({ title }) => ({ title: title || 'Texto libre', subtitle: 'Texto libre' }),
+  },
+});
+
+/* ------------------------------------------------------------- Pasos */
+
+export const pasosBloque = defineType({
+  name: 'pasosBloque',
+  title: 'Como trabajamos',
+  type: 'object',
+  fields: [
+    defineField({ name: 'titulo', title: 'Titulo', type: 'string', initialValue: 'Como trabajamos' }),
+    defineField({ name: 'intro', title: 'Texto de entrada', type: 'text', rows: 2 }),
+    defineField({
+      name: 'pasos',
+      title: 'Pasos',
+      type: 'array',
+      description: 'Se numeran solos, en el orden en que los pongas. Reordenar no obliga a renumerar nada.',
+      validation: (r) => r.max(4).warning('Con mas de 4 pasos la fila se parte en celular.'),
+      of: [
+        defineArrayMember({
+          type: 'object',
+          fields: [
+            defineField({ name: 'titulo', title: 'Titulo', type: 'string', validation: (r) => r.required() }),
+            defineField({ name: 'texto', title: 'Texto', type: 'text', rows: 2 }),
+          ],
+          preview: { select: { title: 'titulo', subtitle: 'texto' } },
+        }),
+      ],
+    }),
+  ],
+  preview: {
+    select: { title: 'titulo' },
+    prepare: ({ title }) => ({ title: title || 'Como trabajamos', subtitle: 'Como trabajamos' }),
+  },
+});
+
+/* ------------------------------------------------------------ Planes */
+
+export const planesBloque = defineType({
+  name: 'planesBloque',
+  title: 'Planes y precios',
+  type: 'object',
+  fields: [
+    defineField({ name: 'titulo', title: 'Titulo', type: 'string', initialValue: 'Planes de mantenimiento' }),
+    defineField({ name: 'intro', title: 'Texto de entrada', type: 'text', rows: 2 }),
+    defineField({
+      name: 'planes',
+      title: 'Planes',
+      type: 'array',
+      validation: (r) => r.max(3).warning('Mas de 3 planes no entran en la fila y cuesta compararlos.'),
+      of: [
+        defineArrayMember({
+          type: 'object',
+          fields: [
+            defineField({ name: 'nombre', title: 'Nombre', type: 'string', validation: (r) => r.required() }),
+            defineField({ name: 'precio', title: 'Precio', type: 'string', description: 'Ej: "S/ 200".' }),
+            defineField({
+              name: 'periodo',
+              title: 'Periodo',
+              type: 'string',
+              description: 'Ej: "por ano", "por visita". Va chiquito al lado del precio.',
+            }),
+            defineField({ name: 'descripcion', title: 'Descripcion', type: 'text', rows: 2 }),
+            defineField({
+              name: 'incluye',
+              title: 'Que incluye',
+              type: 'array',
+              of: [defineArrayMember({ type: 'string' })],
+              options: { layout: 'tags' },
+              description: 'Una linea por cosa incluida. Escribi y presiona Enter.',
+            }),
+            defineField({ name: 'textoBoton', title: 'Texto del boton', type: 'string', initialValue: 'Quiero este plan' }),
+            defineField({
+              name: 'destacado',
+              title: 'Destacar este plan',
+              type: 'boolean',
+              initialValue: false,
+              description: 'Le pone fondo gris y la etiqueta "Mas elegido". Marca solo uno.',
+            }),
+          ],
+          preview: { select: { title: 'nombre', subtitle: 'precio' } },
+        }),
+      ],
+    }),
+  ],
+  preview: {
+    select: { title: 'titulo' },
+    prepare: ({ title }) => ({ title: title || 'Planes y precios', subtitle: 'Planes y precios' }),
+  },
+});
+
+/* ------------------------------------------------------------- Aviso */
+
+export const avisoBloque = defineType({
+  name: 'avisoBloque',
+  title: 'Aviso destacado',
+  type: 'object',
+  fields: [
+    defineField({
+      name: 'icono',
+      title: 'Icono',
+      type: 'string',
+      options: { list: [...OPCIONES_ICONO] },
+      initialValue: 'rayo',
+    }),
+    defineField({ name: 'titulo', title: 'Titulo', type: 'string', validation: (r) => r.required() }),
+    defineField({ name: 'texto', title: 'Texto', type: 'string' }),
+    defineField({ name: 'textoBoton', title: 'Texto del boton', type: 'string' }),
+    defineField({
+      name: 'accion',
+      title: 'Que hace el boton',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Ir al formulario de agendamiento', value: 'agendar' },
+          { title: 'Abrir WhatsApp', value: 'whatsapp' },
+          { title: 'Llamar por telefono', value: 'llamar' },
+        ],
+      },
+      initialValue: 'agendar',
+      description: 'El numero y el WhatsApp salen de Ajustes del negocio.',
+    }),
+  ],
+  preview: {
+    select: { title: 'titulo' },
+    prepare: ({ title }) => ({ title: title || 'Aviso destacado', subtitle: 'Aviso destacado' }),
+  },
+});
+
 export const bloques = [
   heroBloque,
+  textoBloque,
+  pasosBloque,
+  planesBloque,
+  avisoBloque,
   serviciosBloque,
   beneficiosBloque,
   antesDespuesBloque,

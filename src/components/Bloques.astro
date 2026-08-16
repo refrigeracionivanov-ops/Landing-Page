@@ -1,15 +1,19 @@
 ---
-import Hero from './bloques/Hero.astro';
-import Servicios from './bloques/Servicios.astro';
-import Beneficios from './bloques/Beneficios.astro';
-import AntesDespues from './bloques/AntesDespues.astro';
-import Cobertura from './bloques/Cobertura.astro';
-import Promociones from './bloques/Promociones.astro';
-import Confianza from './bloques/Confianza.astro';
-import Testimonios from './bloques/Testimonios.astro';
-import Faq from './bloques/Faq.astro';
+import Hero from './bloques/Hero.tsx';
+import Texto from './bloques/Texto.tsx';
+import Pasos from './bloques/Pasos.tsx';
+import Planes from './bloques/Planes.tsx';
+import Aviso from './bloques/Aviso.tsx';
+import Servicios from './bloques/Servicios.tsx';
+import Beneficios from './bloques/Beneficios.tsx';
+import AntesDespues from './bloques/AntesDespues.tsx';
+import Cobertura from './bloques/Cobertura.tsx';
+import Promociones from './bloques/Promociones.tsx';
+import Confianza from './bloques/Confianza.tsx';
+import Testimonios from './bloques/Testimonios.tsx';
+import Faq from './bloques/Faq.tsx';
 import Agendar from './bloques/Agendar.astro';
-import Cta from './bloques/Cta.astro';
+import Cta from './bloques/Cta.tsx';
 import type { Bloque, Ajustes } from '../tipos';
 
 interface Props {
@@ -27,6 +31,10 @@ const { secciones = [], ajustes, distritos } = Astro.props;
  */
 const COMPONENTES = {
   heroBloque: Hero,
+  textoBloque: Texto,
+  pasosBloque: Pasos,
+  planesBloque: Planes,
+  avisoBloque: Aviso,
   serviciosBloque: Servicios,
   beneficiosBloque: Beneficios,
   antesDespuesBloque: AntesDespues,

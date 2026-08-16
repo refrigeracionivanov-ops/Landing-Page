@@ -8,53 +8,47 @@ interface Props {
 }
 
 const { bloque, ajustes } = Astro.props;
-const fondo = bloque.imagen?.asset ? urlImagen(bloque.imagen).width(1800).quality(75).url() : null;
+const foto = bloque.imagen?.asset ? urlImagen(bloque.imagen).width(1200).quality(75).url() : null;
 const enlaceWhatsapp = `https://wa.me/${ajustes.whatsapp}?text=${encodeURIComponent(ajustes.mensajeWhatsapp ?? '')}`;
 ---
 
-<section class="relative isolate overflow-hidden bg-marca-900">
-  {
-    fondo && (
-      <img
-        src={fondo}
-        alt={bloque.imagen?.alt ?? ''}
-        class="absolute inset-0 -z-10 size-full object-cover opacity-40"
-        fetchpriority="high"
-      />
-    )
-  }
-  <div class="absolute inset-0 -z-10 bg-gradient-to-br from-marca-900/90 to-marca-700/70"></div>
+{/* Carbon no oscurece el hero ni pone la foto de fondo: el titular vive sobre
+    lienzo blanco y la imagen es un bloque plano al costado. */}
+<section class="border-b border-filete bg-lienzo">
+  <div class="contenedor grid items-center gap-10 py-16 lg:grid-cols-2 lg:gap-16 lg:py-24">
+    <div>
+      <h1 class="display-xl text-tinta text-balance">{bloque.titular}</h1>
 
-  <div class="contenedor py-24 sm:py-32">
-    <div class="max-w-2xl">
-      <h1 class="text-4xl font-bold tracking-tight text-white text-balance sm:text-5xl">
-        {bloque.titular}
-      </h1>
-      {bloque.subtitulo && <p class="mt-5 text-lg text-marca-100 text-pretty">{bloque.subtitulo}</p>}
+      {bloque.subtitulo && <p class="cuerpo-lg mt-6 max-w-xl text-tinta-media text-pretty">{bloque.subtitulo}</p>}
 
-      <div class="mt-9 flex flex-wrap gap-3">
-        <a
-          href="#agendar"
-          class="rounded-lg bg-acento-500 px-6 py-3.5 font-semibold text-white shadow-lg transition hover:bg-acento-600"
-        >
+      <div class="mt-10 flex flex-wrap gap-px">
+        <a href="#agendar" class="boton boton-primario">
           {bloque.textoBotonAgendar ?? 'Agendar visita'}
         </a>
 
         {
           bloque.mostrarBotonWhatsapp !== false && (
-            <a
-              href={enlaceWhatsapp}
-              target="_blank"
-              rel="noopener"
-              class="rounded-lg bg-whatsapp px-6 py-3.5 font-semibold text-white shadow-lg transition hover:bg-whatsapp-oscuro"
-            >
+            <a href={enlaceWhatsapp} target="_blank" rel="noopener" class="boton boton-whatsapp">
               Escribir por WhatsApp
             </a>
           )
         }
       </div>
 
-      {ajustes.horario && <p class="mt-6 text-sm text-marca-100/80">{ajustes.horario}</p>}
+      {ajustes.horario && <p class="cuerpo-sm mt-6 text-tinta-media">{ajustes.horario}</p>}
     </div>
+
+    {
+      foto && (
+        <div class="bg-superficie">
+          <img
+            src={foto}
+            alt={bloque.imagen?.alt ?? ''}
+            class="aspect-4/3 w-full object-cover"
+            fetchpriority="high"
+          />
+        </div>
+      )
+    }
   </div>
 </section>

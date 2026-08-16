@@ -1,32 +1,71 @@
 @import 'tailwindcss';
 
 /* Los tokens de diseno viven aca y NO se exponen en el panel de administracion.
-   Es deliberado: quien edita el contenido no puede romper el diseno. */
+   Es deliberado: quien edita el contenido no puede romper el diseno.
+
+   Sistema: IBM Carbon (ver DESIGN.md en la raiz del repo).
+   Tres reglas que no se negocian:
+     1. Esquinas a 0px. Siempre.
+     2. Un solo acento cromatico: azul IBM. El verde de WhatsApp no cuenta,
+        es la marca de un tercero y solo aparece en botones de WhatsApp.
+     3. Los titulares grandes van en peso 300, no en negrita. */
 @theme {
-  --color-marca-50: oklch(0.97 0.02 230);
-  --color-marca-100: oklch(0.93 0.05 230);
-  --color-marca-500: oklch(0.62 0.16 230);
-  --color-marca-600: oklch(0.54 0.16 230);
-  --color-marca-700: oklch(0.45 0.14 230);
-  --color-marca-900: oklch(0.28 0.09 230);
+  /* Acento unico */
+  --color-azul: #0f62fe;
+  --color-azul-hover: #0050e6;
+  --color-azul-60: #0043ce;
+  --color-azul-80: #002d9c;
 
-  --color-acento-500: oklch(0.72 0.18 55);
-  --color-acento-600: oklch(0.64 0.18 55);
+  /* Texto */
+  --color-tinta: #161616;
+  --color-tinta-media: #525252;
+  /* Carbon documenta este gris tambien para texto de ayuda y pies de foto, pero
+     ahi da 3.36:1 sobre blanco y 3.06:1 sobre la banda gris: no llega al 4.5:1
+     de WCAG AA. Queda reservado a estados deshabilitados, que estan exentos.
+     Para texto terciario visible se usa --color-tinta-media (7.81:1). */
+  --color-tinta-suave: #8c8c8c;
 
-  --color-whatsapp: oklch(0.72 0.17 145);
-  --color-whatsapp-oscuro: oklch(0.62 0.17 145);
+  /* Superficies */
+  --color-lienzo: #ffffff;
+  --color-superficie: #f4f4f4;
+  --color-superficie-2: #e0e0e0;
+  --color-filete: #e0e0e0;
+  --color-filete-fuerte: #161616;
 
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  /* Superficies invertidas (solo pie de pagina) */
+  --color-inverso: #161616;
+  --color-inverso-2: #262626;
+  --color-inverso-tinta: #ffffff;
+  --color-inverso-tinta-media: #c6c6c6;
+
+  /* Semanticos */
+  --color-exito: #24a148;
+  --color-advertencia: #f1c21b;
+  --color-error: #da1e28;
+
+  /* Marca de terceros */
+  --color-whatsapp: #25d366;
+  --color-whatsapp-oscuro: #1da851;
+
+  --font-sans: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
 }
 
 html {
   scroll-behavior: smooth;
   /* Deja aire bajo el header fijo cuando se salta a un ancla. */
-  scroll-padding-top: 5rem;
+  scroll-padding-top: 4.5rem;
 }
 
 body {
-  @apply bg-white text-slate-800 antialiased;
+  background: var(--color-lienzo);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  /* Detalle de precision de Carbon. No sacar: es parte de la voz tipografica. */
+  letter-spacing: 0.16px;
+  -webkit-font-smoothing: antialiased;
   /* Espacio para la barra flotante de contacto en movil. */
   padding-bottom: env(safe-area-inset-bottom);
 }
@@ -37,10 +76,272 @@ body {
   }
 }
 
+/* Carbon: anillo de foco azul de 2px, cuadrado. */
+:focus-visible {
+  outline: 2px solid var(--color-azul);
+  outline-offset: 0;
+}
+
+/* Sobre superficie oscura el azul no contrasta lo suficiente. */
+.inverso :focus-visible {
+  outline-color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Layout ---------- */
+
+/* 1312px = breakpoint Desktop-XL de la grilla Carbon. */
 .contenedor {
-  @apply mx-auto w-full max-w-6xl px-5;
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1312px;
+  padding-inline: 1rem;
+}
+
+/* 768px y no los 672px de Carbon: alinea con el breakpoint `md` de Tailwind,
+   asi las utilidades responsive de los componentes no se desfasan del contenedor. */
+@media (min-width: 768px) {
+  .contenedor {
+    padding-inline: 2rem;
+  }
+}
+
+/* El ritmo de la pagina son dos superficies alternadas: blanco y gris claro.
+   No hay separadores decorativos ni degradados. */
+.seccion {
+  padding-block: 64px;
+}
+
+@media (min-width: 768px) {
+  .seccion {
+    padding-block: 96px;
+  }
+}
+
+.banda {
+  background: var(--color-superficie);
+}
+
+/* ---------- Tipografia ---------- */
+
+/* Los display escalan con clamp pero conservan el peso 300 en todos los tamanos:
+   esa es la firma de la marca, no el tamano. */
+.display-xl {
+  font-size: clamp(2.5rem, 6vw, 4.75rem);
+  font-weight: 300;
+  line-height: 1.17;
+  letter-spacing: -0.5px;
+}
+
+.display-lg {
+  font-size: clamp(2rem, 4.5vw, 3.75rem);
+  font-weight: 300;
+  line-height: 1.17;
+  letter-spacing: -0.4px;
 }
 
 .titulo-seccion {
-  @apply text-3xl font-bold tracking-tight text-marca-900 sm:text-4xl;
+  font-size: clamp(1.75rem, 3.5vw, 2.625rem);
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.titular {
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.titulo-tarjeta {
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.33;
+}
+
+.subtitulo {
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.cuerpo-lg {
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.cuerpo-sm {
+  font-size: 0.875rem;
+  line-height: 1.29;
+  letter-spacing: 0.16px;
+}
+
+.leyenda {
+  font-size: 0.75rem;
+  line-height: 1.33;
+  letter-spacing: 0.32px;
+}
+
+/* Carbon usa "eyebrows" en caja normal, nunca en mayusculas espaciadas. */
+.antetitulo {
+  font-size: 0.875rem;
+  line-height: 1.29;
+  letter-spacing: 0.16px;
+  color: var(--color-tinta-media);
+}
+
+/* ---------- Botones ---------- */
+
+/* Carbon especifica padding 12/16, que da ~40px de alto. Forzamos 48px de minimo
+   porque es el objetivo tactil que el propio Carbon exige en viewport touch. */
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.29;
+  letter-spacing: 0.16px;
+  border-radius: 0;
+  border: 0;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 110ms ease-out;
+}
+
+.boton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.boton-primario {
+  background: var(--color-azul);
+  color: #ffffff;
+}
+.boton-primario:hover:not(:disabled) {
+  background: var(--color-azul-hover);
+}
+.boton-primario:active:not(:disabled) {
+  background: var(--color-azul-80);
+}
+
+.boton-secundario {
+  background: var(--color-tinta);
+  color: #ffffff;
+}
+.boton-secundario:hover:not(:disabled) {
+  background: var(--color-inverso-2);
+}
+
+.boton-terciario {
+  background: transparent;
+  color: var(--color-azul);
+  box-shadow: inset 0 0 0 1px var(--color-azul);
+}
+.boton-terciario:hover:not(:disabled) {
+  background: var(--color-azul);
+  color: #ffffff;
+}
+
+/* Variante para superficies oscuras (hero invertido, pie de pagina). */
+.boton-terciario-inverso {
+  background: transparent;
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px #ffffff;
+}
+.boton-terciario-inverso:hover:not(:disabled) {
+  background: #ffffff;
+  color: var(--color-tinta);
+}
+
+/* Texto en carbon y no en blanco: blanco sobre el verde de WhatsApp da 1.98:1,
+   muy por debajo de AA. En carbon da 9.04:1 y el verde de marca se conserva. */
+.boton-whatsapp {
+  background: var(--color-whatsapp);
+  color: var(--color-tinta);
+}
+.boton-whatsapp:hover:not(:disabled) {
+  background: var(--color-whatsapp-oscuro);
+}
+
+/* ---------- Formularios ---------- */
+
+/* Chrome de input de Carbon: relleno gris, sin borde salvo la regla inferior.
+   El foco reemplaza esa regla por un subrayado azul de 2px. */
+.campo {
+  width: 100%;
+  min-height: 48px;
+  background: var(--color-superficie);
+  color: var(--color-tinta);
+  border: 0;
+  border-bottom: 1px solid var(--color-filete-fuerte);
+  border-radius: 0;
+  padding: 11px 16px;
+  /* 16px y no 14px: por debajo de 16px iOS hace zoom al enfocar el campo. */
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0.16px;
+  outline: none;
+  appearance: none;
+}
+
+.campo:focus-visible {
+  outline: 2px solid var(--color-azul);
+  outline-offset: -2px;
+  border-bottom-color: var(--color-azul);
+}
+
+.campo[aria-invalid='true'] {
+  border-bottom: 2px solid var(--color-error);
+}
+
+.campo::placeholder {
+  color: var(--color-tinta-media);
+}
+
+.etiqueta-campo {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.33;
+  letter-spacing: 0.32px;
+  color: var(--color-tinta-media);
+}
+
+/* ---------- Tarjetas ---------- */
+
+/* La jerarquia la cargan filetes de 1px y el cambio de superficie.
+   Carbon no usa sombras en marketing. */
+.tarjeta {
+  background: var(--color-lienzo);
+  border: 1px solid var(--color-filete);
+  border-radius: 0;
+  padding: 24px;
+}
+
+.tarjeta-banda {
+  background: var(--color-lienzo);
+  border: 1px solid var(--color-filete);
+  border-radius: 0;
+  padding: 24px;
+}
+
+/* Sobre la banda gris, la tarjeta blanca ya se distingue; el filete sobra menos. */
+.banda .tarjeta {
+  border-color: var(--color-superficie-2);
 }

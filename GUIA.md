@@ -1,15 +1,22 @@
 # Guía para administrar la página
 
-Hay **dos direcciones** que vas a usar. No hace falta instalar nada; funcionan desde
+Hay **tres direcciones** que vas a usar. No hace falta instalar nada; funcionan desde
 la computadora o el celular.
 
 | Dirección | Para qué |
 |---|---|
 | **tudominio.com/solicitudes** | Ver quién pidió una visita |
-| **tudominio.com/admin** | Cambiar textos, fotos, precios y teléfono |
+| **tudominio.com/administrador** | Cambiar textos y fotos de la página |
+| **tudominio.com/admin** | Cambiar el teléfono, el horario y los cupos |
 
-La primera te va a pedir iniciar sesión con tu correo. Es la que tiene los datos de
-los clientes, así que está protegida y solo entran los correos autorizados.
+Las tres piden entrar: o con tu correo, o escribiendo una clave, según cómo esté
+configurado. Tienen los datos de los clientes y los textos del sitio, así que no
+quedan abiertas a cualquiera.
+
+> **Por qué dos lugares para editar.** `/administrador` es el editor nuevo: mostrás
+> la página tal como se ve y cambiás las cosas encima. `/admin` es el panel viejo,
+> que quedó para lo que el editor nuevo todavía no cubre: los datos del negocio y el
+> historial de versiones.
 
 ---
 
@@ -56,19 +63,26 @@ Si después la pasás a "Cancelada", el evento se borra solo. Si la pasás a
 
 ### 2. Cambiar textos y fotos de la página
 
-Entrá a **tudominio.com/admin**, y en el menú de la izquierda: **Páginas → Inicio**.
+Entrá a **tudominio.com/administrador**. Vas a ver tu página en el medio, tal como la
+ve un cliente, y dos columnas a los costados.
 
-Vas a ver la lista de secciones en el orden en que aparecen en el sitio.
+- **Para editar** una sección, hacé clic encima. A la derecha aparecen sus campos
+- **Para agregar** una sección, arrastrala de la lista **Secciones** (izquierda) al
+  lugar de la página donde la querés
+- **Para mover** una sección, arrastrala en la lista **Orden de la página**
+- **Para borrar o duplicar** una sección, elegila y usá los botones que aparecen
+  sobre ella
 
-- **Para editar** una sección, hacé clic en ella
-- **Para mover** una sección, arrastrala de las tres rayitas de la izquierda
-- **Para borrar** una sección, clic en los tres puntos → Eliminar
-- **Para agregar** una sección, botón **Add item** al final de la lista
+Cuando terminás, apretá **Guardar**, arriba a la derecha. El sitio se actualiza en el
+momento: recargá la página pública y ya está el cambio.
 
-Cuando terminás, apretá **Publish** abajo a la derecha. Si el botón está gris, es que
-ya está todo publicado.
+> **Deshacer solo funciona antes de guardar.** Las flechas de arriba deshacen lo que
+> hiciste en esta sesión. Una vez que guardaste, para volver atrás hay que usar el
+> historial de versiones (más abajo).
 
-> Los cambios pueden tardar unos minutos en verse en el sitio.
+**Las fotos** se suben desde el mismo campo donde se ven. Cada una te pide una
+descripción corta: escribila, es lo que lee Google y lo que escucha alguien que usa un
+lector de pantalla. Con tres o cuatro palabras alcanza.
 
 ### 3. Cambiar el teléfono, el horario o los cupos
 
@@ -95,21 +109,17 @@ siempre.
 **Si borrás todas las promos, la sección desaparece entera.** No queda un espacio
 vacío ni un título suelto.
 
-**El texto alternativo de las fotos.** Cada vez que subís una imagen te pide una
-descripción corta. Escribila: es lo que lee Google y lo que escucha alguien que usa
-un lector de pantalla. Con tres o cuatro palabras alcanza.
-
 **Los distritos del formulario salen de la sección "Zonas donde atendemos".** Si
 agregás un distrito ahí, aparece solo en la lista desplegable del formulario. No hay
 que cargarlo dos veces.
 
-**Si algo se rompió, no borres nada.** En `/admin`, el sistema guarda todas las
-versiones anteriores del contenido. En el ícono de reloj arriba a la derecha podés
-ver el historial y volver a como estaba antes.
+**Si algo se rompió, no borres nada.** El sistema guarda todas las versiones
+anteriores del contenido. Entrá a `/admin`, abrí **Páginas → Inicio**, y en el ícono
+de reloj arriba a la derecha podés ver el historial y volver a como estaba antes.
 
-**Las solicitudes de los clientes no aparecen en `/admin`.** Están aparte, en
-`/solicitudes`, justamente porque tienen datos personales y ese lugar está protegido
-con inicio de sesión.
+**Las solicitudes de los clientes no aparecen en ninguno de los dos paneles.** Están
+aparte, en `/solicitudes`, justamente porque tienen datos personales y ese lugar está
+protegido con inicio de sesión.
 
 ---
 

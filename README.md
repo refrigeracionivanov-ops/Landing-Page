@@ -1,12 +1,14 @@
 # Landing de ventilación + agendamiento de visitas
 
-Landing por bloques editable desde `/admin`, con formulario de solicitud de visita
-técnica. Pensada para que la mantenga alguien sin formación técnica.
+Landing por bloques editable desde `/administrador`, con formulario de solicitud de
+visita técnica. Pensada para que la mantenga alguien sin formación técnica.
 
-- **Astro** — sitio estático, salvo `/api/reservar` y `/solicitudes`
-- **Sanity** — contenido de la landing y panel de edición (`/admin`)
+- **Astro** — la portada, el editor, `/solicitudes` y los endpoints se renderizan en
+  el servidor; el resto es estático
+- **Sanity** — almacena el contenido de la landing
+- **Puck** — el editor visual de `/administrador`
 - **Cloudflare D1** — solicitudes de visita (datos personales de clientes)
-- **Cloudflare Access** — protege `/solicitudes`
+- **Cloudflare Access** — protege `/solicitudes` y `/administrador`
 - **Google Calendar** — espejo de las visitas agendadas (opcional)
 - **Cloudflare Pages** — hosting (su plan gratuito permite uso comercial)
 - **Tailwind v4** — estilos, con los tokens cerrados en `src/styles/global.css`
@@ -63,11 +65,12 @@ npm run dev
 ```
 
 - Sitio → http://localhost:4321
-- Contenido → http://localhost:4321/admin
+- Editor de la página → http://localhost:4321/administrador
+- Ajustes del negocio e historial de versiones → http://localhost:4321/admin
 - Solicitudes → http://localhost:4321/solicitudes
 
-> En desarrollo `/solicitudes` **no está protegida** — Cloudflare Access solo existe
-> en producción. La página avisa por consola cada vez que se abre.
+> En desarrollo `/administrador` y `/solicitudes` **no están protegidas** — Cloudflare
+> Access solo existe en producción. Se avisa por consola cada vez que se abren.
 
 ## Comandos
 
@@ -85,11 +88,17 @@ Corré `npm run tipos` cada vez que cambies `wrangler.jsonc`.
 
 ## Cómo agregar un bloque nuevo
 
-1. Definí el esquema en `src/sanity/schemaTypes/bloques.ts` y sumalo al array `bloques`
-2. Creá el componente en `src/components/bloques/`
-3. Agregá la línea correspondiente en el mapa de `src/components/Bloques.astro`
+Un bloque vive en cuatro lugares, y los cuatro tienen que coincidir:
 
-Aparece solo en el menú de "Agregar sección" del panel.
+1. El esquema en `src/sanity/schemaTypes/bloques.ts`, sumado al array `bloques`
+2. El componente en `src/components/bloques/`, como `.tsx` — lo usan tanto el sitio
+   publicado como la vista previa del editor
+3. Una línea en el mapa de `src/components/Bloques.astro` (lo que ve el visitante)
+4. Una entrada en `src/editor/configuracion.tsx` con sus campos, y el nombre en
+   castellano en la tabla `TIPOS` de `src/editor/adaptador.ts`
+
+Esa tabla `TIPOS` es además la lista blanca que usa `/api/guardar`: un bloque que no
+figure ahí se rechaza al guardar.
 
 ## Decisiones de diseño
 
@@ -102,10 +111,19 @@ puede comprometer las 14:00 sin saber dónde termina el trabajo anterior. El cli
 elige día y franja, el negocio confirma la hora por WhatsApp. El cupo por franja se
 configura en *Ajustes del negocio*, en Sanity.
 
-**La fecha mínima se calcula en el navegador, no al construir el sitio.** El sitio es
-estático: si se calculara en el build, quedaría congelada en la fecha del deploy. El
-servidor la vuelve a validar en `src/pages/api/reservar.ts`, porque el navegador se
-puede saltear.
+**La portada se renderiza en cada visita, no al compilar.** Antes era estática y el
+HTML quedaba congelado en el deploy: se guardaba desde el editor y el sitio seguía
+mostrando lo viejo hasta el siguiente build. Con un editor en vivo eso no se sostiene
+— lo que se guarda tiene que verse.
+
+**El token de escritura de Sanity no sale del servidor.** El editor manda el contenido
+a `/api/guardar` y `/api/imagen`, que validan quién pide y recién entonces escriben.
+Si el navegador tuviera el token, cualquiera que abriera el código fuente podría
+reescribir el sitio.
+
+**La fecha mínima se calcula en el navegador, no al construir el sitio.** Si se
+calculara en el build quedaría congelada en la fecha del deploy. El servidor la vuelve
+a validar en `src/pages/api/reservar.ts`, porque el navegador se puede saltear.
 
 **Las promociones vencen solas.** El filtro por `vigenciaHasta` está en la consulta
 GROQ.
@@ -118,29 +136,53 @@ cliente ya tiene las fotos en el teléfono donde está WhatsApp.
 interna del deployment (`*.pages.dev`) puede quedar accesible sin pasar por Access.
 `src/lib/acceso.ts` valida la firma contra las claves públicas del equipo.
 
-## Despliegue en Cloudflare Pages
+## Despliegue
 
-Conectá el repositorio con:
+El sitio corre como un Worker de Cloudflare, con los archivos estáticos servidos
+desde el mismo deployment. Se publica desde la máquina, no desde un repositorio
+conectado:
 
-- Build: `npm run build`
-- Directorio de salida: `dist`
+```bash
+npm run desplegar
+```
 
-Cargá las variables de `.env` en el panel de Cloudflare, agregá el dominio de
-producción a los **CORS origins** de Sanity, y corré `npm run db:migrar:prod`.
+Eso compila y sube. La configuración del Worker la genera el adapter en
+`dist/server/wrangler.json` a partir de `wrangler.jsonc`, así que los bindings (la
+base D1) viajan solos.
 
-### Proteger `/solicitudes`
+Las variables sensibles **no** salen del `.env`: se cargan una vez como secretos del
+Worker y quedan ahí entre despliegues.
 
-En **Zero Trust → Access → Applications**, creá una aplicación self-hosted:
+```bash
+npx wrangler secret list
+npx wrangler secret put NOMBRE_DE_LA_VARIABLE
+```
 
-- Dominio: tu dominio, path `solicitudes`
-- Política: los correos que deban entrar
+Las `PUBLIC_*` son la excepción: se hornean en el build, así que tienen que estar en
+el `.env` de la máquina que compila.
+
+La primera vez, además: `npm run db:migrar:prod`.
+
+### Proteger `/solicitudes` y `/administrador`
+
+**Hoy están detrás de `CLAVE_EDITOR`**, la clave compartida que se canjea por una
+cookie de 12 horas en `/entrar`. Es lo que hay mientras el sitio viva en un
+`*.workers.dev`: Cloudflare Access solo funciona sobre un dominio propio. Es más
+débil a propósito — una sola clave para todos, sin registro de quién entró y sin
+poder revocar a una persona sola.
+
+**Cuando haya dominio propio**, en **Zero Trust → Access → Applications**, creá una
+aplicación self-hosted por cada ruta (`solicitudes` y `administrador`), con la
+política de los correos que deban entrar. En cuanto existan las dos variables de
+Access, la rama de la clave deja de usarse sola.
 
 En la pestaña *Overview* de la aplicación está el **Application Audience (AUD) Tag**.
 Ese valor va en `CF_ACCESS_AUD`, y tu dominio de equipo
 (`algo.cloudflareaccess.com`) en `CF_ACCESS_TEAM_DOMAIN`.
 
-> Sin esas dos variables la página devuelve 403 en producción. Es a propósito: es
-> preferible que no cargue a que muestre datos de clientes sin verificar quién entra.
+> Sin ninguna de las dos protecciones — ni Access ni clave — las páginas devuelven
+> 403 en producción. Es a propósito: es preferible que no carguen a que muestren
+> datos de clientes sin verificar quién entra.
 
 ## Espejo en Google Calendar
 
@@ -170,6 +212,22 @@ panel por un problema de red.
 
 ## Pendientes
 
-- Rebuild automático al publicar contenido (webhook de Sanity → deploy hook de
-  Cloudflare). Sin esto, un cambio en el panel no se ve hasta el próximo build.
-- Mercado Pago, si en algún momento se cobra seña de diagnóstico.
+**Los dos paneles conviven.** `/administrador` (Puck) edita las secciones de la
+página; `/admin` (Sanity Studio) quedó para lo que el editor nuevo todavía no cubre:
+
+- **Ajustes del negocio** — teléfono, WhatsApp, horario, franjas, cupos y días de
+  anticipación. `/api/guardar` solo escribe `secciones`, así que estos campos no se
+  pueden tocar desde el editor nuevo.
+- **Historial de versiones** — Sanity guarda cada revisión y el Studio es lo único
+  que sabe mostrarlas.
+
+Hasta que eso esté cubierto, el Studio no se puede sacar. Cuando lo esté: borrar la
+integración `sanity()` de `astro.config.mjs`, sus dependencias, y el parche de Windows
+que arrastra.
+
+**Los componentes `.astro` de los bloques quedaron sin uso.** `Bloques.astro` ya
+renderiza los `.tsx` — los mismos que dibujan la vista previa del editor. Los `.astro`
+viejos siguen en `src/components/bloques/` y se pueden borrar. La excepción es
+`Agendar.astro`, que todavía es el que se usa: falta portarlo.
+
+**Mercado Pago**, si en algún momento se cobra seña de diagnóstico.

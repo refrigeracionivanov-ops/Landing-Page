@@ -9,22 +9,20 @@ interface Props {
 const { bloque, ajustes } = Astro.props;
 ---
 
-<section class="contenedor py-20">
-  <div class="rounded-3xl bg-gradient-to-br from-marca-700 to-marca-900 px-6 py-14 text-center sm:px-12">
-    <h2 class="text-3xl font-bold tracking-tight text-white text-balance sm:text-4xl">{bloque.titulo}</h2>
-    {bloque.texto && <p class="mx-auto mt-4 max-w-xl text-marca-100 text-pretty">{bloque.texto}</p>}
+{/* `cta-banner`: el unico lugar donde el azul IBM funciona como fondo y no como
+    acento. Sin degradado, sin esquinas, sin sombra. */}
+<section class="inverso bg-azul">
+  <div class="contenedor grid gap-8 py-12 lg:grid-cols-2 lg:items-end lg:py-16">
+    <div>
+      <h2 class="titular text-white text-balance">{bloque.titulo}</h2>
+      {bloque.texto && <p class="cuerpo-lg mt-4 max-w-xl text-white/85 text-pretty">{bloque.texto}</p>}
+    </div>
 
-    <div class="mt-8 flex flex-wrap justify-center gap-3">
-      <a
-        href="#agendar"
-        class="rounded-lg bg-acento-500 px-6 py-3.5 font-semibold text-white shadow-lg transition hover:bg-acento-600"
-      >
+    <div class="flex flex-wrap gap-px lg:justify-end">
+      <a href="#agendar" class="boton boton-secundario">
         {bloque.textoBoton ?? 'Agendar visita'}
       </a>
-      <a
-        href={`tel:${ajustes.telefono.replace(/\s/g, '')}`}
-        class="rounded-lg bg-white/10 px-6 py-3.5 font-semibold text-white ring-1 ring-white/25 transition hover:bg-white/20"
-      >
+      <a href={`tel:${ajustes.telefono.replace(/\s/g, '')}`} class="boton boton-terciario-inverso">
         Llamar {ajustes.telefono}
       </a>
     </div>

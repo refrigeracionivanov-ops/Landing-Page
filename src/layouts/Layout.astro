@@ -29,6 +29,14 @@ const canonica = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
     {descripcion && <meta property="og:description" content={descripcion} />}
 
     <link rel="preconnect" href="https://cdn.sanity.io" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* Una sola familia carga toda la jerarquia. 300 es el peso de los titulares
+        grandes, 400 el del cuerpo, 600 el unico enfasis permitido. */}
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
 
     {/* Datos estructurados: le dicen a Google que esto es un negocio local con telefono y horario. */}
     <script

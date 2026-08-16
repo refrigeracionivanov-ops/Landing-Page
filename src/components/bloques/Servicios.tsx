@@ -1,0 +1,36 @@
+import Icono from '../Icono';
+import type { ServiciosBloque } from '../../tipos';
+
+interface Props {
+  bloque: ServiciosBloque;
+}
+
+export default function Servicios({ bloque }: Props) {
+  return (
+    <section id="servicios" className="seccion">
+      <div className="contenedor">
+        <div className="max-w-2xl">
+          {bloque.titulo && <h2 className="titulo-seccion text-tinta">{bloque.titulo}</h2>}
+          {bloque.intro && <p className="cuerpo-lg mt-4 text-tinta-media text-pretty">{bloque.intro}</p>}
+        </div>
+
+        {/* El fondo del grid es el color de filete y las tarjetas van separadas 1px:
+            las lineas resultantes son la grilla de Carbon, sin bordes dobles. */}
+        <div className="mt-12 grid gap-px border border-filete bg-filete sm:grid-cols-2 lg:grid-cols-3">
+          {bloque.servicios?.map((servicio) => (
+            <article key={servicio._key} className="flex flex-col bg-lienzo p-6">
+              <Icono nombre={servicio.icono} clase="size-8 text-azul" />
+              <h3 className="titulo-tarjeta mt-6 text-tinta">{servicio.nombre}</h3>
+              {servicio.descripcion && <p className="cuerpo-sm mt-3 grow text-tinta-media">{servicio.descripcion}</p>}
+              {servicio.precioDesde && (
+                <p className="cuerpo-sm mt-6 border-t border-filete pt-4 text-tinta">
+                  Desde <span className="font-semibold">{servicio.precioDesde}</span>
+                </p>
+              )}
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -24,3 +24,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# configuracion local de herramientas de edicion
+.claude/
+CLAUDE.md

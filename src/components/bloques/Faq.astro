@@ -8,32 +8,34 @@ interface Props {
 const { bloque } = Astro.props;
 ---
 
-<section class="contenedor py-20">
-  <div class="mx-auto max-w-3xl">
-    {bloque.titulo && <h2 class="titulo-seccion text-center">{bloque.titulo}</h2>}
+<section id="preguntas" class="seccion">
+  <div class="contenedor">
+    <div class="grid gap-10 lg:grid-cols-[1fr_2fr] lg:gap-16">
+      {bloque.titulo && <h2 class="titulo-seccion text-tinta">{bloque.titulo}</h2>}
 
-    <div class="mt-10 divide-y divide-slate-200 border-y border-slate-200">
-      {
-        bloque.preguntas?.map((item) => (
-          <details class="group py-5">
-            <summary class="flex cursor-pointer items-center justify-between gap-4 font-semibold text-marca-900 marker:content-['']">
-              {item.pregunta}
-              <svg
-                class="size-5 shrink-0 text-marca-500 transition group-open:rotate-45"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                aria-hidden="true"
-              >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-            </summary>
-            <p class="mt-3 text-sm text-slate-600 text-pretty">{item.respuesta}</p>
-          </details>
-        ))
-      }
+      <div class="border-t border-filete">
+        {
+          bloque.preguntas?.map((item) => (
+            <details class="group border-b border-filete">
+              <summary class="flex min-h-12 cursor-pointer items-center justify-between gap-4 py-4 text-tinta marker:content-['']">
+                <span class="subtitulo">{item.pregunta}</span>
+                <svg
+                  class="size-5 shrink-0 text-azul transition group-open:rotate-45"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </summary>
+              <p class="max-w-2xl pb-6 text-tinta-media text-pretty">{item.respuesta}</p>
+            </details>
+          ))
+        }
+      </div>
     </div>
   </div>
 </section>

@@ -97,8 +97,51 @@ export interface CtaBloque extends BloqueBase {
   textoBoton?: string;
 }
 
+export interface TextoBloque extends BloqueBase {
+  _type: 'textoBloque';
+  titulo?: string;
+  texto?: string;
+  fondoGris?: boolean;
+}
+
+export interface PasosBloque extends BloqueBase {
+  _type: 'pasosBloque';
+  titulo?: string;
+  intro?: string;
+  pasos?: { _key: string; titulo: string; texto?: string }[];
+}
+
+export interface PlanesBloque extends BloqueBase {
+  _type: 'planesBloque';
+  titulo?: string;
+  intro?: string;
+  planes?: {
+    _key: string;
+    nombre: string;
+    precio?: string;
+    periodo?: string;
+    descripcion?: string;
+    incluye?: string[];
+    textoBoton?: string;
+    destacado?: boolean;
+  }[];
+}
+
+export interface AvisoBloque extends BloqueBase {
+  _type: 'avisoBloque';
+  icono?: ValorIcono;
+  titulo: string;
+  texto?: string;
+  textoBoton?: string;
+  accion?: 'agendar' | 'whatsapp' | 'llamar';
+}
+
 export type Bloque =
   | HeroBloque
+  | TextoBloque
+  | PasosBloque
+  | PlanesBloque
+  | AvisoBloque
   | ServiciosBloque
   | BeneficiosBloque
   | AntesDespuesBloque

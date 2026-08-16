@@ -9,26 +9,32 @@ interface Props {
 const { bloque } = Astro.props;
 ---
 
-<section id="servicios" class="contenedor py-20">
-  {bloque.titulo && <h2 class="titulo-seccion text-center">{bloque.titulo}</h2>}
-  {bloque.intro && <p class="mx-auto mt-4 max-w-2xl text-center text-slate-600 text-pretty">{bloque.intro}</p>}
+<section id="servicios" class="seccion">
+  <div class="contenedor">
+    <div class="max-w-2xl">
+      {bloque.titulo && <h2 class="titulo-seccion text-tinta">{bloque.titulo}</h2>}
+      {bloque.intro && <p class="cuerpo-lg mt-4 text-tinta-media text-pretty">{bloque.intro}</p>}
+    </div>
 
-  <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-    {
-      bloque.servicios?.map((servicio) => (
-        <article class="rounded-2xl border border-slate-200 p-6 transition hover:border-marca-500 hover:shadow-md">
-          <div class="flex size-12 items-center justify-center rounded-xl bg-marca-50 text-marca-600">
-            <Icono nombre={servicio.icono} />
-          </div>
-          <h3 class="mt-5 text-lg font-semibold text-marca-900">{servicio.nombre}</h3>
-          {servicio.descripcion && <p class="mt-2 text-sm text-slate-600">{servicio.descripcion}</p>}
-          {
-            servicio.precioDesde && (
-              <p class="mt-4 text-sm font-semibold text-acento-600">Desde {servicio.precioDesde}</p>
-            )
-          }
-        </article>
-      ))
-    }
+    {/* El fondo del grid es el color de filete y las tarjetas van separadas 1px:
+        las lineas resultantes son la grilla de Carbon, sin bordes dobles. */}
+    <div class="mt-12 grid gap-px border border-filete bg-filete sm:grid-cols-2 lg:grid-cols-3">
+      {
+        bloque.servicios?.map((servicio) => (
+          <article class="flex flex-col bg-lienzo p-6">
+            <Icono nombre={servicio.icono} class="size-8 text-azul" />
+            <h3 class="titulo-tarjeta mt-6 text-tinta">{servicio.nombre}</h3>
+            {servicio.descripcion && <p class="cuerpo-sm mt-3 grow text-tinta-media">{servicio.descripcion}</p>}
+            {
+              servicio.precioDesde && (
+                <p class="cuerpo-sm mt-6 border-t border-filete pt-4 text-tinta">
+                  Desde <span class="font-semibold">{servicio.precioDesde}</span>
+                </p>
+              )
+            }
+          </article>
+        ))
+      }
+    </div>
   </div>
 </section>

@@ -10,6 +10,12 @@ export const prerender = false;
 
 const acceso = await verificarAcceso(Astro.request);
 
+// Mientras la puerta sea por clave, se pide; con Cloudflare Access delante esta
+// rama no ocurre nunca porque el borde ya filtro.
+if (!acceso.autorizado && acceso.pideClave) {
+  return Astro.redirect('/entrar?destino=/solicitudes');
+}
+
 if (!acceso.autorizado) {
   return new Response(
     `Acceso denegado. ${acceso.motivo ?? ''}`,
@@ -52,12 +58,13 @@ const filtro = Astro.url.searchParams.get('estado') ?? '';
 const [solicitudes, totales] = await Promise.all([listarSolicitudes(db, filtro), contarPorEstado(db)]);
 const total = Object.values(totales).reduce((a, b) => a + b, 0);
 
+// Etiquetas de estado con la paleta de tags de Carbon (tono 20 de fondo, 70 de texto).
 const COLORES: Record<string, string> = {
-  nueva: 'bg-acento-500/15 text-acento-600',
-  contactada: 'bg-marca-100 text-marca-700',
-  agendada: 'bg-whatsapp/15 text-whatsapp-oscuro',
-  completada: 'bg-slate-100 text-slate-600',
-  cancelada: 'bg-red-50 text-red-600',
+  nueva: 'bg-[#d0e2ff] text-[#0043ce]',
+  contactada: 'bg-[#e8daff] text-[#6929c4]',
+  agendada: 'bg-[#a7f0ba] text-[#0e6027]',
+  completada: 'bg-superficie-2 text-tinta-media',
+  cancelada: 'bg-[#ffd7d9] text-[#a2191f]',
 };
 
 const soloDigitos = (telefono: string) => telefono.replace(/\D/g, '');
@@ -73,31 +80,38 @@ const formatearFecha = (iso: string) =>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>Solicitudes de visita</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
   </head>
 
-  <body class="bg-slate-50">
-    <header class="border-b border-slate-200 bg-white">
-      <div class="contenedor flex h-16 items-center justify-between">
-        <h1 class="text-lg font-bold text-marca-900">Solicitudes de visita</h1>
-        <span class="text-xs text-slate-500">{acceso.email}</span>
+  <body class="bg-superficie">
+    <header class="border-b border-filete bg-lienzo">
+      <div class="contenedor flex h-12 items-center justify-between">
+        <h1 class="cuerpo-sm font-semibold text-tinta">Solicitudes de visita</h1>
+        <span class="leyenda text-tinta-media">{acceso.email}</span>
       </div>
     </header>
 
     <main class="contenedor py-8">
       {
         Astro.url.searchParams.get('aviso') === 'calendario' && (
-          <p class="mb-6 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800" role="alert">
+          <p class="cuerpo-sm mb-6 border-l-[3px] border-advertencia bg-lienzo px-4 py-3 text-tinta" role="alert">
             El cambio se guardo, pero no se pudo actualizar Google Calendar. Revisa el evento a mano.
           </p>
         )
       }
 
-      <nav class="flex flex-wrap gap-2">
+      {/* Pestanas de Carbon: subrayado de 2px, no pastillas. */}
+      <nav class="flex flex-wrap border-b border-filete">
         <a
           href="/solicitudes"
           class:list={[
-            'rounded-full px-4 py-1.5 text-sm font-medium',
-            filtro === '' ? 'bg-marca-600 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200',
+            'cuerpo-sm flex min-h-12 items-center border-b-2 px-4',
+            filtro === '' ? 'border-azul font-semibold text-tinta' : 'border-transparent text-tinta-media',
           ]}
         >
           Todas ({total})
@@ -107,8 +121,8 @@ const formatearFecha = (iso: string) =>
             <a
               href={`/solicitudes?estado=${estado}`}
               class:list={[
-                'rounded-full px-4 py-1.5 text-sm font-medium capitalize',
-                filtro === estado ? 'bg-marca-600 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200',
+                'cuerpo-sm flex min-h-12 items-center border-b-2 px-4 capitalize',
+                filtro === estado ? 'border-azul font-semibold text-tinta' : 'border-transparent text-tinta-media',
               ]}
             >
               {estado} ({totales[estado] ?? 0})
@@ -119,78 +133,69 @@ const formatearFecha = (iso: string) =>
 
       {
         solicitudes.length === 0 ? (
-          <p class="mt-12 text-center text-slate-500">No hay solicitudes en esta vista.</p>
+          <p class="mt-12 text-tinta-media">No hay solicitudes en esta vista.</p>
         ) : (
-          <div class="mt-6 space-y-4">
+          <div class="mt-6 space-y-px">
             {solicitudes.map((solicitud) => (
-              <article class="rounded-2xl border border-slate-200 bg-white p-5">
+              <article class="border border-filete bg-lienzo p-6">
                 <div class="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <div class="flex flex-wrap items-center gap-2">
-                      <h2 class="font-semibold text-marca-900">{solicitud.nombre}</h2>
+                    <div class="flex flex-wrap items-center gap-3">
+                      <h2 class="subtitulo text-tinta">{solicitud.nombre}</h2>
                       <span
-                        class:list={[
-                          'rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize',
-                          COLORES[solicitud.estado],
-                        ]}
+                        class:list={['leyenda px-2 py-1 font-semibold capitalize', COLORES[solicitud.estado]]}
                       >
                         {solicitud.estado}
                       </span>
                     </div>
-                    <p class="mt-1 text-sm text-slate-600">
+                    <p class="cuerpo-sm mt-2 text-tinta-media">
                       {solicitud.distrito} — {solicitud.direccion}
                     </p>
                   </div>
 
                   <div class="text-right">
-                    <p class="text-sm font-semibold text-marca-700">{formatearFecha(solicitud.fecha_preferida)}</p>
-                    <p class="text-xs text-slate-500">{solicitud.franja}</p>
+                    <p class="cuerpo-sm font-semibold text-tinta">{formatearFecha(solicitud.fecha_preferida)}</p>
+                    <p class="leyenda text-tinta-media">{solicitud.franja}</p>
                   </div>
                 </div>
 
-                <dl class="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+                <dl class="cuerpo-sm mt-5 grid gap-x-6 gap-y-2 sm:grid-cols-2">
                   <div class="flex gap-2">
-                    <dt class="text-slate-500">Servicio:</dt>
-                    <dd class="font-medium text-slate-800">{solicitud.tipo_servicio}</dd>
+                    <dt class="text-tinta-media">Servicio:</dt>
+                    <dd class="font-semibold text-tinta">{solicitud.tipo_servicio}</dd>
                   </div>
                   <div class="flex gap-2">
-                    <dt class="text-slate-500">Equipo:</dt>
-                    <dd class="font-medium text-slate-800">{solicitud.tipo_equipo ?? '—'}</dd>
+                    <dt class="text-tinta-media">Equipo:</dt>
+                    <dd class="font-semibold text-tinta">{solicitud.tipo_equipo ?? '—'}</dd>
                   </div>
                   {solicitud.descripcion && (
                     <div class="flex gap-2 sm:col-span-2">
-                      <dt class="shrink-0 text-slate-500">Problema:</dt>
-                      <dd class="text-slate-800">{solicitud.descripcion}</dd>
+                      <dt class="shrink-0 text-tinta-media">Problema:</dt>
+                      <dd class="text-tinta">{solicitud.descripcion}</dd>
                     </div>
                   )}
                 </dl>
 
-                <div class="mt-4 flex flex-wrap gap-2">
+                <div class="mt-5 flex flex-wrap gap-px">
                   <a
                     href={`https://wa.me/${soloDigitos(solicitud.telefono)}`}
                     target="_blank"
                     rel="noopener"
-                    class="rounded-lg bg-whatsapp px-4 py-2 text-sm font-semibold text-white"
+                    class="boton boton-whatsapp"
                   >
                     WhatsApp
                   </a>
-                  <a
-                    href={`tel:${soloDigitos(solicitud.telefono)}`}
-                    class="rounded-lg bg-marca-50 px-4 py-2 text-sm font-semibold text-marca-700"
-                  >
+                  <a href={`tel:${soloDigitos(solicitud.telefono)}`} class="boton boton-terciario">
                     {solicitud.telefono}
                   </a>
                 </div>
 
-                <form method="POST" class="mt-4 flex flex-wrap items-end gap-3 border-t border-slate-100 pt-4">
+                <form method="POST" class="mt-5 flex flex-wrap items-end gap-4 border-t border-filete pt-5">
                   <input type="hidden" name="id" value={solicitud.id} />
 
                   <label class="block">
-                    <span class="mb-1 block text-xs font-medium text-slate-500">Estado</span>
-                    <select
-                      name="estado"
-                      class="rounded-lg border border-slate-300 px-3 py-2 text-sm capitalize"
-                    >
+                    <span class="etiqueta-campo">Estado</span>
+                    <select name="estado" class="campo capitalize">
                       {ESTADOS.map((estado) => (
                         <option value={estado} selected={estado === solicitud.estado}>
                           {estado}
@@ -200,19 +205,11 @@ const formatearFecha = (iso: string) =>
                   </label>
 
                   <label class="block grow">
-                    <span class="mb-1 block text-xs font-medium text-slate-500">Notas internas</span>
-                    <input
-                      type="text"
-                      name="notas"
-                      value={solicitud.notas ?? ''}
-                      class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                    />
+                    <span class="etiqueta-campo">Notas internas</span>
+                    <input type="text" name="notas" value={solicitud.notas ?? ''} class="campo" />
                   </label>
 
-                  <button
-                    type="submit"
-                    class="rounded-lg bg-marca-600 px-5 py-2 text-sm font-semibold text-white hover:bg-marca-700"
-                  >
+                  <button type="submit" class="boton boton-primario">
                     Guardar
                   </button>
                 </form>

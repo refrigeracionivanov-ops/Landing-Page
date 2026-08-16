@@ -1,0 +1,72 @@
+---
+import { CLAVE_EDITOR, CF_ACCESS_TEAM_DOMAIN, CF_ACCESS_AUD } from 'astro:env/server';
+
+export const prerender = false;
+
+/**
+ * Pantalla de clave, solo mientras no haya Cloudflare Access.
+ *
+ * Cuando Access este configurado esta puerta no tiene sentido: quien no inicio
+ * sesion nunca llega hasta aca, y dejar un formulario de clave activo seria una
+ * segunda entrada que nadie esta vigilando. Por eso se cierra sola.
+ */
+if ((CF_ACCESS_TEAM_DOMAIN && CF_ACCESS_AUD) || !CLAVE_EDITOR) {
+  return new Response('Esta pagina no esta disponible.', { status: 404 });
+}
+
+// Igual que en /api/entrar: solo rutas internas, para que nadie arme un enlace
+// que te mande a otro sitio despues de escribir la clave.
+const pedido = Astro.url.searchParams.get('destino') ?? '/administrador';
+const destino = pedido.startsWith('/') && !pedido.startsWith('//') ? pedido : '/administrador';
+const fallo = Astro.url.searchParams.has('error');
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Entrar</title>
+    <meta name="robots" content="noindex" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body
+    style="margin:0;min-height:100vh;display:grid;place-items:center;background:#f4f4f4;font-family:'IBM Plex Sans',system-ui,sans-serif"
+  >
+    <form
+      method="POST"
+      action="/api/entrar"
+      style="background:white;padding:32px;width:min(360px,90vw);border:1px solid #e0e0e0;display:grid;gap:16px"
+    >
+      <div>
+        <h1 style="font-size:20px;font-weight:400;margin:0 0 4px;color:#161616">Entrar al administrador</h1>
+        <p style="font-size:13px;color:#525252;margin:0">Escribi la clave para continuar.</p>
+      </div>
+
+      <input type="hidden" name="destino" value={destino} />
+
+      <input
+        type="password"
+        name="clave"
+        required
+        autofocus
+        autocomplete="current-password"
+        aria-label="Clave"
+        style="height:40px;font-size:14px;border:1px solid #8d8d8d;border-bottom:1px solid #161616;padding:0 12px;background:#f4f4f4;width:100%;box-sizing:border-box"
+      />
+
+      {fallo && <p style="font-size:13px;color:#da1e28;margin:0">La clave no es correcta.</p>}
+
+      <button
+        type="submit"
+        style="height:40px;font-size:14px;font-weight:600;background:#0f62fe;color:white;border:0;cursor:pointer"
+      >
+        Entrar
+      </button>
+    </form>
+  </body>
+</html>

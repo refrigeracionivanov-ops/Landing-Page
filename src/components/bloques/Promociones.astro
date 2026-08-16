@@ -14,26 +14,29 @@ const formatearFecha = (iso: string) =>
 {/* Si todas las promos vencieron, la consulta devuelve una lista vacia y la seccion no se dibuja. */}
 {
   bloque.promos && bloque.promos.length > 0 && (
-    <section class="contenedor py-20">
-      {bloque.titulo && <h2 class="titulo-seccion text-center">{bloque.titulo}</h2>}
+    <section class="seccion">
+      <div class="contenedor">
+        {bloque.titulo && <h2 class="titulo-seccion max-w-2xl text-tinta">{bloque.titulo}</h2>}
 
-      <div class="mt-12 grid gap-6 md:grid-cols-3">
-        {bloque.promos.map((promo) => (
-          <article class="flex flex-col rounded-2xl border-2 border-dashed border-acento-500 bg-acento-500/5 p-7 text-center">
-            <p class="text-4xl font-extrabold tracking-tight text-acento-600">{promo.destacado}</p>
-            <h3 class="mt-3 text-lg font-semibold text-marca-900">{promo.titulo}</h3>
-            {promo.descripcion && <p class="mt-2 text-sm text-slate-600">{promo.descripcion}</p>}
-            {promo.vigenciaHasta && (
-              <p class="mt-4 text-xs font-medium text-slate-500">Valido hasta el {formatearFecha(promo.vigenciaHasta)}</p>
-            )}
-            <a
-              href="#agendar"
-              class="mt-5 rounded-lg bg-acento-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-acento-600"
-            >
-              Quiero esta promo
-            </a>
-          </article>
-        ))}
+        {/* `feature-card-elevated`: mismo cuadrado, sobre gris en vez de blanco.
+            Es asi como Carbon destaca una tarjeta, no con borde de color. */}
+        <div class="mt-12 grid gap-px border border-superficie-2 bg-superficie-2 md:grid-cols-3">
+          {bloque.promos.map((promo) => (
+            <article class="flex flex-col bg-superficie p-8">
+              {/* En carbon el azul es solo para CTA, enlaces y foco. Una cifra
+                  destacada en azul seria deriva de marca: va en tinta. */}
+              <p class="display-lg text-tinta">{promo.destacado}</p>
+              <h3 class="titulo-tarjeta mt-4 text-tinta">{promo.titulo}</h3>
+              {promo.descripcion && <p class="cuerpo-sm mt-3 grow text-tinta-media">{promo.descripcion}</p>}
+              {promo.vigenciaHasta && (
+                <p class="leyenda mt-6 text-tinta-media">Valido hasta el {formatearFecha(promo.vigenciaHasta)}</p>
+              )}
+              <a href="#agendar" class="boton boton-primario mt-4 self-start">
+                Quiero esta promo
+              </a>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   )

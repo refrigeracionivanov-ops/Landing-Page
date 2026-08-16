@@ -1,4 +1,4 @@
-import { CF_ACCESS_TEAM_DOMAIN, CF_ACCESS_AUD } from 'astro:env/server';
+import { CF_ACCESS_TEAM_DOMAIN, CF_ACCESS_AUD, CLAVE_EDITOR } from 'astro:env/server';
 
 /**
  * Verificacion del token de Cloudflare Access.
@@ -50,18 +50,67 @@ export interface ResultadoAcceso {
   autorizado: boolean;
   email?: string;
   motivo?: string;
+  /** `true` cuando alcanza con escribir la clave para entrar. Lo usa /administrador
+   *  para mostrar el formulario en vez de una pantalla de error. */
+  pideClave?: boolean;
 }
+
+export const COOKIE_CLAVE = 'acceso_editor';
+
+/**
+ * Lo que se guarda en la cookie: un hash de la clave, no la clave.
+ *
+ * Si alguien lee la cookie del navegador no se lleva la contrasena, y como el
+ * servidor recalcula el hash en cada pedido, cambiar `CLAVE_EDITOR` invalida
+ * todas las sesiones abiertas de una.
+ */
+export async function firmaDeClave(clave: string): Promise<string> {
+  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`acceso-editor:${clave}`));
+  return [...new Uint8Array(bytes)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/** Comparacion de tiempo constante: no revela cuantos caracteres coinciden. */
+function iguales(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diferencia = 0;
+  for (let i = 0; i < a.length; i++) diferencia |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diferencia === 0;
+}
+
+const leerCookie = (request: Request, nombre: string) =>
+  (request.headers.get('cookie') ?? '').match(new RegExp(`(?:^|;\\s*)${nombre}=([^;]+)`))?.[1];
 
 export async function verificarAcceso(request: Request): Promise<ResultadoAcceso> {
   // En desarrollo no hay Cloudflare Access delante. Se avisa por consola para que
   // nadie confunda esto con "esta protegido".
   if (import.meta.env.DEV) {
-    console.warn('[acceso] Modo desarrollo: el panel de solicitudes NO esta protegido.');
+    console.warn('[acceso] Modo desarrollo: /solicitudes, /administrador y sus endpoints NO estan protegidos.');
     return { autorizado: true, email: 'desarrollo@local' };
   }
 
+  /**
+   * Puerta provisoria por clave.
+   *
+   * Cloudflare Access solo protege dominios propios, y en un `*.workers.dev`
+   * no se puede usar. Mientras tanto vale una clave compartida en
+   * `CLAVE_EDITOR`. Es mas debil a proposito: una sola clave para todos, sin
+   * registro de quien entro y sin poder revocar a una persona sola. En cuanto
+   * existan las variables de Access, esta rama deja de usarse sola.
+   */
   if (!CF_ACCESS_TEAM_DOMAIN || !CF_ACCESS_AUD) {
-    return { autorizado: false, motivo: 'Faltan CF_ACCESS_TEAM_DOMAIN o CF_ACCESS_AUD en las variables de entorno.' };
+    if (!CLAVE_EDITOR) {
+      return {
+        autorizado: false,
+        motivo: 'No hay ninguna proteccion configurada. Falta CLAVE_EDITOR, o las dos variables de Cloudflare Access.',
+      };
+    }
+
+    const cookie = leerCookie(request, COOKIE_CLAVE);
+    if (cookie && iguales(cookie, await firmaDeClave(CLAVE_EDITOR))) {
+      return { autorizado: true, email: 'clave-compartida' };
+    }
+
+    return { autorizado: false, pideClave: true, motivo: 'Hace falta la clave para entrar.' };
   }
 
   const cookie = request.headers.get('cookie') ?? '';

@@ -9,39 +9,41 @@ interface Props {
 const { bloque } = Astro.props;
 ---
 
-<section class="contenedor py-20">
-  {bloque.titulo && <h2 class="titulo-seccion text-center">{bloque.titulo}</h2>}
+<section class="seccion">
+  <div class="contenedor">
+    {bloque.titulo && <h2 class="titulo-seccion max-w-2xl text-tinta">{bloque.titulo}</h2>}
 
-  <div class="mt-12 grid gap-6 md:grid-cols-3">
-    {
-      bloque.testimonios?.map((testimonio) => (
-        <figure class="flex flex-col rounded-2xl border border-slate-200 p-6">
-          <div class="flex gap-0.5 text-acento-500" aria-label={`${testimonio.estrellas ?? 5} de 5 estrellas`}>
-            {Array.from({ length: testimonio.estrellas ?? 5 }).map(() => (
-              <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2-5.5-2.9-5.5 2.9 1-6.2L3 9.6l6.2-.9z" />
-              </svg>
-            ))}
-          </div>
-
-          <blockquote class="mt-4 grow text-sm text-slate-700 text-pretty">"{testimonio.texto}"</blockquote>
-
-          <figcaption class="mt-5 flex items-center gap-3 border-t border-slate-100 pt-4">
-            {testimonio.foto?.asset && (
-              <img
-                src={urlImagen(testimonio.foto).width(80).height(80).fit('crop').url()}
-                alt=""
-                class="size-10 rounded-full object-cover"
-                loading="lazy"
-              />
-            )}
-            <div>
-              <p class="text-sm font-semibold text-marca-900">{testimonio.nombre}</p>
-              {testimonio.distrito && <p class="text-xs text-slate-500">{testimonio.distrito}</p>}
+    <div class="mt-12 grid gap-px border border-filete bg-filete md:grid-cols-3">
+      {
+        bloque.testimonios?.map((testimonio) => (
+          <figure class="flex flex-col bg-lienzo p-6">
+            <div class="flex gap-1 text-azul" aria-label={`${testimonio.estrellas ?? 5} de 5 estrellas`}>
+              {Array.from({ length: testimonio.estrellas ?? 5 }).map(() => (
+                <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2-5.5-2.9-5.5 2.9 1-6.2L3 9.6l6.2-.9z" />
+                </svg>
+              ))}
             </div>
-          </figcaption>
-        </figure>
-      ))
-    }
+
+            <blockquote class="mt-5 grow text-tinta text-pretty">{testimonio.texto}</blockquote>
+
+            <figcaption class="mt-6 flex items-center gap-3 border-t border-filete pt-4">
+              {testimonio.foto?.asset && (
+                <img
+                  src={urlImagen(testimonio.foto).width(80).height(80).fit('crop').url()}
+                  alt=""
+                  class="size-10 object-cover"
+                  loading="lazy"
+                />
+              )}
+              <div>
+                <p class="cuerpo-sm font-semibold text-tinta">{testimonio.nombre}</p>
+                {testimonio.distrito && <p class="leyenda text-tinta-media">{testimonio.distrito}</p>}
+              </div>
+            </figcaption>
+          </figure>
+        ))
+      }
+    </div>
   </div>
 </section>

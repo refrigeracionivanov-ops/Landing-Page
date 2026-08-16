@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { createClient } from '@sanity/client';
-import { RESEND_API_KEY, NOTIFY_EMAIL } from 'astro:env/server';
+import { RESEND_API_KEY, NOTIFY_EMAIL, GOOGLE_CALENDAR_TIMEZONE } from 'astro:env/server';
 import { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } from 'astro:env/client';
 import { contarEnFranja, crearSolicitud, existeDuplicado } from '../../lib/solicitudes';
 import type { SolicitudEntrante } from '../../tipos';
@@ -16,6 +16,32 @@ const sanity = createClient({
   apiVersion: '2024-10-01',
   useCdn: true,
 });
+
+/**
+ * Que dia es hoy para el negocio, no para el servidor.
+ *
+ * El worker corre en UTC. El cliente que agenda esta en Lima, cinco horas
+ * atras: entre las 19:00 y la medianoche de Lima el servidor ya cambio de dia
+ * y el navegador no. Calculando "hoy" en UTC, la fecha minima quedaba un dia
+ * adelante de la que el propio formulario proponia, y toda solicitud hecha en
+ * esa franja se rechazaba con "esa fecha ya paso".
+ *
+ * `en-CA` formatea como AAAA-MM-DD, que es justo lo que viaja en el formulario.
+ */
+const hoyEnLima = () =>
+  new Intl.DateTimeFormat('en-CA', {
+    timeZone: GOOGLE_CALENDAR_TIMEZONE || 'America/Lima',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+
+/** Suma dias a una fecha AAAA-MM-DD sin que el huso vuelva a meter la cola. */
+const sumarDias = (iso: string, dias: number) => {
+  const fecha = new Date(`${iso}T00:00:00Z`);
+  fecha.setUTCDate(fecha.getUTCDate() + dias);
+  return fecha.toISOString().slice(0, 10);
+};
 
 const responder = (estado: number, cuerpo: Record<string, unknown>) =>
   new Response(JSON.stringify(cuerpo), {
@@ -86,11 +112,10 @@ export const POST: APIRoute = async ({ request }) => {
 
   // El navegador ya limita la fecha minima, pero eso se puede saltear.
   // La regla de verdad se aplica aca.
-  const minimo = new Date();
-  minimo.setHours(0, 0, 0, 0);
-  minimo.setDate(minimo.getDate() + (ajustes?.diasAnticipacion ?? 1));
+  const minimo = sumarDias(hoyEnLima(), ajustes?.diasAnticipacion ?? 1);
 
-  if (new Date(`${campos.fechaPreferida}T00:00:00`) < minimo) {
+  // Comparacion de textos: dos fechas en formato AAAA-MM-DD se ordenan solas.
+  if (campos.fechaPreferida < minimo) {
     return responder(400, { mensaje: 'Esa fecha ya paso o es demasiado pronto. Elegi otro dia.' });
   }
 

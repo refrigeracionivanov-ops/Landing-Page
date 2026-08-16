@@ -1,0 +1,80 @@
+---
+import { stegaClean } from '@sanity/client/stega';
+import '../styles/global.css';
+import Editor from '../editor/Editor';
+import { obtenerContenido } from '../sanity/consultas';
+import { verificarAcceso } from '../lib/acceso';
+
+// Se renderiza en el servidor en cada visita: el editor tiene que abrir con el
+// contenido de ahora, no con el del ultimo compilado.
+export const prerender = false;
+
+// Misma barrera que /solicitudes. Los endpoints que usa el editor la verifican
+// por su cuenta: cerrar solo la pagina dejaria la puerta de atras abierta.
+const acceso = await verificarAcceso(Astro.request);
+
+// Si solo falta la clave, se pide; cualquier otro motivo es un problema de
+// configuracion y mostrar un formulario ahi seria enganoso.
+if (!acceso.autorizado && acceso.pideClave) {
+  return Astro.redirect('/entrar?destino=/administrador');
+}
+
+if (!acceso.autorizado) {
+  return new Response(`Sin permiso para entrar al editor. ${acceso.motivo ?? ''}`.trim(), {
+    status: 403,
+    headers: { 'content-type': 'text/plain; charset=utf-8' },
+  });
+}
+
+const { pagina, ajustes, distritos } = await obtenerContenido('inicio');
+
+// Sin ajustes no hay telefono, franjas ni nombre del negocio, y la vista previa
+// de casi todos los bloques depende de eso. Mismo corte que hace la portada.
+if (!ajustes) {
+  return new Response(
+    'Falta el documento "Ajustes del negocio" en Sanity. Entra a /admin y completalo, o corre `npm run sembrar`.',
+    { status: 500, headers: { 'content-type': 'text/plain; charset=utf-8' } },
+  );
+}
+
+/**
+ * Red de seguridad contra los marcadores invisibles de stega.
+ *
+ * Stega esta apagado en `astro.config.mjs`, asi que hoy esto no encuentra nada.
+ * Se deja igual porque el dia que alguien lo vuelva a encender, esta es la
+ * pagina que lo paga: aca el texto se edita y se vuelve a guardar, asi que las
+ * marcas viajarian de ida y vuelta y quedarian escritas dentro del contenido,
+ * acumulandose en cada guardado. Medido cuando estaba encendido: 134.544 de
+ * 142.389 caracteres eran marcas.
+ */
+const contenido = stegaClean({
+  secciones: pagina?.secciones ?? [],
+  ajustes,
+  distritos,
+});
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {/* El nombre sale del contenido ya limpio: `ajustes` sin pasar por
+        stegaClean arrastra las marcas invisibles hasta la pestana. */}
+    <title>Editor — {contenido.ajustes.nombre}</title>
+    <meta name="robots" content="noindex" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <Editor
+      client:only="react"
+      secciones={contenido.secciones}
+      ajustes={contenido.ajustes}
+      distritos={contenido.distritos}
+    />
+  </body>
+</html>

@@ -9,22 +9,23 @@ const { ajustes } = Astro.props;
 const anio = new Date().getFullYear();
 ---
 
-<footer class="mt-20 bg-marca-900 text-marca-100">
-  <div class="contenedor grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-3">
+{/* La unica superficie invertida de toda la pagina. */}
+<footer class="inverso bg-inverso text-inverso-tinta-media">
+  <div class="contenedor grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-4">
     <div>
-      <p class="text-lg font-bold text-white">{ajustes.nombre}</p>
-      {ajustes.direccion && <p class="mt-2 text-sm">{ajustes.direccion}</p>}
-      {ajustes.horario && <p class="mt-1 text-sm">{ajustes.horario}</p>}
+      <p class="subtitulo text-white">{ajustes.nombre}</p>
+      {ajustes.direccion && <p class="cuerpo-sm mt-4">{ajustes.direccion}</p>}
+      {ajustes.horario && <p class="cuerpo-sm mt-2">{ajustes.horario}</p>}
     </div>
 
-    <div class="text-sm">
-      <p class="font-semibold text-white">Contacto</p>
-      <p class="mt-2">
+    <div>
+      <p class="cuerpo-sm font-semibold text-white">Contacto</p>
+      <p class="cuerpo-sm mt-4">
         <a href={`tel:${ajustes.telefono.replace(/\s/g, '')}`} class="hover:text-white">{ajustes.telefono}</a>
       </p>
       {
         ajustes.email && (
-          <p class="mt-1">
+          <p class="cuerpo-sm mt-2">
             <a href={`mailto:${ajustes.email}`} class="hover:text-white">
               {ajustes.email}
             </a>
@@ -33,20 +34,29 @@ const anio = new Date().getFullYear();
       }
     </div>
 
-    <div class="text-sm">
-      <p class="font-semibold text-white">Atencion</p>
-      <p class="mt-2">
+    <div>
+      <p class="cuerpo-sm font-semibold text-white">Atencion</p>
+      <p class="cuerpo-sm mt-4">
         <a href="#agendar" class="hover:text-white">Agendar una visita</a>
       </p>
-      <p class="mt-1">
+      <p class="cuerpo-sm mt-2">
         <a href={`https://wa.me/${ajustes.whatsapp}`} target="_blank" rel="noopener" class="hover:text-white">
           Escribir por WhatsApp
         </a>
       </p>
     </div>
+
+    <div>
+      <p class="cuerpo-sm font-semibold text-white">Servicios</p>
+      <p class="cuerpo-sm mt-4"><a href="#servicios" class="hover:text-white">Que hacemos</a></p>
+      <p class="cuerpo-sm mt-2"><a href="#cobertura" class="hover:text-white">Zonas de cobertura</a></p>
+      <p class="cuerpo-sm mt-2"><a href="#preguntas" class="hover:text-white">Preguntas frecuentes</a></p>
+    </div>
   </div>
 
-  <div class="border-t border-white/10 py-5 text-center text-xs text-marca-100/70">
-    &copy; {anio} {ajustes.nombre}. Todos los derechos reservados.
+  <div class="contenedor">
+    <div class="border-t border-inverso-2 py-6">
+      <p class="leyenda">&copy; {anio} {ajustes.nombre}. Todos los derechos reservados.</p>
+    </div>
   </div>
 </footer>
