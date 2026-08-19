@@ -16,7 +16,8 @@
     "tipos": "wrangler types",
     "db:crear": "wrangler d1 create landing-ventilacion",
     "db:migrar": "wrangler d1 migrations apply landing-ventilacion --local",
-    "db:migrar:prod": "wrangler d1 migrations apply landing-ventilacion --remote"
+    "db:migrar:prod": "wrangler d1 migrations apply landing-ventilacion --remote",
+    "fotos": "node --env-file=.env scripts/fotos-de-plantilla.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.2.0",

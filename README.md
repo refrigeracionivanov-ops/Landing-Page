@@ -82,6 +82,7 @@ npm run dev
 | `npm run check` | Chequeo de tipos |
 | `npm run desplegar` | Compila y publica el Worker |
 | `npm run sembrar` | Carga contenido de ejemplo en Sanity |
+| `npm run fotos` | Rellena con marcadores los huecos de imagen vacíos |
 | `npm run tipos` | Regenera los tipos de los bindings de Cloudflare |
 | `npm run db:migrar` | Aplica migraciones a la base local |
 | `npm run db:migrar:prod` | Aplica migraciones a la base real |
@@ -129,6 +130,12 @@ a validar en `src/pages/api/reservar.ts`, porque el navegador se puede saltear.
 
 **Las promociones vencen solas.** El filtro por `vigenciaHasta` está en la consulta
 GROQ.
+
+**Los huecos de imagen se rellenan con marcadores, no con fotos de banco.** Un
+marcador dice que falta una foto; una foto de stock hace creer que así trabaja el
+negocio, y en un rubro donde el cliente no puede juzgar la técnica, eso es peor que un
+espacio vacío. `npm run fotos` los dibuja con la paleta del sitio y solo completa lo
+que está vacío, así correrlo de nuevo no pisa material real.
 
 **Las fotos de los equipos van por WhatsApp, no por el formulario.** Subir archivos
 exigiría exponer un token de escritura o montar un proxy con límites de tamaño, y el

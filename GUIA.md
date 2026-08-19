@@ -93,6 +93,11 @@ momento: recargá la página pública y ya está el cambio.
 > hiciste en esta sesión. Una vez que guardaste, para volver atrás hay que usar el
 > historial de versiones (más abajo).
 
+**Las imágenes que ves ahora son marcadores**, no fotos: dicen "Foto de portada",
+"Antes", "Después". Están para que la página no se vea rota mientras no tengas
+material propio. Reemplazalas cuando puedas — son lo que más cambia la página, porque
+en este rubro el cliente no puede juzgar tu trabajo de otra forma.
+
 **Las fotos** se suben desde el mismo campo donde se ven. Cada una te pide una
 descripción corta: escribila, es lo que lee Google y lo que escucha alguien que usa un
 lector de pantalla. Con tres o cuatro palabras alcanza.
