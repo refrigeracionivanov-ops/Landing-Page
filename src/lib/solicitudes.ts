@@ -1,7 +1,15 @@
 // `D1Database` es un tipo global que aporta `worker-configuration.d.ts`
 // (se regenera con `npm run tipos`).
 
-export const ESTADOS = ['nueva', 'contactada', 'agendada', 'completada', 'cancelada'] as const;
+export const ESTADOS = ['nueva', 'contactada', 'agendada', 'completada', 'cancelada', 'spam'] as const;
+
+/**
+ * Los que se muestran en los filtros de la lista.
+ *
+ * `spam` queda afuera: se llega desde su propio boton. Lo que se marco como
+ * basura no tiene por que ocupar un lugar en la fila de trabajo diaria.
+ */
+export const ESTADOS_VISIBLES = ESTADOS.filter((estado) => estado !== 'spam');
 export type Estado = (typeof ESTADOS)[number];
 
 /** Estados que ocupan un lugar en la agenda. Una cancelada libera el cupo. */
@@ -38,7 +46,8 @@ export async function existeDuplicado(db: D1Database, telefono: string, fecha: s
   const fila = await db
     .prepare(
       `SELECT 1 FROM solicitudes
-       WHERE telefono = ? AND fecha_preferida = ? AND estado != 'cancelada'
+       WHERE telefono = ? AND fecha_preferida = ?
+         AND estado NOT IN ('cancelada', 'spam')
        LIMIT 1`,
     )
     .bind(telefono, fecha)
@@ -84,9 +93,11 @@ export async function crearSolicitud(db: D1Database, datos: SolicitudNueva): Pro
 export async function listarSolicitudes(db: D1Database, estado?: string): Promise<Solicitud[]> {
   const filtrar = estado && ESTADOS.includes(estado as Estado);
 
+  // Sin filtro, el spam no aparece: se llega a el eligiendolo. La vista sin
+  // filtro es la fila de trabajo del dia, y ahi la basura estorba.
   const consulta = filtrar
     ? db.prepare(`SELECT * FROM solicitudes WHERE estado = ? ORDER BY creada_en DESC LIMIT 200`).bind(estado)
-    : db.prepare(`SELECT * FROM solicitudes ORDER BY creada_en DESC LIMIT 200`);
+    : db.prepare(`SELECT * FROM solicitudes WHERE estado != 'spam' ORDER BY creada_en DESC LIMIT 200`);
 
   const { results } = await consulta.all<Solicitud>();
   return results ?? [];
@@ -149,4 +160,64 @@ export async function marcarResenaPedida(db: D1Database, id: number): Promise<bo
     .run();
 
   return resultado.success;
+}
+
+/**
+ * La proxima franja con lugar, a partir de una fecha.
+ *
+ * Recorre dia por dia y devuelve la primera combinacion de fecha y franja que
+ * todavia tiene cupo. Mira como maximo `dias` hacia adelante: si en dos semanas
+ * no hay un hueco, el problema no lo resuelve mover una visita.
+ */
+export async function proximoHueco(
+  db: D1Database,
+  desde: string,
+  franjas: { etiqueta: string; cupo: number }[],
+  dias = 21,
+): Promise<{ fecha: string; franja: string } | null> {
+  if (!franjas.length) return null;
+
+  const fecha = new Date(`${desde}T00:00:00Z`);
+
+  for (let i = 0; i < dias; i++) {
+    const dia = fecha.toISOString().slice(0, 10);
+
+    for (const { etiqueta, cupo } of franjas) {
+      if ((await contarEnFranja(db, dia, etiqueta)) < cupo) return { fecha: dia, franja: etiqueta };
+    }
+
+    fecha.setUTCDate(fecha.getUTCDate() + 1);
+  }
+
+  return null;
+}
+
+/** Mueve una visita a otro dia y franja. Usado por "Posponer". */
+export async function moverSolicitud(db: D1Database, id: number, fecha: string, franja: string): Promise<boolean> {
+  const resultado = await db
+    .prepare('UPDATE solicitudes SET fecha_preferida = ?, franja = ? WHERE id = ?')
+    .bind(fecha, franja, id)
+    .run();
+
+  return resultado.success;
+}
+
+/** Las visitas de un rango de fechas, para la vista de calendario. */
+export async function solicitudesEntre(db: D1Database, desde: string, hasta: string): Promise<Solicitud[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT * FROM solicitudes
+       WHERE fecha_preferida BETWEEN ? AND ? AND estado != 'spam'
+       ORDER BY fecha_preferida, franja`,
+    )
+    .bind(desde, hasta)
+    .all<Solicitud>();
+
+  return results ?? [];
+}
+
+/** Borra de verdad lo marcado como spam. Es el unico borrado del sistema. */
+export async function vaciarSpam(db: D1Database): Promise<number> {
+  const resultado = await db.prepare("DELETE FROM solicitudes WHERE estado = 'spam'").run();
+  return resultado.meta.changes ?? 0;
 }

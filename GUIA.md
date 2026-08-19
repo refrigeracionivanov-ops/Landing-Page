@@ -31,7 +31,23 @@ por estado, con la cantidad de cada uno.
 Cada solicitud tiene dos botones: **WhatsApp**, que abre el chat con ese cliente ya
 listo para escribir, y el **teléfono**, que llama directo.
 
-A medida que la vas atendiendo, cambiá el **Estado** y apretá *Guardar*:
+Cada solicitud tiene tres botones para lo que hacés todos los días:
+
+| Botón | Qué hace |
+|---|---|
+| **Aceptar la visita** | La deja agendada y la manda a tu Google Calendar |
+| **Posponer al próximo hueco** | La mueve sola al primer día con lugar |
+| **Marcar como spam** | La saca de la lista y libera el cupo de esa franja |
+
+> **El spam no se borra.** Queda guardado aparte, en su propia pestaña, por si un día
+> marcás mal a un cliente real: ahí tenés un botón **No era spam** para recuperarlo.
+> Cuando quieras vaciarlo de verdad, hay un botón para eso — y eso sí no se recupera.
+
+**Posponer no le avisa al cliente.** Mueve la visita en tu agenda; el aviso se lo
+mandás vos por WhatsApp. Es a propósito: cambiarle el día a alguien sin decírselo es
+peor que no moverlo.
+
+Para el resto de los estados, cambiá el **Estado** de abajo y apretá *Guardar*:
 
 | Estado | Cuándo ponerlo |
 |---|---|
@@ -43,6 +59,15 @@ A medida que la vas atendiendo, cambiá el **Estado** y apretá *Guardar*:
 
 > Los datos del cliente no se pueden editar: quedan como los escribió él. Si querés
 > anotar algo, usá el campo **Notas internas**.
+
+### La pestaña Agenda
+
+Arriba de todo, al lado de *Solicitudes*, está **Agenda**. Muestra las próximas dos
+semanas día por día, con cada franja y cuántas visitas tenés sobre el cupo que
+aceptás — por ejemplo *2 de 3*, o *3 de 3 — completa*.
+
+Es la vista para cuando alguien te llama y te pregunta "¿para cuándo tenés?". De un
+golpe de vista ves qué días quedan libres, sin ir solicitud por solicitud.
 
 **Importante:** las franjas que ya tienen el cupo lleno dejan de ofrecerse solas en
 la web. El cupo se configura en Ajustes (ver abajo). Las solicitudes canceladas

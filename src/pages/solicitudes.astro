@@ -7,7 +7,12 @@ import {
   contarPorEstado,
   listarSolicitudes,
   marcarResenaPedida,
+  moverSolicitud,
+  proximoHueco,
+  solicitudesEntre,
+  vaciarSpam,
   ESTADOS,
+  ESTADOS_VISIBLES,
 } from '../lib/solicitudes';
 import { obtenerAjustes } from '../sanity/consultas';
 import { paraLlamar, paraWhatsapp } from '../lib/telefono';
@@ -37,6 +42,18 @@ if (!db) {
   return new Response('Falta el binding D1 "DB". Revisa wrangler.jsonc.', { status: 500 });
 }
 
+const hoy = () => new Date().toISOString().slice(0, 10);
+
+const sumarUnDia = (iso: string) => {
+  const fecha = new Date(`${iso}T00:00:00Z`);
+  fecha.setUTCDate(fecha.getUTCDate() + 1);
+  return fecha.toISOString().slice(0, 10);
+};
+
+// Las franjas y su cupo salen de los ajustes, y "posponer" las necesita antes
+// de responder, asi que se cargan antes de atender el POST.
+const ajustesDelNegocio = await obtenerAjustes();
+
 // Guardar y redirigir: evita que recargar la pagina repita el ultimo cambio.
 if (Astro.request.method === 'POST') {
   const formulario = await Astro.request.formData();
@@ -57,13 +74,52 @@ if (Astro.request.method === 'POST') {
     return Astro.redirect('/solicitudes', 303);
   }
 
+  const accion = String(formulario.get('accion') ?? '');
+
+  /**
+   * Vaciar el spam: el unico borrado real del sistema.
+   *
+   * Todo lo demas cambia de estado. Esto saca las filas de la base, y por eso
+   * es una accion aparte y explicita, en su propia vista, y no un boton al
+   * lado de cada solicitud.
+   */
+  if (accion === 'vaciar-spam') {
+    const borradas = await vaciarSpam(db);
+    return Astro.redirect(`/solicitudes?estado=spam&aviso=vaciado&n=${borradas}`, 303);
+  }
+
   let espejoOk = true;
+  let avisoPosponer = '';
 
   if (Number.isInteger(id) && id > 0) {
-    await actualizarSolicitud(db, id, {
-      estado: String(formulario.get('estado') ?? '') || undefined,
-      notas: formulario.has('notas') ? String(formulario.get('notas')).slice(0, 2000) : undefined,
-    });
+    if (accion === 'posponer') {
+      /**
+       * Mueve la visita al primer hueco libre, empezando por el dia siguiente
+       * al que tenia. Si en tres semanas no hay lugar, no toca nada: el
+       * problema no lo resuelve mover una visita.
+       */
+      const ajustesFranjas = ajustesDelNegocio?.franjas ?? [];
+      const actual = (await listarSolicitudes(db)).find((s) => s.id === id);
+      const desde = actual ? sumarUnDia(actual.fecha_preferida) : hoy();
+      const hueco = await proximoHueco(db, desde, ajustesFranjas);
+
+      if (hueco) {
+        await moverSolicitud(db, id, hueco.fecha, hueco.franja);
+        avisoPosponer = 'pospuesta';
+      } else {
+        avisoPosponer = 'sin-hueco';
+      }
+    } else {
+      // `aceptar` y `spam` son atajos de un clic al mismo cambio de estado que
+      // hace el desplegable: un estado por boton, sin campo intermedio.
+      const estado =
+        accion === 'aceptar' ? 'agendada' : accion === 'spam' ? 'spam' : String(formulario.get('estado') ?? '');
+
+      await actualizarSolicitud(db, id, {
+        estado: estado || undefined,
+        notas: formulario.has('notas') ? String(formulario.get('notas')).slice(0, 2000) : undefined,
+      });
+    }
 
     // El calendario se alinea despues de guardar, no antes: si Google falla,
     // el cambio de estado igual quedo registrado.
@@ -72,18 +128,63 @@ if (Astro.request.method === 'POST') {
 
   const destino = new URL(Astro.url);
   destino.searchParams.delete('aviso');
+  destino.searchParams.delete('n');
+  if (avisoPosponer) destino.searchParams.set('aviso', avisoPosponer);
   if (!espejoOk) destino.searchParams.set('aviso', 'calendario');
 
   return Astro.redirect(`${destino.pathname}${destino.search}`, 303);
 }
 
 const filtro = Astro.url.searchParams.get('estado') ?? '';
-const [solicitudes, totales, ajustes] = await Promise.all([
-  listarSolicitudes(db, filtro),
-  contarPorEstado(db),
-  obtenerAjustes(),
-]);
-const total = Object.values(totales).reduce((a, b) => a + b, 0);
+const enCalendario = Astro.url.searchParams.get('vista') === 'calendario';
+
+const [solicitudes, totales] = await Promise.all([listarSolicitudes(db, filtro), contarPorEstado(db)]);
+const ajustes = ajustesDelNegocio;
+// "Todas" no cuenta el spam: tiene que coincidir con lo que se ve al entrar.
+const total = ESTADOS_VISIBLES.reduce((suma, estado) => suma + (totales[estado] ?? 0), 0);
+
+/**
+ * Las proximas dos semanas, dia por dia y franja por franja.
+ *
+ * La agenda de este negocio no son horas exactas sino cupos: lo que hace falta
+ * ver de un vistazo no es "que hay a las 14", sino que dias quedan libres para
+ * poder ofrecerlos por telefono. Por eso cada franja muestra ocupados sobre
+ * total y no una grilla horaria.
+ */
+const DIAS_VISIBLES = 14;
+const franjasDelNegocio = ajustes?.franjas?.length
+  ? ajustes.franjas
+  : [{ etiqueta: 'Mañana (8:00 - 12:00)', cupo: 3 }];
+
+const desde = hoy();
+const hasta = (() => {
+  const f = new Date(`${desde}T00:00:00Z`);
+  f.setUTCDate(f.getUTCDate() + DIAS_VISIBLES - 1);
+  return f.toISOString().slice(0, 10);
+})();
+
+const enRango = enCalendario ? await solicitudesEntre(db, desde, hasta) : [];
+
+const agenda = Array.from({ length: DIAS_VISIBLES }, (_, i) => {
+  const f = new Date(`${desde}T00:00:00Z`);
+  f.setUTCDate(f.getUTCDate() + i);
+  const fecha = f.toISOString().slice(0, 10);
+
+  return {
+    fecha,
+    franjas: franjasDelNegocio.map(({ etiqueta, cupo }) => {
+      const visitas = enRango.filter((s) => s.fecha_preferida === fecha && s.franja === etiqueta);
+      // El cupo lo ocupan las que siguen vivas; una cancelada libera el lugar.
+      const ocupadas = visitas.filter((s) => ['nueva', 'contactada', 'agendada'].includes(s.estado));
+      return { etiqueta, cupo, visitas, ocupadas: ocupadas.length, lleno: ocupadas.length >= cupo };
+    }),
+  };
+});
+
+const nombreDelDia = (iso: string) =>
+  new Date(`${iso}T00:00:00`).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+const aviso = Astro.url.searchParams.get('aviso');
 
 // Etiquetas de estado con la paleta de tags de Carbon (tono 20 de fondo, 70 de texto).
 const COLORES: Record<string, string> = {
@@ -144,7 +245,31 @@ const formatearFecha = (iso: string) =>
 
     <main class="contenedor py-8">
       {
-        Astro.url.searchParams.get('aviso') === 'calendario' && (
+        aviso === 'pospuesta' && (
+          <p class="cuerpo-sm mt-6 border-l-[3px] border-exito bg-superficie px-4 py-3 text-tinta" role="status">
+            Movida al próximo día con lugar. Avisale al cliente por WhatsApp: el cambio lo hiciste vos, no él.
+          </p>
+        )
+      }
+
+      {
+        aviso === 'sin-hueco' && (
+          <p class="cuerpo-sm mt-6 border-l-[3px] border-error bg-superficie px-4 py-3 text-tinta" role="alert">
+            No hay lugar en las próximas tres semanas. Si esto pasa seguido, subí el cupo por franja en Ajustes.
+          </p>
+        )
+      }
+
+      {
+        aviso === 'vaciado' && (
+          <p class="cuerpo-sm mt-6 border-l-[3px] border-exito bg-superficie px-4 py-3 text-tinta" role="status">
+            Spam borrado: {Astro.url.searchParams.get('n') ?? 0} solicitudes. Eso sí no se recupera.
+          </p>
+        )
+      }
+
+      {
+        aviso === 'calendario' && (
           <p class="cuerpo-sm mb-6 border-l-[3px] border-advertencia bg-lienzo px-4 py-3 text-tinta" role="alert">
             El cambio se guardo, pero no se pudo actualizar Google Calendar. Revisa el evento a mano.
           </p>
@@ -152,33 +277,160 @@ const formatearFecha = (iso: string) =>
       }
 
       {/* Pestanas de Carbon: subrayado de 2px, no pastillas. */}
-      <nav class="flex flex-wrap border-b border-filete">
+      <nav class="flex gap-px border-b border-filete">
         <a
           href="/solicitudes"
           class:list={[
-            'cuerpo-sm flex min-h-12 items-center border-b-2 px-4',
-            filtro === '' ? 'border-azul font-semibold text-tinta' : 'border-transparent text-tinta-media',
+            'cuerpo-sm flex min-h-12 items-center border-b-2 px-5 font-semibold',
+            !enCalendario ? 'border-azul text-tinta' : 'border-transparent text-tinta-media',
           ]}
         >
-          Todas ({total})
+          Solicitudes
         </a>
-        {
-          ESTADOS.map((estado) => (
-            <a
-              href={`/solicitudes?estado=${estado}`}
-              class:list={[
-                'cuerpo-sm flex min-h-12 items-center border-b-2 px-4 capitalize',
-                filtro === estado ? 'border-azul font-semibold text-tinta' : 'border-transparent text-tinta-media',
-              ]}
-            >
-              {estado} ({totales[estado] ?? 0})
-            </a>
-          ))
-        }
+        <a
+          href="/solicitudes?vista=calendario"
+          class:list={[
+            'cuerpo-sm flex min-h-12 items-center border-b-2 px-5 font-semibold',
+            enCalendario ? 'border-azul text-tinta' : 'border-transparent text-tinta-media',
+          ]}
+        >
+          Agenda
+        </a>
       </nav>
 
       {
-        solicitudes.length === 0 ? (
+        !enCalendario && (
+          <nav class="flex flex-wrap border-b border-filete">
+            <a
+              href="/solicitudes"
+              class:list={[
+                'cuerpo-sm flex min-h-12 items-center border-b-2 px-4',
+                filtro === '' ? 'border-azul font-semibold text-tinta' : 'border-transparent text-tinta-media',
+              ]}
+            >
+              Todas ({total})
+            </a>
+            {ESTADOS_VISIBLES.map((estado) => (
+              <a
+                href={`/solicitudes?estado=${estado}`}
+                class:list={[
+                  'cuerpo-sm flex min-h-12 items-center border-b-2 px-4 capitalize',
+                  filtro === estado ? 'border-azul font-semibold text-tinta' : 'border-transparent text-tinta-media',
+                ]}
+              >
+                {estado} ({totales[estado] ?? 0})
+              </a>
+            ))}
+
+            {/* El spam vive aparte: lo que se marco como basura no tiene por que
+                ocupar un lugar en la fila de trabajo del dia. */}
+            {(totales.spam ?? 0) > 0 && (
+              <a
+                href="/solicitudes?estado=spam"
+                class:list={[
+                  'cuerpo-sm ml-auto flex min-h-12 items-center border-b-2 px-4',
+                  filtro === 'spam' ? 'border-azul font-semibold text-tinta' : 'border-transparent text-tinta-suave',
+                ]}
+              >
+                Spam ({totales.spam})
+              </a>
+            )}
+          </nav>
+        )
+      }
+
+      {
+        enCalendario && (
+          <div class="mt-8 space-y-px">
+            <p class="cuerpo-sm mb-6 text-tinta-media">
+              Las próximas dos semanas. Cada franja muestra cuántas visitas tenés sobre el cupo que aceptás.
+            </p>
+
+            {agenda.map((dia) => {
+              const ocupadasDelDia = dia.franjas.reduce((suma, f) => suma + f.ocupadas, 0);
+
+              return (
+                <article
+                  class:list={[
+                    'grid gap-4 border border-filete p-5 sm:grid-cols-[200px_1fr]',
+                    ocupadasDelDia ? 'bg-lienzo' : 'bg-superficie',
+                  ]}
+                >
+                  {/* `first-letter` y no `capitalize`: este ultimo pone mayuscula
+                      en cada palabra y deja "19 De Agosto". */}
+                  <p
+                    class:list={[
+                      'cuerpo-sm first-letter:uppercase',
+                      ocupadasDelDia ? 'font-semibold text-tinta' : 'text-tinta-media',
+                    ]}
+                  >
+                    {nombreDelDia(dia.fecha)}
+                  </p>
+
+                  <div class="space-y-3">
+                    {dia.franjas.map((franja) => (
+                      <div>
+                        <div class="flex flex-wrap items-center gap-3">
+                          <span class="cuerpo-sm text-tinta-media">{franja.etiqueta}</span>
+                          <span
+                            class:list={[
+                              'leyenda px-2 py-1 font-semibold',
+                              franja.lleno ? 'bg-[#ffd7d9] text-[#a2191f]' : 'bg-superficie-2 text-tinta-media',
+                            ]}
+                          >
+                            {franja.ocupadas} de {franja.cupo}
+                            {franja.lleno ? ' — completa' : ''}
+                          </span>
+                        </div>
+
+                        {franja.visitas.length > 0 && (
+                          <ul class="mt-2 space-y-1">
+                            {franja.visitas.map((visita) => (
+                              <li class="cuerpo-sm flex flex-wrap items-center gap-2">
+                                <span class:list={['leyenda px-2 py-0.5 font-semibold capitalize', COLORES[visita.estado]]}>
+                                  {visita.estado}
+                                </span>
+                                <span class="text-tinta">{visita.nombre}</span>
+                                <span class="text-tinta-media">— {visita.distrito}, {visita.direccion}</span>
+                                <a
+                                  href={`https://wa.me/${paraWhatsapp(visita.telefono)}`}
+                                  target="_blank"
+                                  rel="noopener"
+                                  class="text-azul underline"
+                                >
+                                  WhatsApp
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )
+      }
+
+      {
+        !enCalendario && filtro === 'spam' && solicitudes.length > 0 && (
+          <form method="POST" class="mt-8 border border-error bg-superficie p-5">
+            <input type="hidden" name="accion" value="vaciar-spam" />
+            <p class="cuerpo-sm text-tinta">
+              Borrar definitivamente {solicitudes.length === 1 ? 'la solicitud marcada' : `las ${solicitudes.length} solicitudes marcadas`}{' '}
+              como spam. Es el único borrado del sistema y no se puede deshacer.
+            </p>
+            <button type="submit" class="boton boton-terciario mt-4">
+              Vaciar spam
+            </button>
+          </form>
+        )
+      }
+
+      {
+        enCalendario ? null : solicitudes.length === 0 ? (
           <p class="mt-12 text-tinta-media">No hay solicitudes en esta vista.</p>
         ) : (
           <div class="mt-6 space-y-px">
@@ -263,7 +515,42 @@ const formatearFecha = (iso: string) =>
                   )}
                 </div>
 
-                <form method="POST" class="mt-5 flex flex-wrap items-end gap-4 border-t border-filete pt-5">
+                {/*
+                  Un boton por decision frecuente, en vez de obligar a pasar por
+                  el desplegable para las tres cosas que se hacen todo el dia.
+                  El desplegable queda abajo para el resto de los estados.
+                */}
+                <div class="mt-5 flex flex-wrap gap-px border-t border-filete pt-5">
+                  {solicitud.estado !== 'agendada' && solicitud.estado !== 'spam' && (
+                    <form method="POST" class="contents">
+                      <input type="hidden" name="id" value={solicitud.id} />
+                      <input type="hidden" name="accion" value="aceptar" />
+                      <button type="submit" class="boton boton-primario">
+                        Aceptar la visita
+                      </button>
+                    </form>
+                  )}
+
+                  {solicitud.estado !== 'spam' && (
+                    <form method="POST" class="contents">
+                      <input type="hidden" name="id" value={solicitud.id} />
+                      <input type="hidden" name="accion" value="posponer" />
+                      <button type="submit" class="boton boton-terciario">
+                        Posponer al próximo hueco
+                      </button>
+                    </form>
+                  )}
+
+                  <form method="POST" class="contents">
+                    <input type="hidden" name="id" value={solicitud.id} />
+                    <input type="hidden" name="accion" value={solicitud.estado === 'spam' ? 'aceptar' : 'spam'} />
+                    <button type="submit" class="boton boton-terciario">
+                      {solicitud.estado === 'spam' ? 'No era spam' : 'Marcar como spam'}
+                    </button>
+                  </form>
+                </div>
+
+                <form method="POST" class="mt-4 flex flex-wrap items-end gap-4">
                   <input type="hidden" name="id" value={solicitud.id} />
 
                   <label class="block">

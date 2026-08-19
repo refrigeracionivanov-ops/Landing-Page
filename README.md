@@ -135,6 +135,16 @@ parece que funcionó. `src/lib/telefono.ts` traduce lo que la gente escribe (`01
 el `15`, con o sin código) al formato que pide `wa.me`, con el 9 que Argentina exige
 para móviles. Sigue funcionando con las solicitudes cargadas antes del selector.
 
+**El formulario público tiene tres frenos, no uno.** El campo trampa atrapa al bot
+tonto; el límite por IP (`ratelimits` en `wrangler.jsonc`, tres por minuto) frena al
+que insiste; y el cupo por franja pone un techo a lo que puede entrar en un día aunque
+todo lo anterior falle. Si el limitador no responde, se deja pasar: es una defensa, no
+la puerta, y un problema en Cloudflare no puede dejar al negocio sin recibir pedidos.
+
+**El spam es un estado, no un borrado.** Sale de la lista y libera el cupo de la
+franja, pero la fila queda. Un clic equivocado sobre un cliente real se deshace; un
+`DELETE`, no. El vaciado explícito es el único borrado del sistema.
+
 **Las promociones vencen solas.** El filtro por `vigenciaHasta` está en la consulta
 GROQ.
 

@@ -12,6 +12,22 @@
   // telefonos y direcciones de los clientes no pueden estar ahi.
   //
   // El `database_id` lo devuelve `npx wrangler d1 create landing-ventilacion`.
+  // Freno de fuerza bruta para el formulario publico.
+  //
+  // Cualquiera puede mandar una solicitud: es el punto de una landing. Sin un
+  // limite, un script llena la agenda de basura, dispara un correo por cada
+  // envio y ocupa los cupos de las franjas reales.
+  //
+  // Tres por minuto y por IP: nadie agenda dos visitas seguidas en el mismo
+  // minuto, y un cliente que se equivoco y reintenta no se choca con el limite.
+  "ratelimits": [
+    {
+      "name": "LIMITE_RESERVAS",
+      "namespace_id": "1001",
+      "simple": { "limit": 3, "period": 60 }
+    }
+  ],
+
   "d1_databases": [
     {
       "binding": "DB",

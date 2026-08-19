@@ -70,6 +70,32 @@ export const POST: APIRoute = async ({ request }) => {
     return responder(500, { mensaje: 'El formulario no esta disponible. Escribinos por WhatsApp.' });
   }
 
+  /**
+   * Freno por IP, antes de leer el cuerpo y antes de tocar la base.
+   *
+   * El formulario es publico — ese es el punto de una landing — asi que sin un
+   * limite un script llena la agenda de basura, dispara un correo por cada
+   * envio y ocupa los cupos de franjas reales. El campo trampa frena a los bots
+   * tontos; esto frena al que insiste.
+   *
+   * Si el limitador falla, se deja pasar: es una defensa, no la puerta. Un
+   * problema en Cloudflare no puede dejar al negocio sin recibir pedidos.
+   */
+  const ip = request.headers.get('cf-connecting-ip') ?? 'desconocida';
+
+  try {
+    const { success } = await env.LIMITE_RESERVAS.limit({ key: ip });
+
+    if (!success) {
+      console.warn(`[reservar] Limite por IP alcanzado: ${ip}`);
+      return responder(429, {
+        mensaje: 'Recibimos varios pedidos desde tu conexion. Espera un minuto o escribinos por WhatsApp.',
+      });
+    }
+  } catch (error) {
+    console.error('[reservar] El limitador no respondio, se deja pasar:', error);
+  }
+
   let datos: SolicitudEntrante;
 
   try {
