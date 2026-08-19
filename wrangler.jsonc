@@ -20,6 +20,12 @@
   //
   // Tres por minuto y por IP: nadie agenda dos visitas seguidas en el mismo
   // minuto, y un cliente que se equivoco y reintenta no se choca con el limite.
+  //
+  // El conteo es aproximado y por ubicacion del borde, no global: medido contra
+  // produccion, una rafaga de 15 pedidos deja pasar 14. Absorbe una avalancha
+  // sostenida, que es para lo que esta, pero no es un tope exacto. El freno
+  // duro contra bots es Turnstile; el techo real de basura por dia es el cupo
+  // por franja.
   "ratelimits": [
     {
       "name": "LIMITE_RESERVAS",
