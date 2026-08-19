@@ -2,7 +2,14 @@
 import '../styles/global.css';
 import { env } from 'cloudflare:workers';
 import { verificarAcceso } from '../lib/acceso';
-import { actualizarSolicitud, contarPorEstado, listarSolicitudes, ESTADOS } from '../lib/solicitudes';
+import {
+  actualizarSolicitud,
+  contarPorEstado,
+  listarSolicitudes,
+  marcarResenaPedida,
+  ESTADOS,
+} from '../lib/solicitudes';
+import { obtenerAjustes } from '../sanity/consultas';
 import { sincronizar } from '../lib/calendario';
 
 // Datos personales: nunca se genera de forma estatica ni se cachea.
@@ -34,6 +41,21 @@ if (Astro.request.method === 'POST') {
   const formulario = await Astro.request.formData();
   const id = Number(formulario.get('id'));
 
+  /**
+   * Pedir la resena: se anota que se pidio y se abre WhatsApp.
+   *
+   * El destino lo arma el servidor y no el navegador porque aca esta el numero
+   * del cliente y el enlace de Google. Va en una pestana nueva (el formulario
+   * lleva target), asi que la lista queda donde estaba.
+   */
+  if (formulario.get('accion') === 'resena' && Number.isInteger(id) && id > 0) {
+    const destino = String(formulario.get('destino') ?? '');
+    await marcarResenaPedida(db, id);
+
+    if (destino.startsWith('https://wa.me/')) return Astro.redirect(destino, 303);
+    return Astro.redirect('/solicitudes', 303);
+  }
+
   let espejoOk = true;
 
   if (Number.isInteger(id) && id > 0) {
@@ -55,7 +77,11 @@ if (Astro.request.method === 'POST') {
 }
 
 const filtro = Astro.url.searchParams.get('estado') ?? '';
-const [solicitudes, totales] = await Promise.all([listarSolicitudes(db, filtro), contarPorEstado(db)]);
+const [solicitudes, totales, ajustes] = await Promise.all([
+  listarSolicitudes(db, filtro),
+  contarPorEstado(db),
+  obtenerAjustes(),
+]);
 const total = Object.values(totales).reduce((a, b) => a + b, 0);
 
 // Etiquetas de estado con la paleta de tags de Carbon (tono 20 de fondo, 70 de texto).
@@ -68,6 +94,24 @@ const COLORES: Record<string, string> = {
 };
 
 const soloDigitos = (telefono: string) => telefono.replace(/\D/g, '');
+
+/**
+ * El mensaje que se le manda al cliente, con su nombre y el enlace al final.
+ *
+ * Solo el primer nombre: "Hola Juan Carlos Perez" suena a formulario, y lo que
+ * hace que alguien conteste es que parezca escrito por una persona.
+ */
+const mensajeResena = (nombre: string) => {
+  const plantilla =
+    ajustes?.mensajeResena?.trim() ||
+    'Hola {nombre}, gracias por confiar en nosotros. Si quedaste conforme con la visita, nos ayudaria muchisimo una resena en Google. Te toma un minuto:';
+
+  return `${plantilla.replace('{nombre}', nombre.trim().split(/\s+/)[0])}
+${ajustes?.googleResenas ?? ''}`;
+};
+
+const formatearPedido = (fecha: string) =>
+  new Date(fecha.replace(' ', 'T') + 'Z').toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
 
 const formatearFecha = (iso: string) =>
   new Date(`${iso}T00:00:00`).toLocaleDateString('es-PE', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -188,6 +232,33 @@ const formatearFecha = (iso: string) =>
                   <a href={`tel:${soloDigitos(solicitud.telefono)}`} class="boton boton-terciario">
                     {solicitud.telefono}
                   </a>
+
+                  {/*
+                    Solo despues de la visita, y solo si hay enlace cargado en Ajustes.
+                    Pedir una resena antes de que el trabajo este hecho es la mejor
+                    forma de que no te la dejen — o de que te dejen una mala.
+                  */}
+                  {solicitud.estado === 'completada' && ajustes?.googleResenas && (
+                    <form method="POST" target="_blank" class="contents">
+                      <input type="hidden" name="accion" value="resena" />
+                      <input type="hidden" name="id" value={solicitud.id} />
+                      <input
+                        type="hidden"
+                        name="destino"
+                        value={`https://wa.me/${soloDigitos(solicitud.telefono)}?text=${encodeURIComponent(
+                          mensajeResena(solicitud.nombre),
+                        )}`}
+                      />
+                      <button
+                        type="submit"
+                        class:list={['boton', solicitud.resena_pedida_en ? 'boton-terciario' : 'boton-primario']}
+                      >
+                        {solicitud.resena_pedida_en
+                          ? `Resena pedida el ${formatearPedido(solicitud.resena_pedida_en)}`
+                          : 'Pedir resena en Google'}
+                      </button>
+                    </form>
+                  )}
                 </div>
 
                 <form method="POST" class="mt-5 flex flex-wrap items-end gap-4 border-t border-filete pt-5">

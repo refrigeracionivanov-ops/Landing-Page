@@ -110,6 +110,22 @@ export const ajustes = defineType({
       description: 'La barra de "Llamar / WhatsApp" que queda fija abajo en el celular.',
     }),
     defineField({
+      name: 'googleResenas',
+      title: 'Enlace para dejar resenas en Google',
+      type: 'url',
+      description:
+        'El enlace corto que da tu perfil de negocio en Google para pedir resenas. Sin esto, el boton no aparece.',
+    }),
+    defineField({
+      name: 'mensajeResena',
+      title: 'Mensaje para pedir la resena',
+      type: 'text',
+      rows: 3,
+      description: 'Se le manda por WhatsApp al cliente. {nombre} se reemplaza por su nombre.',
+      initialValue:
+        'Hola {nombre}, gracias por confiar en nosotros. Si quedaste conforme con la visita, nos ayudaria muchisimo una resena en Google. Te toma un minuto:',
+    }),
+    defineField({
       name: 'franjas',
       title: 'Franjas horarias de visita',
       type: 'array',

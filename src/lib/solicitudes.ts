@@ -23,9 +23,14 @@ export interface Solicitud {
   notas: string | null;
   /** Id del evento espejado en Google Calendar. Null si no llego a agendarse. */
   evento_id: string | null;
+  /** Cuando se le pidio la resena de Google. Null si todavia no se le pidio. */
+  resena_pedida_en: string | null;
 }
 
-export type SolicitudNueva = Omit<Solicitud, 'id' | 'creada_en' | 'estado' | 'notas' | 'evento_id'>;
+export type SolicitudNueva = Omit<
+  Solicitud,
+  'id' | 'creada_en' | 'estado' | 'notas' | 'evento_id' | 'resena_pedida_en'
+>;
 
 const marcadores = (cantidad: number) => Array.from({ length: cantidad }, () => '?').join(', ');
 
@@ -126,6 +131,21 @@ export async function actualizarSolicitud(
   const resultado = await db
     .prepare(`UPDATE solicitudes SET ${campos.join(', ')} WHERE id = ?`)
     .bind(...valores, id)
+    .run();
+
+  return resultado.success;
+}
+
+/**
+ * Deja constancia de que a este cliente ya se le pidio la resena.
+ *
+ * La resena en si no pasa por aca: se escribe en Google, que es el punto de
+ * hacerlo asi. Esto solo evita pedirsela dos veces a la misma persona.
+ */
+export async function marcarResenaPedida(db: D1Database, id: number): Promise<boolean> {
+  const resultado = await db
+    .prepare("UPDATE solicitudes SET resena_pedida_en = datetime('now') WHERE id = ?")
+    .bind(id)
     .run();
 
   return resultado.success;

@@ -218,6 +218,28 @@ Ese valor va en `CF_ACCESS_AUD`, y tu dominio de equipo
 > 403 en producción. Es a propósito: es preferible que no carguen a que muestren
 > datos de clientes sin verificar quién entra.
 
+## Resenas: se piden para Google, no se guardan acá
+
+El bloque de testimonios muestra texto que escribe el dueño. No hay formulario público
+para que un cliente deje una reseña, y es a propósito.
+
+Para un servicio local, una reseña en Google Business Profile vale más que una en el
+propio sitio: pesa en el ranking local y la gente le cree más justamente porque el
+negocio no la controla. Un formulario propio, además, arrastra moderación, spam y la
+sospecha razonable de que las reseñas están elegidas.
+
+Así que el sistema solo se ocupa del pedido. Cuando una solicitud pasa a `completada`,
+`/solicitudes` muestra un botón que abre WhatsApp con ese cliente, el mensaje ya
+escrito y el enlace de Google al final. El enlace y el mensaje se configuran en
+`/ajustes`; sin enlace, el botón no aparece.
+
+`resena_pedida_en` (migración `0003`) guarda cuándo se pidió. No guarda la reseña —
+esa vive en Google — solo evita pedírsela dos veces a la misma persona. Volver a
+pedirla sigue siendo posible: es una marca, no un candado.
+
+El destino de WhatsApp lo arma el servidor, no el navegador: ahí están el teléfono del
+cliente y el enlace del negocio, y el formulario solo manda el id.
+
 ## Espejo en Google Calendar
 
 D1 es la fuente de verdad; el calendario es la vista para el día a día. La idea es

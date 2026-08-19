@@ -228,6 +228,39 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
           </label>
         </section>
 
+        <section className="mb-10 bg-white p-6">
+          <h2 className="mb-2 text-base font-semibold text-[#161616]">Resenas en Google</h2>
+          <p className="mb-6 text-sm text-[#6f6f6f]">
+            Cuando marcas una visita como <strong>Completada</strong> en Solicitudes, aparece un boton para pedirle
+            la resena a ese cliente por WhatsApp. Sin el enlace de abajo, ese boton no aparece.
+          </p>
+
+          <Campo
+            etiqueta="Enlace para dejar resenas"
+            ayuda="En tu perfil de negocio en Google, la opcion para pedir resenas te da un enlace corto. Pegalo tal cual."
+          >
+            <input
+              className={CAMPO}
+              placeholder="https://g.page/r/..."
+              value={datos.googleResenas ?? ''}
+              onChange={(e) => cambiar('googleResenas', e.target.value)}
+            />
+          </Campo>
+
+          <div className="mt-6">
+            <Campo
+              etiqueta="Mensaje que se manda"
+              ayuda="Donde escribas {nombre} se pone el nombre del cliente. El enlace se agrega solo al final."
+            >
+              <textarea
+                className={`${CAMPO} min-h-24`}
+                value={datos.mensajeResena ?? ''}
+                onChange={(e) => cambiar('mensajeResena', e.target.value)}
+              />
+            </Campo>
+          </div>
+        </section>
+
         <section className="bg-white p-6">
           <h2 className="mb-2 text-base font-semibold text-[#161616]">Cuando recibis visitas</h2>
           <p className="mb-6 text-sm text-[#6f6f6f]">

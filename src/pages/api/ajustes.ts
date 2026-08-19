@@ -45,6 +45,11 @@ function validar(datos: Record<string, unknown>): string | null {
   const email = texto(datos.email);
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'El correo no parece un correo.';
 
+  const google = texto(datos.googleResenas);
+  if (google && !/^https:\/\/[^\s]+$/.test(google)) {
+    return 'El enlace de resenas de Google tiene que empezar con https:// y no llevar espacios.';
+  }
+
   if (datos.mostrarBarraContacto !== undefined && typeof datos.mostrarBarraContacto !== 'boolean') {
     return 'El valor de la barra de contacto no es valido.';
   }
@@ -91,6 +96,8 @@ function armar(datos: Record<string, unknown>) {
     email: texto(datos.email),
     direccion: texto(datos.direccion),
     horario: texto(datos.horario),
+    googleResenas: texto(datos.googleResenas),
+    mensajeResena: texto(datos.mensajeResena),
     mostrarBarraContacto: datos.mostrarBarraContacto !== false,
     diasAnticipacion: typeof datos.diasAnticipacion === 'number' ? datos.diasAnticipacion : 1,
     franjas: Array.isArray(datos.franjas)

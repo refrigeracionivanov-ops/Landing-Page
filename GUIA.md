@@ -59,6 +59,21 @@ Si después la pasás a "Cancelada", el evento se borra solo. Si la pasás a
 > acomodar la próxima vez que toques esa solicitud. Cambiá el estado acá y el
 > calendario se actualiza solo.
 
+**Cuando la pasás a "Completada" aparece el botón *Pedir reseña en Google*.** Abre el
+chat de WhatsApp con ese cliente, con el mensaje ya escrito y el enlace a tu perfil
+de Google. Vos solo apretás enviar.
+
+El botón queda marcado con la fecha en que se la pediste, para que no le insistas dos
+veces a la misma persona. Si querés volver a pedirla, se puede: sigue funcionando.
+
+> Las reseñas en Google valen más que las de tu propia web: influyen en si aparecés
+> cuando alguien busca "técnico aire acondicionado" en tu zona, y la gente les cree
+> más porque no las escribís vos. Por eso el botón lleva ahí y no a un formulario
+> nuestro.
+>
+> El momento importa: pedirla el mismo día de la visita, cuando el equipo recién
+> quedó andando, funciona mucho mejor que una semana después.
+
 ### 2. Cambiar textos y fotos de la página
 
 Entrá a **tudominio.com/administrador**. Vas a ver tu página en el medio, tal como la
@@ -97,6 +112,11 @@ Más abajo, en **Cuando recibís visitas**:
   aceptás por día en cada una. Podés agregar y quitar
 - **Días mínimos de anticipación** — con 1, lo más pronto que alguien puede pedir es
   mañana
+
+En **Reseñas en Google** va el enlace corto que da tu perfil de negocio en Google
+para pedir reseñas, y el mensaje que se le manda al cliente. Donde escribas
+`{nombre}` se pone su nombre. **Sin ese enlace cargado, el botón de pedir reseña no
+aparece en Solicitudes.**
 
 Cuando termines, **Guardar** arriba a la derecha.
 
