@@ -59,11 +59,15 @@ const COMPONENTES = {
      * porque una directiva `client:*` tiene que ir sobre el componente escrito,
      * no sobre una variable.
      *
-     * `client:visible` y no `client:load`: esta al final de la pagina, y no
-     * tiene sentido descargar React antes de que alguien llegue hasta aca.
+     * `client:load` y no `client:visible`, aunque este al final de la pagina.
+     * Con `visible`, React se empieza a descargar recien cuando el formulario
+     * entra en pantalla — o sea, justo cuando alguien lo va a usar. Hasta que
+     * termina, el boton "Siguiente" es HTML muerto: se ve normal y no responde.
+     * Ahorrar esa descarga es exactamente el ahorro que no hay que hacer en el
+     * unico bloque que es el objetivo de la pagina.
      */
     if (bloque._type === 'agendarBloque') {
-      return <Agendar client:visible bloque={bloque as any} ajustes={ajustes} distritos={distritos} />;
+      return <Agendar client:load bloque={bloque as any} ajustes={ajustes} distritos={distritos} />;
     }
 
     // El `any` es sobre el componente, no sobre el dato: TypeScript intersecta las

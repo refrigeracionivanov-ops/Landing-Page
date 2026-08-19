@@ -33,6 +33,17 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
   const [enviado, setEnviado] = useState(false);
   const [fechaMinima, setFechaMinima] = useState('');
 
+  /**
+   * Si el formulario ya responde.
+   *
+   * El HTML llega del servidor con los botones dibujados, pero hasta que React
+   * no se monta no hay nadie escuchando el clic. Arranca en `false` — que es lo
+   * que se renderiza en el servidor — y pasa a `true` al montar, asi el boton
+   * se ve apagado en esa ventana en vez de parecer normal y no hacer nada.
+   */
+  const [listo, setListo] = useState(false);
+  useEffect(() => setListo(true), []);
+
   const enPaso2 = paso === 2;
 
   /**
@@ -161,7 +172,13 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
                 </label>
               </div>
 
-              <button type="button" onClick={irAPaso2} className="boton boton-primario mt-8 w-full">
+              <button
+                type="button"
+                onClick={irAPaso2}
+                disabled={!listo}
+                aria-busy={!listo}
+                className="boton boton-primario mt-8 w-full"
+              >
                 Siguiente
               </button>
             </div>
@@ -276,7 +293,7 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
                 <button type="button" onClick={() => setPaso(1)} className="boton boton-terciario">
                   Volver
                 </button>
-                <button type="submit" disabled={enviando} className="boton boton-primario flex-1">
+                <button type="submit" disabled={enviando || !listo} className="boton boton-primario flex-1">
                   {enviando ? 'Enviando...' : 'Solicitar visita'}
                 </button>
               </div>
