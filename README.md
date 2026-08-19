@@ -142,9 +142,12 @@ exigiría exponer un token de escritura o montar un proxy con límites de tamañ
 cliente ya tiene las fotos en el teléfono donde está WhatsApp.
 
 **El formulario de agendamiento es el único bloque que llega al navegador.** Los
-demás se renderizan a HTML y ahí termina su trabajo. Ese lleva `client:visible` en
-`Bloques.astro`: está al final de la página, y no tiene sentido descargar React antes
-de que alguien llegue hasta ahí.
+demás se renderizan a HTML y ahí termina su trabajo. Ese lleva `client:load` en
+`Bloques.astro` — no `client:visible`, aunque esté al final de la página. Con
+`visible`, React empieza a descargarse recién cuando el formulario entra en pantalla,
+o sea justo cuando alguien lo va a usar; hasta que termina, el botón "Siguiente" es
+HTML sin nadie escuchando el clic. Los botones además llegan deshabilitados del
+servidor y se encienden al montar: la ventana sigue existiendo, pero se ve.
 
 **El horario y la dirección se traducen a schema.org, no se piden dos veces.** El
 dueño escribe "Lunes a sábado, 8:00 a 18:00" porque es lo que se muestra en la página;
