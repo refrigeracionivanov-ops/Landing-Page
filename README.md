@@ -133,6 +133,11 @@ GROQ.
 exigiría exponer un token de escritura o montar un proxy con límites de tamaño, y el
 cliente ya tiene las fotos en el teléfono donde está WhatsApp.
 
+**El formulario de agendamiento es el único bloque que llega al navegador.** Los
+demás se renderizan a HTML y ahí termina su trabajo. Ese lleva `client:visible` en
+`Bloques.astro`: está al final de la página, y no tiene sentido descargar React antes
+de que alguien llegue hasta ahí.
+
 **El token de Access se verifica aunque Cloudflare ya filtre en el borde.** La URL
 interna del deployment (`*.workers.dev`) puede quedar accesible sin pasar por Access.
 `src/lib/acceso.ts` valida la firma contra las claves públicas del equipo.
@@ -252,9 +257,5 @@ página; `/admin` (Sanity Studio) quedó para lo que el editor nuevo todavía no
 Hasta que eso esté cubierto, el Studio no se puede sacar. Cuando lo esté: borrar la
 integración `sanity()` de `astro.config.mjs`, sus dependencias, y el parche de Windows
 que arrastra.
-
-**Falta portar `Agendar.astro` a `.tsx`.** Es el único bloque que sigue en Astro:
-los otros diez ya se borraron. Mientras siga así, el formulario de agendamiento se ve
-en el sitio pero no en la vista previa del editor.
 
 **Mercado Pago**, si en algún momento se cobra seña de diagnóstico.

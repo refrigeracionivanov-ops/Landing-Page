@@ -12,7 +12,7 @@ import Promociones from './bloques/Promociones.tsx';
 import Confianza from './bloques/Confianza.tsx';
 import Testimonios from './bloques/Testimonios.tsx';
 import Faq from './bloques/Faq.tsx';
-import Agendar from './bloques/Agendar.astro';
+import Agendar from './bloques/Agendar.tsx';
 import Cta from './bloques/Cta.tsx';
 import type { Bloque, Ajustes } from '../tipos';
 
@@ -50,8 +50,24 @@ const COMPONENTES = {
 
 {
   secciones.map((bloque) => {
+    /**
+     * El unico bloque que llega al navegador.
+     *
+     * Los demas se renderizan a HTML y ahi termina su trabajo: no tienen nada
+     * que responder. Este es un formulario en dos pasos que valida, envia y
+     * muestra el resultado, asi que necesita hidratarse. Va aparte del mapa
+     * porque una directiva `client:*` tiene que ir sobre el componente escrito,
+     * no sobre una variable.
+     *
+     * `client:visible` y no `client:load`: esta al final de la pagina, y no
+     * tiene sentido descargar React antes de que alguien llegue hasta aca.
+     */
+    if (bloque._type === 'agendarBloque') {
+      return <Agendar client:visible bloque={bloque as any} ajustes={ajustes} distritos={distritos} />;
+    }
+
     // El `any` es sobre el componente, no sobre el dato: TypeScript intersecta las
-    // props de los 11 bloques y el resultado es `never`. El tipo correcto de cada
+    // props de los bloques y el resultado es `never`. El tipo correcto de cada
     // bloque ya lo garantiza su propio componente.
     const Componente = COMPONENTES[bloque._type as keyof typeof COMPONENTES] as any;
 

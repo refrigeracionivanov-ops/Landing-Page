@@ -1,0 +1,321 @@
+import { useEffect, useRef, useState } from 'react';
+import type { AgendarBloque, Ajustes } from '../../tipos';
+
+interface Props {
+  bloque: AgendarBloque;
+  ajustes: Ajustes;
+  distritos: string[];
+}
+
+const SERVICIOS = ['Instalacion', 'Mantenimiento', 'Reparacion', 'Limpieza de ductos', 'Otro / no estoy seguro'];
+
+// "No estoy seguro" va primero a proposito: la mayoria de clientes no sabe que
+// equipo tiene, y un formulario que los obliga a saberlo los expulsa.
+const EQUIPOS = ['No estoy seguro', 'Split (pared)', 'Ventana', 'Ducteado / central', 'Portatil', 'Extractor / ventilacion'];
+
+const FRANJAS_POR_DEFECTO = [
+  { etiqueta: 'Manana (8:00 - 12:00)', cupo: 3 },
+  { etiqueta: 'Tarde (13:00 - 18:00)', cupo: 3 },
+];
+
+const aIso = (fecha: Date) =>
+  new Date(fecha.getTime() - fecha.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+
+export default function Agendar({ bloque, ajustes, distritos }: Props) {
+  const franjas = ajustes.franjas?.length ? ajustes.franjas : FRANJAS_POR_DEFECTO;
+
+  const formulario = useRef<HTMLFormElement>(null);
+  const exito = useRef<HTMLDivElement>(null);
+
+  const [paso, setPaso] = useState<1 | 2>(1);
+  const [error, setError] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
+  const [enviado, setEnviado] = useState(false);
+  const [fechaMinima, setFechaMinima] = useState('');
+
+  const enPaso2 = paso === 2;
+
+  /**
+   * La fecha minima se calcula en el navegador, no al renderizar.
+   *
+   * El servidor responde en UTC: para alguien en Lima, "manana" calculado alla
+   * puede seguir siendo hoy aca. Ademas quedaria escrita en el HTML de la
+   * respuesta, y quien tuviera la pagina abierta pasada la medianoche se
+   * quedaria con la fecha de ayer. El servidor la vuelve a validar en
+   * `/api/reservar`, porque esto se puede saltear desde el navegador.
+   */
+  useEffect(() => {
+    const minima = new Date();
+    minima.setDate(minima.getDate() + (ajustes.diasAnticipacion ?? 1));
+    setFechaMinima(aIso(minima));
+  }, [ajustes.diasAnticipacion]);
+
+  useEffect(() => {
+    if (enviado) exito.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [enviado]);
+
+  function irAPaso2() {
+    if (!formulario.current?.reportValidity()) return;
+    setPaso(2);
+    formulario.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /** Recibe el formulario y no el evento: los tipos de eventos de React 19
+   *  estan marcados como obsoletos, y aca lo unico que hace falta es el form. */
+  async function enviar(form: HTMLFormElement) {
+    setError(null);
+    if (!form.reportValidity()) return;
+
+    setEnviando(true);
+
+    try {
+      const respuesta = await fetch('/api/reservar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(form))),
+      });
+
+      const datos = (await respuesta.json().catch(() => ({}))) as { mensaje?: string };
+
+      if (!respuesta.ok) {
+        setError(datos.mensaje ?? 'No pudimos enviar la solicitud. Escribinos por WhatsApp y te atendemos igual.');
+        return;
+      }
+
+      setEnviado(true);
+    } catch {
+      setError('Parece que se corto la conexion. Escribinos por WhatsApp y te atendemos igual.');
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  return (
+    <section id="agendar" className="banda seccion">
+      <div className="contenedor">
+        <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
+          <div>
+            {bloque.titulo && <h2 className="titulo-seccion text-tinta">{bloque.titulo}</h2>}
+            {bloque.texto && <p className="cuerpo-lg mt-4 text-tinta-media text-pretty">{bloque.texto}</p>}
+            <p className="cuerpo-sm mt-6 border-t border-superficie-2 pt-6 text-tinta-media">
+              No cobramos nada por agendar. Confirmamos la hora exacta por WhatsApp.
+            </p>
+          </div>
+
+          <form
+            ref={formulario}
+            onSubmit={(evento) => {
+              evento.preventDefault();
+              void enviar(evento.currentTarget);
+            }}
+            className={`border border-superficie-2 bg-lienzo p-6 sm:p-8 ${enviado ? 'hidden' : ''}`}
+            noValidate
+          >
+            <div className="mb-8">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="cuerpo-sm text-tinta-media">
+                  {enPaso2 ? 'Paso 2 de 2 — Tu visita' : 'Paso 1 de 2 — Tus datos'}
+                </span>
+                <span className="cuerpo-sm text-tinta-media">{enPaso2 ? '100%' : '50%'}</span>
+              </div>
+              <div className="h-1 bg-superficie-2">
+                <div className="h-full bg-azul transition-all duration-300" style={{ width: enPaso2 ? '100%' : '50%' }} />
+              </div>
+            </div>
+
+            <div className={enPaso2 ? 'hidden' : undefined}>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <label className="block">
+                  <span className="etiqueta-campo">Nombre y apellido *</span>
+                  <input name="nombre" type="text" required autoComplete="name" className="campo" />
+                </label>
+
+                <label className="block">
+                  <span className="etiqueta-campo">Telefono / WhatsApp *</span>
+                  <input name="telefono" type="tel" required autoComplete="tel" inputMode="tel" className="campo" />
+                </label>
+
+                <label className="block">
+                  <span className="etiqueta-campo">Distrito *</span>
+                  <select name="distrito" required defaultValue="" className="campo">
+                    <option value="">Elegi tu distrito</option>
+                    {distritos.map((distrito) => (
+                      <option key={distrito} value={distrito}>
+                        {distrito}
+                      </option>
+                    ))}
+                    <option value="Otro">Otro (no figura en la lista)</option>
+                  </select>
+                </label>
+
+                <label className="block">
+                  <span className="etiqueta-campo">Que necesitas *</span>
+                  <select name="tipoServicio" required defaultValue="" className="campo">
+                    <option value="">Elegi un servicio</option>
+                    {SERVICIOS.map((servicio) => (
+                      <option key={servicio} value={servicio}>
+                        {servicio}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <button type="button" onClick={irAPaso2} className="boton boton-primario mt-8 w-full">
+                Siguiente
+              </button>
+            </div>
+
+            {/*
+              El paso 2 se oculta, no se desmonta: asi lo que ya escribieron sigue
+              ahi si vuelven atras.
+
+              Y va apagado mientras esta oculto, porque `display:none` NO exime a
+              un campo de la validacion del navegador; solo `disabled` lo hace.
+              Sin eso, `reportValidity()` en el paso 1 falla por los `required`
+              del paso 2, no puede enfocarlos porque estan ocultos, y corta en
+              silencio: el boton "Siguiente" no hace nada. Un campo apagado
+              conserva su valor, solo queda fuera de la validacion y del FormData.
+            */}
+            <div className={enPaso2 ? undefined : 'hidden'}>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <label className="block sm:col-span-2">
+                  <span className="etiqueta-campo">Direccion *</span>
+                  <input
+                    name="direccion"
+                    type="text"
+                    required
+                    disabled={!enPaso2}
+                    autoComplete="street-address"
+                    className="campo"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="etiqueta-campo">Tipo de equipo</span>
+                  <select name="tipoEquipo" disabled={!enPaso2} className="campo">
+                    {EQUIPOS.map((equipo) => (
+                      <option key={equipo} value={equipo}>
+                        {equipo}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="block">
+                  <span className="etiqueta-campo">Dia preferido *</span>
+                  {/* `key` fuerza a React a rehacer el campo cuando llega la fecha
+                      minima: un `defaultValue` que cambia no se aplica solo. */}
+                  <input
+                    key={fechaMinima}
+                    name="fechaPreferida"
+                    type="date"
+                    required
+                    disabled={!enPaso2}
+                    min={fechaMinima}
+                    defaultValue={fechaMinima}
+                    className="campo"
+                  />
+                </label>
+
+                <label className="block sm:col-span-2">
+                  <span className="etiqueta-campo">Contanos que pasa</span>
+                  <textarea
+                    name="descripcion"
+                    rows={3}
+                    disabled={!enPaso2}
+                    className="campo"
+                    placeholder="Ej: el equipo enfria poco y hace ruido desde hace una semana"
+                  />
+                </label>
+
+                <fieldset className="block sm:col-span-2">
+                  <legend className="etiqueta-campo">Franja horaria *</legend>
+                  <div className="grid gap-px bg-superficie-2 sm:grid-cols-2">
+                    {franjas.map((franja, indice) => (
+                      <label
+                        key={franja.etiqueta}
+                        className="cuerpo-sm flex min-h-12 cursor-pointer items-center gap-3 bg-superficie px-4 py-3 text-tinta has-checked:bg-azul has-checked:text-white"
+                      >
+                        <input
+                          type="radio"
+                          name="franja"
+                          value={franja.etiqueta}
+                          required
+                          disabled={!enPaso2}
+                          defaultChecked={indice === 0}
+                          className="accent-azul"
+                        />
+                        {franja.etiqueta}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              </div>
+
+              {/* Campo trampa: doble proteccion — desplazado visualmente Y oculto semanticamente */}
+              <div
+                className="sr-only"
+                aria-hidden="true"
+                style={{ position: 'absolute', width: '1px', height: '1px', overflow: 'hidden' }}
+              >
+                <label>
+                  No completar
+                  <input name="sitioWeb" type="text" tabIndex={-1} disabled={!enPaso2} autoComplete="off" />
+                </label>
+              </div>
+
+              {/* Notificacion en linea de Carbon: barra de color a la izquierda, sin fondo saturado. */}
+              {error && (
+                <p className="cuerpo-sm mt-6 border-l-[3px] border-error bg-superficie px-4 py-3 text-tinta" role="alert">
+                  {error}
+                </p>
+              )}
+
+              <div className="mt-8 flex gap-px">
+                <button type="button" onClick={() => setPaso(1)} className="boton boton-terciario">
+                  Volver
+                </button>
+                <button type="submit" disabled={enviando} className="boton boton-primario flex-1">
+                  {enviando ? 'Enviando...' : 'Solicitar visita'}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        {enviado && (
+          <div ref={exito} className="mt-10 border border-superficie-2 bg-lienzo p-8 lg:max-w-2xl">
+            <div className="flex size-12 items-center justify-center bg-exito text-white">
+              <svg
+                className="size-6"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m5 13 4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="titulo-tarjeta mt-6 text-tinta">Listo</h3>
+            <p className="mt-3 max-w-md text-tinta-media text-pretty">{bloque.mensajeExito}</p>
+            <a
+              href={`https://wa.me/${ajustes.whatsapp}?text=${encodeURIComponent(
+                'Hola, acabo de solicitar una visita por la web y les mando fotos del equipo.',
+              )}`}
+              target="_blank"
+              rel="noopener"
+              className="boton boton-whatsapp mt-6"
+            >
+              Enviar fotos del equipo por WhatsApp
+            </a>
+            <p className="cuerpo-sm mt-3 text-tinta-media">Con una foto podemos estimar el trabajo antes de ir.</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

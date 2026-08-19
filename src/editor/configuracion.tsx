@@ -16,6 +16,7 @@ import Confianza from '../components/bloques/Confianza';
 import Cobertura from '../components/bloques/Cobertura';
 import Testimonios from '../components/bloques/Testimonios';
 import Faq from '../components/bloques/Faq';
+import Agendar from '../components/bloques/Agendar';
 import Cta from '../components/bloques/Cta';
 
 /**
@@ -359,17 +360,13 @@ export const configuracion: Config = {
       },
       defaultProps: { titulo: 'Agenda tu visita tecnica' },
       render: (props: any) => (
-        <section className="banda seccion">
-          <div className="contenedor">
-            <h2 className="titulo-seccion text-tinta">{props.titulo}</h2>
-            {props.texto && <p className="cuerpo-lg mt-4 text-tinta-media">{props.texto}</p>}
-            <div className="mt-8 border border-dashed border-superficie-2 bg-lienzo p-8 text-center">
-              <p className="cuerpo-sm text-tinta-media">
-                Formulario de agendamiento — se muestra completo en el sitio publicado.
-              </p>
-            </div>
-          </div>
-        </section>
+        <Agendar
+          bloque={comoBloque(props)}
+          ajustes={ajustesDe(props)}
+          /* Ya vienen como lista de textos desde el servidor: `aplanar` es para
+             las listas que edita Puck, que viajan como objetos. */
+          distritos={props.puck.metadata.distritos}
+        />
       ),
     },
 
