@@ -5,19 +5,19 @@ import { bloques } from './bloques';
 
 export const pagina = defineType({
   name: 'pagina',
-  title: 'Pagina',
+  title: 'Página',
   type: 'document',
   fields: [
     defineField({
       name: 'titulo',
-      title: 'Titulo interno',
+      title: 'Título interno',
       type: 'string',
       description: 'Solo para identificarla en este panel. No se muestra en el sitio.',
       validation: (r) => r.required(),
     }),
     defineField({
       name: 'slug',
-      title: 'Direccion',
+      title: 'Dirección',
       type: 'slug',
       options: { source: 'titulo', maxLength: 96 },
       description: 'Usa "inicio" para la pagina principal.',
@@ -31,13 +31,13 @@ export const pagina = defineType({
       fields: [
         defineField({
           name: 'titulo',
-          title: 'Titulo en Google',
+          title: 'Título en Google',
           type: 'string',
           validation: (r) => r.max(60).warning('Google corta alrededor de los 60 caracteres.'),
         }),
         defineField({
           name: 'descripcion',
-          title: 'Descripcion en Google',
+          title: 'Descripción en Google',
           type: 'text',
           rows: 3,
           validation: (r) => r.max(160).warning('Google corta alrededor de los 160 caracteres.'),
@@ -46,7 +46,7 @@ export const pagina = defineType({
     }),
     defineField({
       name: 'secciones',
-      title: 'Secciones de la pagina',
+      title: 'Secciones de la página',
       type: 'array',
       description: 'Agrega, arrastra para reordenar, o borra secciones. Se muestran en este orden.',
       of: bloques.map((b) => defineArrayMember({ type: b.name })),
@@ -71,36 +71,36 @@ export const ajustes = defineType({
     }),
     defineField({
       name: 'telefono',
-      title: 'Telefono',
+      title: 'Teléfono',
       type: 'string',
-      description: 'Con codigo de pais. Ej: +51 999 888 777',
+      description: 'Con código de país. Ej: +54 11 4567-8900',
       validation: (r) => r.required(),
     }),
     defineField({
       name: 'whatsapp',
       title: 'WhatsApp',
       type: 'string',
-      description: 'Solo numeros, con codigo de pais y sin espacios ni signos. Ej: 51999888777',
+      description: 'Solo números, con código de país y sin espacios ni signos. Ej: 5491145678900',
       validation: (r) =>
         r
           .required()
           .regex(/^\d{8,15}$/, { name: 'solo numeros' })
-          .error('Solo numeros, sin +, espacios ni guiones. Ej: 51999888777'),
+          .error('Solo números, sin +, espacios ni guiones. Ej: 5491145678900'),
     }),
     defineField({
       name: 'mensajeWhatsapp',
       title: 'Mensaje precargado de WhatsApp',
       type: 'string',
-      initialValue: 'Hola, quiero consultar por un servicio de ventilacion.',
+      initialValue: 'Hola, quiero consultar por un servicio de ventilación.',
       description: 'Lo que aparece ya escrito cuando alguien abre el chat desde la web.',
     }),
     defineField({ name: 'email', title: 'Correo', type: 'string' }),
-    defineField({ name: 'direccion', title: 'Direccion', type: 'string' }),
+    defineField({ name: 'direccion', title: 'Dirección', type: 'string' }),
     defineField({
       name: 'horario',
-      title: 'Horario de atencion',
+      title: 'Horario de atención',
       type: 'string',
-      initialValue: 'Lunes a sabado, 8:00 a 18:00',
+      initialValue: 'Lunes a sábado, 8:00 a 18:00',
     }),
     defineField({
       name: 'mostrarBarraContacto',
@@ -111,25 +111,25 @@ export const ajustes = defineType({
     }),
     defineField({
       name: 'googleResenas',
-      title: 'Enlace para dejar resenas en Google',
+      title: 'Enlace para dejar reseñas en Google',
       type: 'url',
       description:
-        'El enlace corto que da tu perfil de negocio en Google para pedir resenas. Sin esto, el boton no aparece.',
+        'El enlace corto que da tu perfil de negocio en Google para pedir reseñas. Sin esto, el botón no aparece.',
     }),
     defineField({
       name: 'mensajeResena',
-      title: 'Mensaje para pedir la resena',
+      title: 'Mensaje para pedir la reseña',
       type: 'text',
       rows: 3,
       description: 'Se le manda por WhatsApp al cliente. {nombre} se reemplaza por su nombre.',
       initialValue:
-        'Hola {nombre}, gracias por confiar en nosotros. Si quedaste conforme con la visita, nos ayudaria muchisimo una resena en Google. Te toma un minuto:',
+        'Hola {nombre}, gracias por confiar en nosotros. Si quedaste conforme con la visita, nos ayudaría muchísimo una reseña en Google. Te toma un minuto:',
     }),
     defineField({
       name: 'franjas',
       title: 'Franjas horarias de visita',
       type: 'array',
-      description: 'Las opciones que ve el cliente al agendar, y cuantas visitas aceptas por franja.',
+      description: 'Las opciones que ve el cliente al agendar, y cuántas visitas aceptás por franja.',
       of: [
         defineArrayMember({
           type: 'object',
@@ -138,12 +138,12 @@ export const ajustes = defineType({
               name: 'etiqueta',
               title: 'Etiqueta',
               type: 'string',
-              description: 'Ej: "Manana (8:00 - 12:00)"',
+              description: 'Ej: "Mañana (8:00 - 12:00)"',
               validation: (r) => r.required(),
             }),
             defineField({
               name: 'cupo',
-              title: 'Visitas por dia en esta franja',
+              title: 'Visitas por día en esta franja',
               type: 'number',
               initialValue: 3,
               validation: (r) => r.required().min(1).max(20),
@@ -155,10 +155,10 @@ export const ajustes = defineType({
     }),
     defineField({
       name: 'diasAnticipacion',
-      title: 'Dias minimos de anticipacion',
+      title: 'Días mínimos de anticipación',
       type: 'number',
       initialValue: 1,
-      description: 'Con 1, lo mas temprano que alguien puede pedir es manana.',
+      description: 'Con 1, lo más temprano que alguien puede pedir es mañana.',
       validation: (r) => r.min(0).max(30),
     }),
   ],

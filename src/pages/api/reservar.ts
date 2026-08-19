@@ -20,17 +20,17 @@ const sanity = createClient({
 /**
  * Que dia es hoy para el negocio, no para el servidor.
  *
- * El worker corre en UTC. El cliente que agenda esta en Lima, cinco horas
- * atras: entre las 19:00 y la medianoche de Lima el servidor ya cambio de dia
+ * El worker corre en UTC. El cliente que agenda esta en Buenos Aires, tres
+ * horas atras: entre las 21:00 y la medianoche el servidor ya cambio de dia
  * y el navegador no. Calculando "hoy" en UTC, la fecha minima quedaba un dia
  * adelante de la que el propio formulario proponia, y toda solicitud hecha en
  * esa franja se rechazaba con "esa fecha ya paso".
  *
  * `en-CA` formatea como AAAA-MM-DD, que es justo lo que viaja en el formulario.
  */
-const hoyEnLima = () =>
+const hoyLocal = () =>
   new Intl.DateTimeFormat('en-CA', {
-    timeZone: GOOGLE_CALENDAR_TIMEZONE || 'America/Lima',
+    timeZone: GOOGLE_CALENDAR_TIMEZONE || 'America/Argentina/Buenos_Aires',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -112,7 +112,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   // El navegador ya limita la fecha minima, pero eso se puede saltear.
   // La regla de verdad se aplica aca.
-  const minimo = sumarDias(hoyEnLima(), ajustes?.diasAnticipacion ?? 1);
+  const minimo = sumarDias(hoyLocal(), ajustes?.diasAnticipacion ?? 1);
 
   // Comparacion de textos: dos fechas en formato AAAA-MM-DD se ordenan solas.
   if (campos.fechaPreferida < minimo) {

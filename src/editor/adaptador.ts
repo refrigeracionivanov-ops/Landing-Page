@@ -46,8 +46,8 @@ export interface ItemPuck {
 /**
  * Listas de texto suelto que Puck no sabe manejar.
  *
- * Sanity guarda `["Miraflores", "Surco"]`; Puck solo edita listas de objetos,
- * asi que en el editor viajan como `[{ valor: "Miraflores" }]`. Estas dos
+ * Sanity guarda `["Palermo", "Belgrano"]`; Puck solo edita listas de objetos,
+ * asi que en el editor viajan como `[{ valor: "Palermo" }]`. Estas dos
  * tablas dicen donde pasa, para no repetir la conversion en cada bloque.
  */
 const LISTAS_PLANAS: Record<string, string[]> = {

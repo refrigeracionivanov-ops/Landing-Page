@@ -22,7 +22,7 @@ const respuesta = (datos: object, estado = 200) =>
 
 export const POST: APIRoute = async ({ request }) => {
   const acceso = await verificarAcceso(request);
-  if (!acceso.autorizado) return respuesta({ error: acceso.motivo ?? 'Sin permiso para subir imagenes.' }, 403);
+  if (!acceso.autorizado) return respuesta({ error: acceso.motivo ?? 'Sin permiso para subir imágenes.' }, 403);
 
   if (!SANITY_WRITE_TOKEN) return respuesta({ error: 'Falta SANITY_WRITE_TOKEN en el servidor.' }, 500);
 
@@ -35,15 +35,15 @@ export const POST: APIRoute = async ({ request }) => {
     return respuesta({ error: 'No se pudo leer el archivo.' }, 400);
   }
 
-  if (!archivo) return respuesta({ error: 'No llego ningun archivo.' }, 400);
+  if (!archivo) return respuesta({ error: 'No llegó ningún archivo.' }, 400);
 
   if (!FORMATOS.has(archivo.type)) {
-    return respuesta({ error: `Formato no admitido (${archivo.type || 'desconocido'}). Usa JPG, PNG, WebP o AVIF.` }, 400);
+    return respuesta({ error: `Formato no admitido (${archivo.type || 'desconocido'}). Usá JPG, PNG, WebP o AVIF.` }, 400);
   }
 
   if (archivo.size > MAXIMO) {
     const mb = (archivo.size / 1024 / 1024).toFixed(1);
-    return respuesta({ error: `La imagen pesa ${mb} MB y el maximo son 10 MB.` }, 400);
+    return respuesta({ error: `La imagen pesa ${mb} MB y el máximo son 10 MB.` }, 400);
   }
 
   const cliente = createClient({
@@ -76,6 +76,6 @@ export const POST: APIRoute = async ({ request }) => {
   } catch (error) {
     const detalle = error instanceof Error ? error.message : 'Error desconocido';
     console.error('[imagen] Fallo la subida:', detalle);
-    return respuesta({ error: `Sanity rechazo la imagen: ${detalle}` }, 502);
+    return respuesta({ error: `Sanity rechazó la imagen: ${detalle}` }, 502);
   }
 };

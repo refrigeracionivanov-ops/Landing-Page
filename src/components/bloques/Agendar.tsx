@@ -7,14 +7,14 @@ interface Props {
   distritos: string[];
 }
 
-const SERVICIOS = ['Instalacion', 'Mantenimiento', 'Reparacion', 'Limpieza de ductos', 'Otro / no estoy seguro'];
+const SERVICIOS = ['Instalación', 'Mantenimiento', 'Reparación', 'Limpieza de conductos', 'Otro / no estoy seguro'];
 
 // "No estoy seguro" va primero a proposito: la mayoria de clientes no sabe que
 // equipo tiene, y un formulario que los obliga a saberlo los expulsa.
-const EQUIPOS = ['No estoy seguro', 'Split (pared)', 'Ventana', 'Ducteado / central', 'Portatil', 'Extractor / ventilacion'];
+const EQUIPOS = ['No estoy seguro', 'Split (pared)', 'Ventana', 'Conductos / central', 'Portátil', 'Extractor / ventilación'];
 
 const FRANJAS_POR_DEFECTO = [
-  { etiqueta: 'Manana (8:00 - 12:00)', cupo: 3 },
+  { etiqueta: 'Mañana (8:00 - 12:00)', cupo: 3 },
   { etiqueta: 'Tarde (13:00 - 18:00)', cupo: 3 },
 ];
 
@@ -38,7 +38,7 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
   /**
    * La fecha minima se calcula en el navegador, no al renderizar.
    *
-   * El servidor responde en UTC: para alguien en Lima, "manana" calculado alla
+   * El servidor responde en UTC: para alguien en Buenos Aires, "manana" alla
    * puede seguir siendo hoy aca. Ademas quedaria escrita en el HTML de la
    * respuesta, y quien tuviera la pagina abierta pasada la medianoche se
    * quedaria con la fecha de ayer. El servidor la vuelve a validar en
@@ -84,7 +84,7 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
 
       setEnviado(true);
     } catch {
-      setError('Parece que se corto la conexion. Escribinos por WhatsApp y te atendemos igual.');
+      setError('Parece que se cortó la conexión. Escribinos por WhatsApp y te atendemos igual.');
     } finally {
       setEnviando(false);
     }
@@ -131,14 +131,14 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
                 </label>
 
                 <label className="block">
-                  <span className="etiqueta-campo">Telefono / WhatsApp *</span>
+                  <span className="etiqueta-campo">Teléfono / WhatsApp *</span>
                   <input name="telefono" type="tel" required autoComplete="tel" inputMode="tel" className="campo" />
                 </label>
 
                 <label className="block">
-                  <span className="etiqueta-campo">Distrito *</span>
+                  <span className="etiqueta-campo">Barrio *</span>
                   <select name="distrito" required defaultValue="" className="campo">
-                    <option value="">Elegi tu distrito</option>
+                    <option value="">Elegí tu barrio</option>
                     {distritos.map((distrito) => (
                       <option key={distrito} value={distrito}>
                         {distrito}
@@ -149,9 +149,9 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
                 </label>
 
                 <label className="block">
-                  <span className="etiqueta-campo">Que necesitas *</span>
+                  <span className="etiqueta-campo">Qué necesitás *</span>
                   <select name="tipoServicio" required defaultValue="" className="campo">
-                    <option value="">Elegi un servicio</option>
+                    <option value="">Elegí un servicio</option>
                     {SERVICIOS.map((servicio) => (
                       <option key={servicio} value={servicio}>
                         {servicio}
@@ -180,7 +180,7 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
             <div className={enPaso2 ? undefined : 'hidden'}>
               <div className="grid gap-5 sm:grid-cols-2">
                 <label className="block sm:col-span-2">
-                  <span className="etiqueta-campo">Direccion *</span>
+                  <span className="etiqueta-campo">Dirección *</span>
                   <input
                     name="direccion"
                     type="text"
@@ -203,7 +203,7 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
                 </label>
 
                 <label className="block">
-                  <span className="etiqueta-campo">Dia preferido *</span>
+                  <span className="etiqueta-campo">Día preferido *</span>
                   {/* `key` fuerza a React a rehacer el campo cuando llega la fecha
                       minima: un `defaultValue` que cambia no se aplica solo. */}
                   <input
@@ -219,13 +219,13 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
                 </label>
 
                 <label className="block sm:col-span-2">
-                  <span className="etiqueta-campo">Contanos que pasa</span>
+                  <span className="etiqueta-campo">Contanos qué pasa</span>
                   <textarea
                     name="descripcion"
                     rows={3}
                     disabled={!enPaso2}
                     className="campo"
-                    placeholder="Ej: el equipo enfria poco y hace ruido desde hace una semana"
+                    placeholder="Ej: el equipo enfría poco y hace ruido desde hace una semana"
                   />
                 </label>
 

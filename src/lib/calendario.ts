@@ -19,7 +19,7 @@ import { guardarEventoId, obtenerSolicitud, type Solicitud } from './solicitudes
  * permiso de "hacer cambios en los eventos".
  */
 
-const ZONA = GOOGLE_CALENDAR_TIMEZONE || 'America/Lima';
+const ZONA = GOOGLE_CALENDAR_TIMEZONE || 'America/Argentina/Buenos_Aires';
 const API = 'https://www.googleapis.com/calendar/v3/calendars';
 
 export const calendarioConfigurado = () =>

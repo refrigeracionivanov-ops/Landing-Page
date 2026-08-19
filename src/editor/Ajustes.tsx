@@ -44,7 +44,7 @@ function Campo({
 export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
   const [datos, setDatos] = useState<DatosAjustes>({
     ...ajustes,
-    franjas: ajustes.franjas?.length ? ajustes.franjas : [{ etiqueta: 'Manana (8:00 - 12:00)', cupo: 3 }],
+    franjas: ajustes.franjas?.length ? ajustes.franjas : [{ etiqueta: 'Mañana (8:00 - 12:00)', cupo: 3 }],
   });
   const [estado, setEstado] = useState<Estado>('listo');
   const [mensaje, setMensaje] = useState<string | null>(null);
@@ -78,7 +78,7 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
       if (!r.ok || !respuesta.ok) throw new Error(respuesta.error ?? `El servidor respondio ${r.status}.`);
 
       setEstado('guardado');
-      setMensaje('Guardado. Los cambios ya se ven en la pagina.');
+      setMensaje('Guardado. Los cambios ya se ven en la página.');
     } catch (error) {
       setEstado('error');
       setMensaje(error instanceof Error ? error.message : 'No se pudo guardar.');
@@ -148,7 +148,7 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
               <input className={CAMPO} value={datos.nombre ?? ''} onChange={(e) => cambiar('nombre', e.target.value)} />
             </Campo>
 
-            <Campo etiqueta="Horario de atencion" ayuda="Ej: Lunes a sabado, 8:00 a 18:00">
+            <Campo etiqueta="Horario de atención" ayuda="Ej: Lunes a sábado, 8:00 a 18:00">
               <input
                 className={CAMPO}
                 value={datos.horario ?? ''}
@@ -156,7 +156,7 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
               />
             </Campo>
 
-            <Campo etiqueta="Direccion">
+            <Campo etiqueta="Dirección">
               <input
                 className={CAMPO}
                 value={datos.direccion ?? ''}
@@ -181,10 +181,10 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
         </section>
 
         <section className="mb-10 bg-white p-6">
-          <h2 className="mb-6 text-base font-semibold text-[#161616]">Como te contactan</h2>
+          <h2 className="mb-6 text-base font-semibold text-[#161616]">Cómo te contactan</h2>
 
           <div className="grid gap-6 sm:grid-cols-2">
-            <Campo etiqueta="Telefono" ayuda="Como querés que se lea. Ej: +51 999 888 777">
+            <Campo etiqueta="Teléfono" ayuda="Como querés que se lea. Ej: +54 11 4567-8900">
               <input
                 className={CAMPO}
                 value={datos.telefono ?? ''}
@@ -192,7 +192,7 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
               />
             </Campo>
 
-            <Campo etiqueta="WhatsApp" ayuda="Solo numeros, sin + ni espacios. Ej: 51999888777">
+            <Campo etiqueta="WhatsApp" ayuda="Solo números, sin + ni espacios. Ej: 5491145678900">
               <input
                 className={CAMPO}
                 inputMode="numeric"
@@ -229,15 +229,15 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
         </section>
 
         <section className="mb-10 bg-white p-6">
-          <h2 className="mb-2 text-base font-semibold text-[#161616]">Resenas en Google</h2>
+          <h2 className="mb-2 text-base font-semibold text-[#161616]">Reseñas en Google</h2>
           <p className="mb-6 text-sm text-[#6f6f6f]">
-            Cuando marcas una visita como <strong>Completada</strong> en Solicitudes, aparece un boton para pedirle
-            la resena a ese cliente por WhatsApp. Sin el enlace de abajo, ese boton no aparece.
+            Cuando marcás una visita como <strong>Completada</strong> en Solicitudes, aparece un botón para pedirle
+            la reseña a ese cliente por WhatsApp. Sin el enlace de abajo, ese botón no aparece.
           </p>
 
           <Campo
-            etiqueta="Enlace para dejar resenas"
-            ayuda="En tu perfil de negocio en Google, la opcion para pedir resenas te da un enlace corto. Pegalo tal cual."
+            etiqueta="Enlace para dejar reseñas"
+            ayuda="En tu perfil de negocio en Google, la opción para pedir reseñas te da un enlace corto. Pegalo tal cual."
           >
             <input
               className={CAMPO}
@@ -262,9 +262,9 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
         </section>
 
         <section className="bg-white p-6">
-          <h2 className="mb-2 text-base font-semibold text-[#161616]">Cuando recibis visitas</h2>
+          <h2 className="mb-2 text-base font-semibold text-[#161616]">Cuándo recibís visitas</h2>
           <p className="mb-6 text-sm text-[#6f6f6f]">
-            Estas son las opciones que ve el cliente al agendar. Cuando una franja llena su cupo para un dia, deja
+            Estas son las opciones que ve el cliente al agendar. Cuando una franja llena su cupo para un día, deja
             de ofrecerse sola.
           </p>
 
@@ -276,13 +276,13 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
                   <input
                     className={CAMPO}
                     value={franja.etiqueta}
-                    placeholder="Manana (8:00 - 12:00)"
+                    placeholder="Mañana (8:00 - 12:00)"
                     onChange={(e) => cambiarFranja(indice, { etiqueta: e.target.value })}
                   />
                 </div>
 
                 <div className="w-32">
-                  <span className={ETIQUETA}>Visitas por dia</span>
+                  <span className={ETIQUETA}>Visitas por día</span>
                   <input
                     className={CAMPO}
                     type="number"
@@ -312,8 +312,8 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
           {/* La etiqueta lleva las horas a proposito: el evento de Google Calendar
               las saca de ahi. Sin horas, la visita se agenda de dia completo. */}
           <p className={AYUDA}>
-            Escribí las horas dentro del nombre. De "Manana (8:00 - 12:00)" el calendario saca el horario del
-            evento; si no las encuentra, lo agenda de dia completo.
+            Escribí las horas dentro del nombre. De "Mañana (8:00 - 12:00)" el calendario saca el horario del
+            evento; si no las encuentra, lo agenda de día completo.
           </p>
 
           <button
@@ -325,7 +325,7 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
           </button>
 
           <div className="mt-8 max-w-xs">
-            <Campo etiqueta="Dias minimos de anticipacion" ayuda="Con 1, lo mas pronto que alguien puede pedir es manana.">
+            <Campo etiqueta="Días mínimos de anticipación" ayuda="Con 1, lo más pronto que alguien puede pedir es mañana.">
               <input
                 className={CAMPO}
                 type="number"

@@ -131,6 +131,17 @@ export default defineConfig({
     plugins: [tailwindcss(), parcheAliasSanityWindows(), sinCacheDeDepsOptimizadas()],
 
     resolve: {
+      /**
+       * Una sola copia de React en todo el proceso.
+       *
+       * El bloque de agendamiento se renderiza en el servidor y ademas se
+       * hidrata. Sin esto, el optimizador de dependencias sirve `react-dom` ya
+       * empaquetado mientras `react` se carga crudo desde node_modules: quedan
+       * dos copias, los hooks pierden su contexto y el render del servidor
+       * muere con "Invalid hook call". La pagina entera devuelve 500.
+       */
+      dedupe: ['react', 'react-dom'],
+
       // Red de seguridad: si el parche de arriba no llegara a correr, estos
       // alias ya apuntan a la carpeta correcta.
       alias: [

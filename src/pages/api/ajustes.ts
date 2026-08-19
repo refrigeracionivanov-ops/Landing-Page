@@ -33,13 +33,13 @@ const texto = (valor: unknown) => (typeof valor === 'string' ? valor.trim() : ''
  * programa, y una lista de fallas tecnicas no le dice que arreglar.
  */
 function validar(datos: Record<string, unknown>): string | null {
-  if (!texto(datos.nombre)) return 'El nombre del negocio no puede quedar vacio.';
-  if (!texto(datos.telefono)) return 'El telefono no puede quedar vacio: es el numero que aparece en toda la pagina.';
+  if (!texto(datos.nombre)) return 'El nombre del negocio no puede quedar vacío.';
+  if (!texto(datos.telefono)) return 'El teléfono no puede quedar vacío: es el número que aparece en toda la página.';
 
   const whatsapp = texto(datos.whatsapp);
-  if (!whatsapp) return 'El WhatsApp no puede quedar vacio.';
+  if (!whatsapp) return 'El WhatsApp no puede quedar vacío.';
   if (!/^\d{8,15}$/.test(whatsapp)) {
-    return 'El WhatsApp va con solo numeros, sin +, espacios ni guiones. Ej: 51999888777';
+    return 'El WhatsApp va con solo números, sin +, espacios ni guiones. Ej: 5491145678900';
   }
 
   const email = texto(datos.email);
@@ -47,17 +47,17 @@ function validar(datos: Record<string, unknown>): string | null {
 
   const google = texto(datos.googleResenas);
   if (google && !/^https:\/\/[^\s]+$/.test(google)) {
-    return 'El enlace de resenas de Google tiene que empezar con https:// y no llevar espacios.';
+    return 'El enlace de reseñas de Google tiene que empezar con https:// y no llevar espacios.';
   }
 
   if (datos.mostrarBarraContacto !== undefined && typeof datos.mostrarBarraContacto !== 'boolean') {
-    return 'El valor de la barra de contacto no es valido.';
+    return 'El valor de la barra de contacto no es válido.';
   }
 
   const dias = datos.diasAnticipacion;
   if (dias !== undefined) {
     if (typeof dias !== 'number' || !Number.isInteger(dias) || dias < 0 || dias > 30) {
-      return 'Los dias de anticipacion tienen que ser un numero entero entre 0 y 30.';
+      return 'Los días de anticipación tienen que ser un número entero entre 0 y 30.';
     }
   }
 
@@ -66,13 +66,13 @@ function validar(datos: Record<string, unknown>): string | null {
     if (datos.franjas.length > 12) return 'Son demasiadas franjas horarias.';
 
     for (const [i, franja] of datos.franjas.entries()) {
-      if (!franja || typeof franja !== 'object') return `La franja ${i + 1} no es valida.`;
+      if (!franja || typeof franja !== 'object') return `La franja ${i + 1} no es válida.`;
 
       const { etiqueta, cupo } = franja as Record<string, unknown>;
 
-      if (!texto(etiqueta)) return `A la franja ${i + 1} le falta el nombre. Ej: "Manana (8:00 - 12:00)"`;
+      if (!texto(etiqueta)) return `A la franja ${i + 1} le falta el nombre. Ej: "Mañana (8:00 - 12:00)"`;
       if (typeof cupo !== 'number' || !Number.isInteger(cupo) || cupo < 1 || cupo > 20) {
-        return `El cupo de "${texto(etiqueta)}" tiene que ser un numero entero entre 1 y 20.`;
+        return `El cupo de "${texto(etiqueta)}" tiene que ser un número entero entre 1 y 20.`;
       }
     }
   }
@@ -131,7 +131,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     cuerpo = (await request.json()) as Record<string, unknown>;
   } catch {
-    return respuesta({ error: 'El cuerpo del pedido no es JSON valido.' }, 400);
+    return respuesta({ error: 'El cuerpo del pedido no es JSON válido.' }, 400);
   }
 
   const problema = validar(cuerpo);
@@ -152,6 +152,6 @@ export const POST: APIRoute = async ({ request }) => {
   } catch (error) {
     const detalle = error instanceof Error ? error.message : 'Error desconocido';
     console.error('[ajustes] Fallo la escritura en Sanity:', detalle);
-    return respuesta({ error: `Sanity rechazo el guardado: ${detalle}` }, 502);
+    return respuesta({ error: `Sanity rechazó el guardado: ${detalle}` }, 502);
   }
 };

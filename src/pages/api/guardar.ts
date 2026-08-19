@@ -32,14 +32,14 @@ function validar(secciones: unknown): string | null {
   const claves = new Set<string>();
 
   for (const [i, bloque] of secciones.entries()) {
-    if (!bloque || typeof bloque !== 'object') return `La seccion ${i + 1} no es valida.`;
+    if (!bloque || typeof bloque !== 'object') return `La sección ${i + 1} no es válida.`;
 
     const { _key, _type } = bloque as Record<string, unknown>;
 
     if (typeof _type !== 'string' || !TIPOS_VALIDOS.has(_type)) {
-      return `La seccion ${i + 1} es de un tipo desconocido (${String(_type)}).`;
+      return `La sección ${i + 1} es de un tipo desconocido (${String(_type)}).`;
     }
-    if (typeof _key !== 'string' || !_key) return `A la seccion ${i + 1} le falta el identificador.`;
+    if (typeof _key !== 'string' || !_key) return `A la sección ${i + 1} le falta el identificador.`;
     if (claves.has(_key)) return `Hay dos secciones con el mismo identificador (${_key}).`;
 
     claves.add(_key);
@@ -60,7 +60,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     cuerpo = await request.json();
   } catch {
-    return respuesta({ error: 'El cuerpo del pedido no es JSON valido.' }, 400);
+    return respuesta({ error: 'El cuerpo del pedido no es JSON válido.' }, 400);
   }
 
   const problema = validar(cuerpo.secciones);
@@ -82,6 +82,6 @@ export const POST: APIRoute = async ({ request }) => {
   } catch (error) {
     const detalle = error instanceof Error ? error.message : 'Error desconocido';
     console.error('[guardar] Fallo la escritura en Sanity:', detalle);
-    return respuesta({ error: `Sanity rechazo el guardado: ${detalle}` }, 502);
+    return respuesta({ error: `Sanity rechazó el guardado: ${detalle}` }, 502);
   }
 };

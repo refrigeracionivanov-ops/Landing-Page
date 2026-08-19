@@ -22,7 +22,7 @@ export default function Planes({ bloque }: Props) {
         <div className="mt-12 grid gap-px border border-superficie-2 bg-superficie-2 md:grid-cols-3">
           {bloque.planes?.map((plan) => (
             <article key={plan._key} className={`flex flex-col p-8 ${plan.destacado ? 'bg-superficie' : 'bg-lienzo'}`}>
-              {plan.destacado && <p className="antetitulo text-azul">Mas elegido</p>}
+              {plan.destacado && <p className="antetitulo text-azul">Más elegido</p>}
               <h3 className="titulo-tarjeta mt-2 text-tinta">{plan.nombre}</h3>
 
               {plan.precio && (

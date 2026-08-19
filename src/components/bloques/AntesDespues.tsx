@@ -22,7 +22,7 @@ export default function AntesDespues({ bloque }: Props) {
               <div className="grid grid-cols-2 gap-px bg-superficie-2">
                 {[
                   { etiqueta: 'Antes', imagen: par.antes },
-                  { etiqueta: 'Despues', imagen: par.despues },
+                  { etiqueta: 'Después', imagen: par.despues },
                 ].map(({ etiqueta, imagen }) => (
                   <div key={etiqueta} className="relative bg-lienzo">
                     {foto(imagen) && (

@@ -56,12 +56,12 @@ export const configuracion: Config = {
       label: 'Portada',
       fields: {
         titular: { type: 'textarea', label: 'Titular' },
-        subtitulo: { type: 'textarea', label: 'Subtitulo' },
+        subtitulo: { type: 'textarea', label: 'Subtítulo' },
         imagen: campoImagen('Imagen'),
-        textoBotonAgendar: { type: 'text', label: 'Texto del boton' },
+        textoBotonAgendar: { type: 'text', label: 'Texto del botón' },
         mostrarBotonWhatsapp: {
           type: 'radio',
-          label: 'Boton de WhatsApp',
+          label: 'Botón de WhatsApp',
           options: [
             { label: 'Mostrar', value: true },
             { label: 'Ocultar', value: false },
@@ -75,8 +75,8 @@ export const configuracion: Config = {
     'Texto libre': {
       label: 'Texto libre',
       fields: {
-        titulo: { type: 'text', label: 'Titulo' },
-        texto: { type: 'textarea', label: 'Texto (deja una linea en blanco entre parrafos)' },
+        titulo: { type: 'text', label: 'Título' },
+        texto: { type: 'textarea', label: 'Texto (dejá una línea en blanco entre párrafos)' },
         fondoGris: {
           type: 'radio',
           label: 'Fondo',
@@ -86,31 +86,31 @@ export const configuracion: Config = {
           ],
         },
       },
-      defaultProps: { titulo: 'Titulo de la seccion', texto: 'Escribi aca el texto.', fondoGris: false },
+      defaultProps: { titulo: 'Título de la sección', texto: 'Escribí acá el texto.', fondoGris: false },
       render: (props: any) => <Texto bloque={comoBloque(props)} />,
     },
 
     'Como trabajamos': {
-      label: 'Como trabajamos',
+      label: 'Cómo trabajamos',
       fields: {
-        titulo: { type: 'text', label: 'Titulo' },
+        titulo: { type: 'text', label: 'Título' },
         intro: { type: 'textarea', label: 'Texto de entrada' },
         pasos: {
           type: 'array',
           label: 'Pasos (se numeran solos)',
           getItemSummary: (item: any) => item.titulo || 'Paso',
           arrayFields: {
-            titulo: { type: 'text', label: 'Titulo' },
+            titulo: { type: 'text', label: 'Título' },
             texto: { type: 'textarea', label: 'Texto' },
           },
         },
       },
       defaultProps: {
-        titulo: 'Como trabajamos',
+        titulo: 'Cómo trabajamos',
         pasos: [
-          { titulo: 'Pedis la visita', texto: 'Por la web o por WhatsApp.' },
+          { titulo: 'Pedís la visita', texto: 'Por la web o por WhatsApp.' },
           { titulo: 'Confirmamos', texto: 'Te escribimos con el horario exacto.' },
-          { titulo: 'Vamos', texto: 'El tecnico llega el dia acordado.' },
+          { titulo: 'Vamos', texto: 'El técnico llega el día acordado.' },
         ],
       },
       render: (props: any) => <Pasos bloque={comoBloque(props)} />,
@@ -119,7 +119,7 @@ export const configuracion: Config = {
     'Planes y precios': {
       label: 'Planes y precios',
       fields: {
-        titulo: { type: 'text', label: 'Titulo' },
+        titulo: { type: 'text', label: 'Título' },
         intro: { type: 'textarea', label: 'Texto de entrada' },
         planes: {
           type: 'array',
@@ -127,22 +127,22 @@ export const configuracion: Config = {
           getItemSummary: (item: any) => item.nombre || 'Plan',
           arrayFields: {
             nombre: { type: 'text', label: 'Nombre' },
-            precio: { type: 'text', label: 'Precio (ej: S/ 200)' },
-            periodo: { type: 'text', label: 'Periodo (ej: por ano)' },
-            descripcion: { type: 'textarea', label: 'Descripcion' },
+            precio: { type: 'text', label: 'Precio (ej: $ 75.000)' },
+            periodo: { type: 'text', label: 'Período (ej: por año)' },
+            descripcion: { type: 'textarea', label: 'Descripción' },
             incluye: {
               type: 'array',
-              label: 'Que incluye',
+              label: 'Qué incluye',
               getItemSummary: (item: any) => item.valor || 'Item',
               arrayFields: { valor: { type: 'text', label: 'Item' } },
             },
-            textoBoton: { type: 'text', label: 'Texto del boton' },
+            textoBoton: { type: 'text', label: 'Texto del botón' },
             destacado: {
               type: 'radio',
               label: 'Destacar',
               options: [
                 { label: 'No', value: false },
-                { label: 'Si', value: true },
+                { label: 'Sí', value: true },
               ],
             },
           },
@@ -150,7 +150,7 @@ export const configuracion: Config = {
       },
       defaultProps: {
         titulo: 'Planes de mantenimiento',
-        planes: [{ nombre: 'Plan basico', precio: 'S/ 200', periodo: 'por ano', incluye: [], destacado: false }],
+        planes: [{ nombre: 'Plan básico', precio: '$ 75.000', periodo: 'por año', incluye: [], destacado: false }],
       },
       render: (props: any) => (
         <Planes
@@ -166,12 +166,12 @@ export const configuracion: Config = {
       label: 'Aviso destacado',
       fields: {
         icono: { type: 'select', label: 'Icono', options: opcionesIcono },
-        titulo: { type: 'text', label: 'Titulo' },
+        titulo: { type: 'text', label: 'Título' },
         texto: { type: 'text', label: 'Texto' },
-        textoBoton: { type: 'text', label: 'Texto del boton (vacio = sin boton)' },
+        textoBoton: { type: 'text', label: 'Texto del botón (vacío = sin botón)' },
         accion: {
           type: 'select',
-          label: 'Que hace el boton',
+          label: 'Qué hace el botón',
           options: [
             { label: 'Ir al formulario', value: 'agendar' },
             { label: 'Abrir WhatsApp', value: 'whatsapp' },
@@ -181,8 +181,8 @@ export const configuracion: Config = {
       },
       defaultProps: {
         icono: 'rayo',
-        titulo: 'Atencion de emergencia',
-        texto: 'Si tu equipo dejo de andar, coordinamos visita el mismo dia.',
+        titulo: 'Atención de emergencia',
+        texto: 'Si tu equipo dejó de andar, coordinamos visita el mismo día.',
         textoBoton: 'Escribir ahora',
         accion: 'whatsapp',
       },
@@ -192,14 +192,14 @@ export const configuracion: Config = {
     Beneficios: {
       label: 'Beneficios',
       fields: {
-        titulo: { type: 'text', label: 'Titulo' },
+        titulo: { type: 'text', label: 'Título' },
         items: {
           type: 'array',
           label: 'Beneficios',
           getItemSummary: (item: any) => item.titulo || 'Beneficio',
           arrayFields: {
             icono: { type: 'select', label: 'Icono', options: opcionesIcono },
-            titulo: { type: 'text', label: 'Titulo' },
+            titulo: { type: 'text', label: 'Título' },
             texto: { type: 'textarea', label: 'Texto' },
           },
         },
@@ -211,8 +211,8 @@ export const configuracion: Config = {
     Servicios: {
       label: 'Servicios',
       fields: {
-        titulo: { type: 'text', label: 'Titulo' },
-        intro: { type: 'textarea', label: 'Introduccion' },
+        titulo: { type: 'text', label: 'Título' },
+        intro: { type: 'textarea', label: 'Introducción' },
         servicios: {
           type: 'array',
           label: 'Servicios',
@@ -220,7 +220,7 @@ export const configuracion: Config = {
           arrayFields: {
             icono: { type: 'select', label: 'Icono', options: opcionesIcono },
             nombre: { type: 'text', label: 'Nombre' },
-            descripcion: { type: 'textarea', label: 'Descripcion' },
+            descripcion: { type: 'textarea', label: 'Descripción' },
             precioDesde: { type: 'text', label: 'Precio desde' },
           },
         },
@@ -232,15 +232,15 @@ export const configuracion: Config = {
     Promociones: {
       label: 'Promociones',
       fields: {
-        titulo: { type: 'text', label: 'Titulo' },
+        titulo: { type: 'text', label: 'Título' },
         promos: {
           type: 'array',
           label: 'Promociones',
           getItemSummary: (item: any) => item.titulo || 'Promocion',
           arrayFields: {
             destacado: { type: 'text', label: 'Destacado (ej: 20% OFF)' },
-            titulo: { type: 'text', label: 'Titulo' },
-            descripcion: { type: 'textarea', label: 'Descripcion' },
+            titulo: { type: 'text', label: 'Título' },
+            descripcion: { type: 'textarea', label: 'Descripción' },
             vigenciaHasta: { type: 'text', label: 'Vigente hasta (AAAA-MM-DD)' },
           },
         },
@@ -250,9 +250,9 @@ export const configuracion: Config = {
     },
 
     'Antes y despues': {
-      label: 'Antes y despues',
+      label: 'Antes y después',
       fields: {
-        titulo: { type: 'text', label: 'Titulo' },
+        titulo: { type: 'text', label: 'Título' },
         pares: {
           type: 'array',
           label: 'Trabajos',
@@ -260,7 +260,7 @@ export const configuracion: Config = {
           arrayFields: {
             antes: campoImagen('Foto ANTES'),
             despues: campoImagen('Foto DESPUES'),
-            descripcion: { type: 'textarea', label: 'Descripcion' },
+            descripcion: { type: 'textarea', label: 'Descripción' },
           },
         },
       },
@@ -271,13 +271,13 @@ export const configuracion: Config = {
     Confianza: {
       label: 'Confianza',
       fields: {
-        titulo: { type: 'text', label: 'Titulo' },
+        titulo: { type: 'text', label: 'Título' },
         items: {
           type: 'array',
           label: 'Cifras',
           getItemSummary: (item: any) => item.etiqueta || 'Cifra',
           arrayFields: {
-            valor: { type: 'text', label: 'Valor (ej: 12 anos)' },
+            valor: { type: 'text', label: 'Valor (ej: 12 años)' },
             etiqueta: { type: 'text', label: 'Etiqueta' },
           },
         },
@@ -289,13 +289,13 @@ export const configuracion: Config = {
     'Zonas donde atendemos': {
       label: 'Zonas donde atendemos',
       fields: {
-        titulo: { type: 'text', label: 'Titulo' },
+        titulo: { type: 'text', label: 'Título' },
         texto: { type: 'textarea', label: 'Texto' },
         distritos: {
           type: 'array',
-          label: 'Distritos',
+          label: 'Barrios',
           getItemSummary: (item: any) => item.valor || 'Distrito',
-          arrayFields: { valor: { type: 'text', label: 'Distrito' } },
+          arrayFields: { valor: { type: 'text', label: 'Barrio' } },
         },
         notaFueraDeZona: { type: 'textarea', label: 'Nota al pie' },
       },
@@ -309,14 +309,14 @@ export const configuracion: Config = {
     Testimonios: {
       label: 'Testimonios',
       fields: {
-        titulo: { type: 'text', label: 'Titulo' },
+        titulo: { type: 'text', label: 'Título' },
         testimonios: {
           type: 'array',
           label: 'Testimonios',
           getItemSummary: (item: any) => item.nombre || 'Testimonio',
           arrayFields: {
             nombre: { type: 'text', label: 'Nombre' },
-            distrito: { type: 'text', label: 'Distrito' },
+            distrito: { type: 'text', label: 'Barrio' },
             texto: { type: 'textarea', label: 'Testimonio' },
             estrellas: { type: 'number', label: 'Estrellas', min: 1, max: 5 },
             foto: campoImagen('Foto (opcional)'),
@@ -330,7 +330,7 @@ export const configuracion: Config = {
     'Preguntas frecuentes': {
       label: 'Preguntas frecuentes',
       fields: {
-        titulo: { type: 'text', label: 'Titulo' },
+        titulo: { type: 'text', label: 'Título' },
         preguntas: {
           type: 'array',
           label: 'Preguntas',
@@ -354,11 +354,11 @@ export const configuracion: Config = {
     'Agendar visita': {
       label: 'Agendar visita',
       fields: {
-        titulo: { type: 'text', label: 'Titulo' },
+        titulo: { type: 'text', label: 'Título' },
         texto: { type: 'textarea', label: 'Texto' },
         mensajeExito: { type: 'textarea', label: 'Mensaje al enviar' },
       },
-      defaultProps: { titulo: 'Agenda tu visita tecnica' },
+      defaultProps: { titulo: 'Agendá tu visita técnica' },
       render: (props: any) => (
         <Agendar
           bloque={comoBloque(props)}
@@ -373,11 +373,11 @@ export const configuracion: Config = {
     Cierre: {
       label: 'Cierre',
       fields: {
-        titulo: { type: 'text', label: 'Titulo' },
+        titulo: { type: 'text', label: 'Título' },
         texto: { type: 'textarea', label: 'Texto' },
-        textoBoton: { type: 'text', label: 'Texto del boton' },
+        textoBoton: { type: 'text', label: 'Texto del botón' },
       },
-      defaultProps: { titulo: 'Tu equipo dejo de enfriar?' },
+      defaultProps: { titulo: '¿Tu equipo dejó de enfriar?' },
       render: (props: any) => <Cta bloque={comoBloque(props)} ajustes={ajustesDe(props)} />,
     },
   },

@@ -92,7 +92,7 @@ export const serviciosBloque = defineType({
               name: 'precioDesde',
               title: 'Precio desde',
               type: 'string',
-              description: 'Opcional. Ej: "S/ 120". Dejalo vacio si preferis no publicar precios.',
+              description: 'Opcional. Ej: "$ 45.000". Dejalo vacío si preferís no publicar precios.',
             }),
           ],
           preview: { select: { title: 'nombre', subtitle: 'precioDesde' } },
@@ -493,7 +493,7 @@ export const planesBloque = defineType({
           type: 'object',
           fields: [
             defineField({ name: 'nombre', title: 'Nombre', type: 'string', validation: (r) => r.required() }),
-            defineField({ name: 'precio', title: 'Precio', type: 'string', description: 'Ej: "S/ 200".' }),
+            defineField({ name: 'precio', title: 'Precio', type: 'string', description: 'Ej: "$ 75.000".' }),
             defineField({
               name: 'periodo',
               title: 'Periodo',

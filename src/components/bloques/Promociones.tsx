@@ -5,7 +5,7 @@ interface Props {
 }
 
 const formatearFecha = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString('es-PE', { day: 'numeric', month: 'long' });
+  new Date(`${iso}T00:00:00`).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
 
 export default function Promociones({ bloque }: Props) {
   // Si todas las promos vencieron, la consulta devuelve una lista vacia y la seccion no se dibuja.

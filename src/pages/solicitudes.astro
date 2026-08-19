@@ -104,17 +104,17 @@ const soloDigitos = (telefono: string) => telefono.replace(/\D/g, '');
 const mensajeResena = (nombre: string) => {
   const plantilla =
     ajustes?.mensajeResena?.trim() ||
-    'Hola {nombre}, gracias por confiar en nosotros. Si quedaste conforme con la visita, nos ayudaria muchisimo una resena en Google. Te toma un minuto:';
+    'Hola {nombre}, gracias por confiar en nosotros. Si quedaste conforme con la visita, nos ayudaría muchísimo una reseña en Google. Te toma un minuto:';
 
   return `${plantilla.replace('{nombre}', nombre.trim().split(/\s+/)[0])}
 ${ajustes?.googleResenas ?? ''}`;
 };
 
 const formatearPedido = (fecha: string) =>
-  new Date(fecha.replace(' ', 'T') + 'Z').toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
+  new Date(fecha.replace(' ', 'T') + 'Z').toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
 
 const formatearFecha = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString('es-PE', { weekday: 'short', day: 'numeric', month: 'short' });
+  new Date(`${iso}T00:00:00`).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' });
 ---
 
 <!doctype html>
@@ -254,8 +254,8 @@ const formatearFecha = (iso: string) =>
                         class:list={['boton', solicitud.resena_pedida_en ? 'boton-terciario' : 'boton-primario']}
                       >
                         {solicitud.resena_pedida_en
-                          ? `Resena pedida el ${formatearPedido(solicitud.resena_pedida_en)}`
-                          : 'Pedir resena en Google'}
+                          ? `Reseña pedida el ${formatearPedido(solicitud.resena_pedida_en)}`
+                          : 'Pedir reseña en Google'}
                       </button>
                     </form>
                   )}

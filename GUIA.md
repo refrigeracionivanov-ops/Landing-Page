@@ -135,8 +135,8 @@ siempre.
 **Si borrás todas las promos, la sección desaparece entera.** No queda un espacio
 vacío ni un título suelto.
 
-**Los distritos del formulario salen de la sección "Zonas donde atendemos".** Si
-agregás un distrito ahí, aparece solo en la lista desplegable del formulario. No hay
+**Los barrios del formulario salen de la sección "Zonas donde atendemos".** Si
+agregás un barrio ahí, aparece solo en la lista desplegable del formulario. No hay
 que cargarlo dos veces.
 
 **Si algo se rompió, no borres nada.** El sistema guarda todas las versiones
