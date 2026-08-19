@@ -66,7 +66,8 @@ npm run dev
 
 - Sitio → http://localhost:4321
 - Editor de la página → http://localhost:4321/administrador
-- Ajustes del negocio e historial de versiones → http://localhost:4321/admin
+- Ajustes del negocio → http://localhost:4321/ajustes
+- Historial de versiones → http://localhost:4321/admin
 - Solicitudes → http://localhost:4321/solicitudes
 
 > En desarrollo `/administrador` y `/solicitudes` **no están protegidas** — Cloudflare
@@ -245,17 +246,19 @@ panel por un problema de red.
 
 ## Pendientes
 
-**Los dos paneles conviven.** `/administrador` (Puck) edita las secciones de la
-página; `/admin` (Sanity Studio) quedó para lo que el editor nuevo todavía no cubre:
+**El Studio de Sanity sigue montado en `/admin` por una sola razón: el historial de
+versiones.** Sanity guarda cada revisión y el Studio es lo único que sabe mostrarlas.
 
-- **Ajustes del negocio** — teléfono, WhatsApp, horario, franjas, cupos y días de
-  anticipación. `/api/guardar` solo escribe `secciones`, así que estos campos no se
-  pueden tocar desde el editor nuevo.
-- **Historial de versiones** — Sanity guarda cada revisión y el Studio es lo único
-  que sabe mostrarlas.
+Para poder sacarlo hay que reemplazarlo. Dos caminos: leer el historial de Sanity por
+API y dibujarlo, verificando antes cuánta retención da el plan gratuito; o guardar las
+versiones nosotros en D1 — antes de sobrescribir, apilar la anterior y conservar las
+últimas veinte. El segundo no depende del plan de nadie y cubre el caso real, que es
+"toqué algo, quedó feo, quiero lo de antes".
 
-Hasta que eso esté cubierto, el Studio no se puede sacar. Cuando lo esté: borrar la
-integración `sanity()` de `astro.config.mjs`, sus dependencias, y el parche de Windows
-que arrastra.
+Sacarlo se lleva unas 80 líneas de `astro.config.mjs` que existen solo por él: el
+parche del bug de rutas en Windows, el plugin que evita que el panel quede en blanco
+tras reoptimizar dependencias, y la lista de dependencias CommonJS. Y unos 9 MB de los
+9,3 MB del build — que no le pesan a ningún visitante, porque solo se descargan en
+`/admin`, pero sí a cada compilación.
 
 **Mercado Pago**, si en algún momento se cobra seña de diagnóstico.

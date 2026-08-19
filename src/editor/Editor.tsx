@@ -110,7 +110,19 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
           data={deSanityAPuck(secciones) as any}
           metadata={{ ajustes, distritos }}
           headerTitle="Inicio"
-          renderHeaderActions={() => <BotonGuardar alGuardar={guardar} estado={estado} />}
+          renderHeaderActions={() => (
+            <>
+              {/* Los datos del negocio se editan aparte: no son de esta pagina,
+                  valen para todas. Ver src/pages/ajustes.astro. */}
+              <a
+                href="/ajustes"
+                style={{ alignSelf: 'center', marginRight: 16, fontSize: 14, color: '#0f62fe' }}
+              >
+                Ajustes del negocio
+              </a>
+              <BotonGuardar alGuardar={guardar} estado={estado} />
+            </>
+          )}
         />
       </div>
 

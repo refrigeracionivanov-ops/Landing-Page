@@ -1,0 +1,63 @@
+---
+import { stegaClean } from '@sanity/client/stega';
+import '../styles/global.css';
+import Ajustes from '../editor/Ajustes';
+import { obtenerContenido } from '../sanity/consultas';
+import { verificarAcceso } from '../lib/acceso';
+import { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } from 'astro:env/client';
+
+// Se renderiza en el servidor en cada visita: tiene que abrir con los datos de
+// ahora, no con los del ultimo compilado.
+export const prerender = false;
+
+// Misma barrera que /administrador y /solicitudes. `/api/ajustes` la verifica
+// por su cuenta: cerrar solo la pagina dejaria la puerta de atras abierta.
+const acceso = await verificarAcceso(Astro.request);
+
+if (!acceso.autorizado && acceso.pideClave) {
+  return Astro.redirect('/entrar?destino=/ajustes');
+}
+
+if (!acceso.autorizado) {
+  return new Response(`Sin permiso para entrar a los ajustes. ${acceso.motivo ?? ''}`.trim(), {
+    status: 403,
+    headers: { 'content-type': 'text/plain; charset=utf-8' },
+  });
+}
+
+const { ajustes } = await obtenerContenido('inicio');
+
+if (!ajustes) {
+  return new Response(
+    'Falta el documento "Ajustes del negocio" en Sanity. Entra a /admin y completalo, o corre `npm run sembrar`.',
+    { status: 500, headers: { 'content-type': 'text/plain; charset=utf-8' } },
+  );
+}
+
+// Red de seguridad contra los marcadores invisibles de stega, igual que en
+// /administrador: aca el texto se edita y se vuelve a guardar.
+const datos = stegaClean(ajustes);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ajustes — {datos.nombre}</title>
+    <meta name="robots" content="noindex" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <Ajustes
+      client:only="react"
+      ajustes={datos}
+      proyecto={PUBLIC_SANITY_PROJECT_ID}
+      dataset={PUBLIC_SANITY_DATASET}
+    />
+  </body>
+</html>

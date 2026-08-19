@@ -7,16 +7,14 @@ la computadora o el celular.
 |---|---|
 | **tudominio.com/solicitudes** | Ver quién pidió una visita |
 | **tudominio.com/administrador** | Cambiar textos y fotos de la página |
-| **tudominio.com/admin** | Cambiar el teléfono, el horario y los cupos |
+| **tudominio.com/ajustes** | Cambiar el teléfono, el horario y los cupos |
 
 Las tres piden entrar: o con tu correo, o escribiendo una clave, según cómo esté
 configurado. Tienen los datos de los clientes y los textos del sitio, así que no
 quedan abiertas a cualquiera.
 
-> **Por qué dos lugares para editar.** `/administrador` es el editor nuevo: mostrás
-> la página tal como se ve y cambiás las cosas encima. `/admin` es el panel viejo,
-> que quedó para lo que el editor nuevo todavía no cubre: los datos del negocio y el
-> historial de versiones.
+> Hay una cuarta, **tudominio.com/admin**, que ya casi no vas a necesitar: quedó
+> solo para ver el historial de versiones si algo se rompe.
 
 ---
 
@@ -86,17 +84,25 @@ lector de pantalla. Con tres o cuatro palabras alcanza.
 
 ### 3. Cambiar el teléfono, el horario o los cupos
 
-En **tudominio.com/admin**, menú de la izquierda: **Ajustes del negocio**.
+Entrá a **tudominio.com/ajustes**, o desde el editor con el enlace *Ajustes del
+negocio*, arriba a la derecha.
 
-Ahí está el teléfono, el WhatsApp, el correo, la dirección y el horario. Se usan en
-toda la página a la vez: lo cambiás una vez y se actualiza en todos lados.
+Ahí está el nombre, el logo, el teléfono, el WhatsApp, el correo, la dirección y el
+horario. Se usan en toda la página a la vez: lo cambiás una vez y se actualiza en
+todos lados.
 
-También están:
+Más abajo, en **Cuando recibís visitas**:
 
-- **Franjas horarias de visita** — las opciones que ve el cliente, y cuántas visitas
-  aceptás por día en cada una
+- **Las franjas horarias** — las opciones que ve el cliente, y cuántas visitas
+  aceptás por día en cada una. Podés agregar y quitar
 - **Días mínimos de anticipación** — con 1, lo más pronto que alguien puede pedir es
   mañana
+
+Cuando termines, **Guardar** arriba a la derecha.
+
+> **Escribí las horas dentro del nombre de la franja.** De "Mañana (8:00 - 12:00)" el
+> sistema saca el horario del evento de Google Calendar. Si no las encuentra, agenda
+> la visita como de día completo.
 
 ---
 
@@ -115,7 +121,8 @@ que cargarlo dos veces.
 
 **Si algo se rompió, no borres nada.** El sistema guarda todas las versiones
 anteriores del contenido. Entrá a `/admin`, abrí **Páginas → Inicio**, y en el ícono
-de reloj arriba a la derecha podés ver el historial y volver a como estaba antes.
+de reloj arriba a la derecha podés ver el historial y volver a como estaba antes. Es
+lo único para lo que sigue haciendo falta ese panel.
 
 **Las solicitudes de los clientes no aparecen en ninguno de los dos paneles.** Están
 aparte, en `/solicitudes`, justamente porque tienen datos personales y ese lugar está
