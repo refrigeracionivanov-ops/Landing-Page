@@ -253,9 +253,8 @@ Hasta que eso esté cubierto, el Studio no se puede sacar. Cuando lo esté: borr
 integración `sanity()` de `astro.config.mjs`, sus dependencias, y el parche de Windows
 que arrastra.
 
-**Los componentes `.astro` de los bloques quedaron sin uso.** `Bloques.astro` ya
-renderiza los `.tsx` — los mismos que dibujan la vista previa del editor. Los `.astro`
-viejos siguen en `src/components/bloques/` y se pueden borrar. La excepción es
-`Agendar.astro`, que todavía es el que se usa: falta portarlo.
+**Falta portar `Agendar.astro` a `.tsx`.** Es el único bloque que sigue en Astro:
+los otros diez ya se borraron. Mientras siga así, el formulario de agendamiento se ve
+en el sitio pero no en la vista previa del editor.
 
 **Mercado Pago**, si en algún momento se cobra seña de diagnóstico.
