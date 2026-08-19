@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { PAISES, PAIS_POR_DEFECTO } from '../../lib/telefono';
 import type { AgendarBloque, Ajustes } from '../../tipos';
 
 interface Props {
@@ -44,6 +45,9 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
   const [listo, setListo] = useState(false);
   useEffect(() => setListo(true), []);
 
+  const [codigoPais, setCodigoPais] = useState(PAIS_POR_DEFECTO);
+  const pais = PAISES.find((p) => p.codigo === codigoPais) ?? PAISES[0];
+
   const enPaso2 = paso === 2;
 
   /**
@@ -80,10 +84,17 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
     setEnviando(true);
 
     try {
+      const datosDelFormulario = Object.fromEntries(new FormData(form)) as Record<string, string>;
+
+      // El telefono se guarda con el codigo de pais adelante, para que despues
+      // no haya que adivinar de donde es.
+      const { codigoPais: codigo, ...resto } = datosDelFormulario;
+      const cuerpo = { ...resto, telefono: `+${codigo} ${resto.telefono}`.trim() };
+
       const respuesta = await fetch('/api/reservar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.fromEntries(new FormData(form))),
+        body: JSON.stringify(cuerpo),
       });
 
       const datos = (await respuesta.json().catch(() => ({}))) as { mensaje?: string };
@@ -143,7 +154,34 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
 
                 <label className="block">
                   <span className="etiqueta-campo">Teléfono / WhatsApp *</span>
-                  <input name="telefono" type="tel" required autoComplete="tel" inputMode="tel" className="campo" />
+                  {/* El código de país va aparte y no dentro del texto libre:
+                      con el número suelto no se puede saber si "11 4567-8900"
+                      es de acá, y el enlace de WhatsApp del panel abre un chat
+                      con un número que no existe. Ver src/lib/telefono.ts. */}
+                  <div className="flex gap-px">
+                    <select
+                      name="codigoPais"
+                      value={codigoPais}
+                      onChange={(e) => setCodigoPais(e.target.value)}
+                      aria-label="Código de país"
+                      className="campo w-28 shrink-0"
+                    >
+                      {PAISES.map((p) => (
+                        <option key={p.codigo} value={p.codigo}>
+                          +{p.codigo} {p.nombre.slice(0, 3)}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      name="telefono"
+                      type="tel"
+                      required
+                      autoComplete="tel-national"
+                      inputMode="tel"
+                      placeholder={pais.ejemplo}
+                      className="campo grow"
+                    />
+                  </div>
                 </label>
 
                 <label className="block">

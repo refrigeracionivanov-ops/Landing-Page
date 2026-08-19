@@ -10,6 +10,7 @@ import {
   ESTADOS,
 } from '../lib/solicitudes';
 import { obtenerAjustes } from '../sanity/consultas';
+import { paraLlamar, paraWhatsapp } from '../lib/telefono';
 import { sincronizar } from '../lib/calendario';
 
 // Datos personales: nunca se genera de forma estatica ni se cachea.
@@ -93,7 +94,8 @@ const COLORES: Record<string, string> = {
   cancelada: 'bg-[#ffd7d9] text-[#a2191f]',
 };
 
-const soloDigitos = (telefono: string) => telefono.replace(/\D/g, '');
+/* El numero se guarda como lo escribio el cliente. Para WhatsApp hace falta el
+   formato internacional con el 9 de los moviles: ver src/lib/telefono.ts. */
 
 /**
  * El mensaje que se le manda al cliente, con su nombre y el enlace al final.
@@ -222,14 +224,14 @@ const formatearFecha = (iso: string) =>
 
                 <div class="mt-5 flex flex-wrap gap-px">
                   <a
-                    href={`https://wa.me/${soloDigitos(solicitud.telefono)}`}
+                    href={`https://wa.me/${paraWhatsapp(solicitud.telefono)}`}
                     target="_blank"
                     rel="noopener"
                     class="boton boton-whatsapp"
                   >
                     WhatsApp
                   </a>
-                  <a href={`tel:${soloDigitos(solicitud.telefono)}`} class="boton boton-terciario">
+                  <a href={`tel:${paraLlamar(solicitud.telefono)}`} class="boton boton-terciario">
                     {solicitud.telefono}
                   </a>
 
@@ -245,7 +247,7 @@ const formatearFecha = (iso: string) =>
                       <input
                         type="hidden"
                         name="destino"
-                        value={`https://wa.me/${soloDigitos(solicitud.telefono)}?text=${encodeURIComponent(
+                        value={`https://wa.me/${paraWhatsapp(solicitud.telefono)}?text=${encodeURIComponent(
                           mensajeResena(solicitud.nombre),
                         )}`}
                       />

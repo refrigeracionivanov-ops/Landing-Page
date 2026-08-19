@@ -128,6 +128,13 @@ reescribir el sitio.
 calculara en el build quedaría congelada en la fecha del deploy. El servidor la vuelve
 a validar en `src/pages/api/reservar.ts`, porque el navegador se puede saltear.
 
+**El teléfono se pide con el código de país separado.** Con el número suelto no se
+puede saber si "11 4567-8900" es de Buenos Aires, y el enlace de WhatsApp del panel
+abría un chat con un número inexistente — que es la peor forma de fallar, porque
+parece que funcionó. `src/lib/telefono.ts` traduce lo que la gente escribe (`011`,
+el `15`, con o sin código) al formato que pide `wa.me`, con el 9 que Argentina exige
+para móviles. Sigue funcionando con las solicitudes cargadas antes del selector.
+
 **Las promociones vencen solas.** El filtro por `vigenciaHasta` está en la consulta
 GROQ.
 
