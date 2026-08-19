@@ -161,6 +161,29 @@ export default defineConfig({
     schema: {
       PUBLIC_SANITY_PROJECT_ID: envField.string({ context: 'client', access: 'public' }),
       PUBLIC_SANITY_DATASET: envField.string({ context: 'client', access: 'public', default: 'production' }),
+      /**
+       * Turnstile: la clave publica del widget.
+       *
+       * Va con valor por defecto y no como variable de build a cargar aparte,
+       * a diferencia de las de Sanity. Esta clave es publica por definicion —
+       * viaja en el HTML de la pagina — y es fija para este sitio, asi que
+       * pedirla en dos lugares mas solo agrega un paso que se olvida. Se puede
+       * pisar desde el .env o desde el panel el dia que se rote el widget.
+       */
+      PUBLIC_TURNSTILE_SITEKEY: envField.string({
+        context: 'client',
+        access: 'public',
+        default: '0x4AAAAAAEWDk-wk5ES4YCyp',
+      }),
+      /**
+       * La clave secreta del widget, que es la que verifica de verdad.
+       *
+       * Opcional a proposito: si falta, la verificacion no corre y el
+       * formulario sigue recibiendo pedidos. Es una defensa, no la puerta —
+       * dejar al negocio sin poder recibir una visita por un secreto mal
+       * cargado seria peor que el spam que evita.
+       */
+      TURNSTILE_SECRET: envField.string({ context: 'server', access: 'secret', optional: true }),
       // Token con permiso de escritura. Solo lo usa `npm run sembrar`.
       SANITY_WRITE_TOKEN: envField.string({ context: 'server', access: 'secret', optional: true }),
       RESEND_API_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),

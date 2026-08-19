@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { createClient } from '@sanity/client';
-import { RESEND_API_KEY, NOTIFY_EMAIL, GOOGLE_CALENDAR_TIMEZONE } from 'astro:env/server';
+import { RESEND_API_KEY, NOTIFY_EMAIL, GOOGLE_CALENDAR_TIMEZONE, TURNSTILE_SECRET } from 'astro:env/server';
 import { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } from 'astro:env/client';
 import { contarEnFranja, crearSolicitud, existeDuplicado } from '../../lib/solicitudes';
 import type { SolicitudEntrante } from '../../tipos';
@@ -62,6 +62,47 @@ const CAMPOS_OBLIGATORIOS = [
 const limpiar = (valor: unknown, maximo = 500) =>
   typeof valor === 'string' ? valor.trim().slice(0, maximo) : '';
 
+/**
+ * Le pregunta a Cloudflare si del otro lado hay una persona.
+ *
+ * Tres comprobaciones, no una:
+ *
+ * - `success`, que el token sea valido y no este gastado;
+ * - `action`, que venga de este formulario y no de otro del mismo sitio;
+ * - `hostname`, que el widget se haya resuelto en el dominio desde el que se
+ *   esta pidiendo. El widget acepta `localhost` para poder probar, y sin esta
+ *   comprobacion cualquiera podria generar tokens validos desde su maquina y
+ *   mandarlos a produccion.
+ *
+ * Si no hay secreto configurado, no verifica y deja pasar. Es deliberado: un
+ * secreto mal cargado dejaria al negocio sin poder recibir una sola visita, y
+ * eso es peor que el spam que evita. Los otros frenos siguen en pie.
+ */
+async function esPersona(token: string, anfitrionEsperado: string, ip: string): Promise<boolean> {
+  if (!TURNSTILE_SECRET) return true;
+
+  if (typeof token !== 'string' || !token || token.length > 2048) return false;
+
+  try {
+    const respuesta = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      signal: AbortSignal.timeout(10_000),
+      body: new URLSearchParams({ secret: TURNSTILE_SECRET, response: token, remoteip: ip }),
+    });
+
+    if (!respuesta.ok) throw new Error(`siteverify respondio ${respuesta.status}`);
+
+    const datos = (await respuesta.json()) as { success?: boolean; action?: string; hostname?: string };
+
+    return datos.success === true && datos.action === 'agendar' && datos.hostname === anfitrionEsperado;
+  } catch (error) {
+    // Aca si se rechaza: llegamos con un token que no pudimos comprobar.
+    console.error('[reservar] No se pudo verificar Turnstile:', error);
+    return false;
+  }
+}
+
 export const POST: APIRoute = async ({ request }) => {
   const db = env.DB;
 
@@ -108,6 +149,20 @@ export const POST: APIRoute = async ({ request }) => {
   // proposito para no darle informacion util a quien esta probando.
   if (limpiar(datos.sitioWeb)) {
     return responder(200, { ok: true });
+  }
+
+  /**
+   * La verificacion va despues del campo trampa y antes de tocar la base.
+   *
+   * El anfitrion esperado sale del propio pedido y no de una lista en la
+   * configuracion: asi vale `localhost` en desarrollo y el dominio real en
+   * produccion, sin una variable mas que se olvida de actualizar el dia que
+   * cambie el dominio.
+   */
+  if (!(await esPersona(limpiar(datos.turnstile, 2048), new URL(request.url).hostname, ip))) {
+    return responder(403, {
+      mensaje: 'No pudimos verificar que seas una persona. Recarga la pagina y proba de nuevo.',
+    });
   }
 
   const campos = {

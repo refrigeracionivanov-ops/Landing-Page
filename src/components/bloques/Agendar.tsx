@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { PUBLIC_TURNSTILE_SITEKEY } from 'astro:env/client';
 import { PAISES, PAIS_POR_DEFECTO } from '../../lib/telefono';
 import type { AgendarBloque, Ajustes } from '../../tipos';
 
@@ -18,6 +19,34 @@ const FRANJAS_POR_DEFECTO = [
   { etiqueta: 'Mañana (8:00 - 12:00)', cupo: 3 },
   { etiqueta: 'Tarde (13:00 - 18:00)', cupo: 3 },
 ];
+
+/**
+ * Turnstile se dibuja de forma explicita, no con la clase `cf-turnstile`.
+ *
+ * El formulario se queda en pantalla despues de un envio fallido, y el token
+ * de Turnstile se usa una sola vez: sin reiniciar el widget, el segundo intento
+ * se rechaza siempre y el cliente ve un error que no puede resolver. Para
+ * reiniciarlo hace falta el id que devuelve `render`.
+ */
+interface Turnstile {
+  render: (
+    contenedor: HTMLElement,
+    opciones: {
+      sitekey: string;
+      action?: string;
+      callback: (token: string) => void;
+      'error-callback'?: () => void;
+      'expired-callback'?: () => void;
+    },
+  ) => string;
+  reset: (id: string) => void;
+}
+
+declare global {
+  interface Window {
+    turnstile?: Turnstile;
+  }
+}
 
 const aIso = (fecha: Date) =>
   new Date(fecha.getTime() - fecha.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
@@ -46,6 +75,79 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
   useEffect(() => setListo(true), []);
 
   const [codigoPais, setCodigoPais] = useState(PAIS_POR_DEFECTO);
+
+  const cajaTurnstile = useRef<HTMLDivElement>(null);
+  const idTurnstile = useRef<string | null>(null);
+
+  /**
+   * El token va en una ref y no en el estado: no se dibuja en ningun lado, y
+   * asi el envio lee el ultimo que resolvio el widget aunque haya llegado
+   * mientras se esperaba.
+   */
+  const token = useRef('');
+
+  useEffect(() => {
+    if (!PUBLIC_TURNSTILE_SITEKEY || !cajaTurnstile.current) return;
+
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    script.async = true;
+    script.defer = true;
+
+    script.onload = () => {
+      if (!window.turnstile || !cajaTurnstile.current) return;
+
+      idTurnstile.current = window.turnstile.render(cajaTurnstile.current, {
+        sitekey: PUBLIC_TURNSTILE_SITEKEY,
+        // El servidor comprueba que la accion sea esta: un token sacado de otro
+        // formulario del mismo dominio no sirve para agendar.
+        action: 'agendar',
+        callback: (nuevo) => {
+          token.current = nuevo;
+        },
+        'error-callback': () => {
+          token.current = '';
+        },
+        'expired-callback': () => {
+          token.current = '';
+        },
+      });
+    };
+
+    document.head.appendChild(script);
+
+    return () => {
+      script.remove();
+    };
+  }, []);
+
+  /** Un token gastado no sirve dos veces: se pide uno nuevo tras cada fallo. */
+  const reiniciarTurnstile = () => {
+    token.current = '';
+    if (idTurnstile.current) window.turnstile?.reset(idTurnstile.current);
+  };
+
+  /**
+   * Le da tiempo al widget a resolver antes de mandar.
+   *
+   * Turnstile tarda; quien llena el formulario rapido, o entra con una conexion
+   * lenta, puede apretar Solicitar visita antes de que termine. Sin esta espera
+   * se lleva un rechazo del servidor siendo una persona, y el mensaje que ve
+   * ("recarga la pagina") no le explica nada.
+   *
+   * Si el widget no responde en el limite, se manda igual con el token vacio y
+   * decide el servidor: es una defensa, no la puerta, y una espera eterna en el
+   * navegador seria la peor forma de cerrarla.
+   */
+  async function esperarToken(limiteMs = 8000) {
+    const hasta = Date.now() + limiteMs;
+
+    while (!token.current && Date.now() < hasta) {
+      await new Promise((seguir) => setTimeout(seguir, 100));
+    }
+
+    return token.current;
+  }
   const pais = PAISES.find((p) => p.codigo === codigoPais) ?? PAISES[0];
 
   const enPaso2 = paso === 2;
@@ -89,7 +191,11 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
       // El telefono se guarda con el codigo de pais adelante, para que despues
       // no haya que adivinar de donde es.
       const { codigoPais: codigo, ...resto } = datosDelFormulario;
-      const cuerpo = { ...resto, telefono: `+${codigo} ${resto.telefono}`.trim() };
+      const cuerpo = {
+        ...resto,
+        telefono: `+${codigo} ${resto.telefono}`.trim(),
+        turnstile: await esperarToken(),
+      };
 
       const respuesta = await fetch('/api/reservar', {
         method: 'POST',
@@ -101,12 +207,14 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
 
       if (!respuesta.ok) {
         setError(datos.mensaje ?? 'No pudimos enviar la solicitud. Escribinos por WhatsApp y te atendemos igual.');
+        reiniciarTurnstile();
         return;
       }
 
       setEnviado(true);
     } catch {
       setError('Parece que se cortó la conexión. Escribinos por WhatsApp y te atendemos igual.');
+      reiniciarTurnstile();
     } finally {
       setEnviando(false);
     }
@@ -327,7 +435,9 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
                 </p>
               )}
 
-              <div className="mt-8 flex gap-px">
+              <div ref={cajaTurnstile} className="mt-6" />
+
+              <div className="mt-6 flex gap-px">
                 <button type="button" onClick={() => setPaso(1)} className="boton boton-terciario">
                   Volver
                 </button>

@@ -176,4 +176,6 @@ export interface SolicitudEntrante {
   franja: string;
   /** Campo trampa contra bots. Debe llegar vacio. */
   sitioWeb?: string;
+  /** Token de Turnstile. Lo pone el widget, no la persona. */
+  turnstile?: string;
 }

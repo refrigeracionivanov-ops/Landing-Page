@@ -140,8 +140,23 @@ atrapa al bot tonto. El límite por IP (`ratelimits` en `wrangler.jsonc`) frena 
 insiste, pero su conteo es aproximado y por ubicación del borde: medido contra
 producción, una ráfaga de 15 pedidos simultáneos deja pasar 14. Absorbe una avalancha
 sostenida, que es para lo que está, y no es un tope exacto. El techo real de basura por
-día lo pone el cupo por franja. El freno duro contra bots es Turnstile, que queda
-pendiente de un token de Cloudflare con permiso `Account.Turnstile:Edit`.
+día lo pone el cupo por franja. El freno duro contra bots es **Turnstile**: el widget se
+resuelve en el paso 2 del formulario y el servidor comprueba el token contra
+`siteverify` antes de tocar la base — que sea válido, que venga de la acción `agendar` y
+que el `hostname` donde se resolvió sea el mismo que está pidiendo. Esa última es la que
+importa: el widget acepta `localhost` para poder probar, y sin comprobarla cualquiera
+podría fabricar tokens válidos desde su máquina y mandarlos a producción.
+
+**El widget tiene que listar el dominio de producción, no solo `localhost`.** Si falta,
+Turnstile no se resuelve ahí y el formulario rechaza a todo el mundo. La clave pública
+viaja en el HTML y tiene su valor por defecto en `astro.config.mjs`; la secreta va como
+secreto del Worker (`npx wrangler secret put TURNSTILE_SECRET`), y si no está cargada la
+verificación no corre y los pedidos siguen entrando.
+
+El token se gasta en un envío y vence a los cinco minutos, así que el widget se dibuja
+de forma explícita: hace falta el id que devuelve `render` para reiniciarlo después de
+un envío fallido. Sin eso, el segundo intento se rechaza siempre y el cliente ve un
+error que no puede resolver.
 
 Si el limitador no responde, se deja pasar: es una defensa, no la puerta, y un problema
 en Cloudflare no puede dejar al negocio sin recibir pedidos.
