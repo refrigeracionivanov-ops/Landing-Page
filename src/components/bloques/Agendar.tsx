@@ -280,6 +280,24 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
                   {enviando ? 'Enviando...' : 'Solicitar visita'}
                 </button>
               </div>
+
+              {/*
+                Debajo del boton y no en letra chica escondida: son datos
+                personales y quien los deja tiene derecho a saber para que.
+                Ley 25.326 de proteccion de datos personales.
+              */}
+              <p className="leyenda mt-4 text-tinta-media">
+                Usamos tus datos solo para coordinar esta visita. No se comparten con terceros ni se usan para
+                publicidad. Si querés que los borremos, escribinos
+                {ajustes.email ? (
+                  <>
+                    {' '}
+                    a <a href={`mailto:${ajustes.email}`} className="underline">{ajustes.email}</a>.
+                  </>
+                ) : (
+                  ' por WhatsApp.'
+                )}
+              </p>
             </div>
           </form>
         </div>

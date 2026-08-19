@@ -139,6 +139,17 @@ demás se renderizan a HTML y ahí termina su trabajo. Ese lleva `client:visible
 `Bloques.astro`: está al final de la página, y no tiene sentido descargar React antes
 de que alguien llegue hasta ahí.
 
+**El horario y la dirección se traducen a schema.org, no se piden dos veces.** El
+dueño escribe "Lunes a sábado, 8:00 a 18:00" porque es lo que se muestra en la página;
+Google solo entiende `Mo-Sa 08:00-18:00`. `src/lib/schema.ts` traduce, y cuando no
+puede omite la propiedad: un dato mal formado no es mejor que ninguno. Los barrios de
+la sección de cobertura alimentan `areaServed`, que es lo que conecta el sitio con la
+búsqueda "service de aire acondicionado en Belgrano".
+
+**`robots.txt` y `sitemap.xml` se generan en cada pedido.** No son archivos estáticos
+porque las dos cosas necesitan la URL absoluta del sitio, y esa cambia el día que haya
+dominio propio. Así no hay nada que acordarse de actualizar.
+
 **El token de Access se verifica aunque Cloudflare ya filtre en el borde.** La URL
 interna del deployment (`*.workers.dev`) puede quedar accesible sin pasar por Access.
 `src/lib/acceso.ts` valida la firma contra las claves públicas del equipo.

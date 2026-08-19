@@ -2,6 +2,8 @@
 import Layout from '../layouts/Layout.astro';
 import Bloques from '../components/Bloques.astro';
 import { obtenerContenido } from '../sanity/consultas';
+import { urlImagen } from '../sanity/imagen';
+import type { HeroBloque } from '../tipos';
 
 /**
  * Se renderiza en cada visita, no al compilar.
@@ -21,12 +23,26 @@ if (!ajustes) {
     'Falta el documento "Ajustes del negocio" en Sanity. Entra a /admin y completalo, o corre `npm run sembrar`.',
   );
 }
+/**
+ * La imagen de la portada es tambien la que se ve al compartir el link.
+ *
+ * Es la unica del sitio que ya esta elegida para representarlo entero, y si no
+ * hay ninguna cargada es mejor no emitir la etiqueta: WhatsApp muestra un
+ * recuadro roto antes que ignorarla.
+ */
+const portada = pagina?.secciones?.find((bloque) => bloque._type === 'heroBloque') as HeroBloque | undefined;
+
+const imagenParaCompartir = portada?.imagen?.asset
+  ? urlImagen(portada.imagen).width(1200).height(630).fit('crop').url()
+  : undefined;
 ---
 
 <Layout
   titulo={pagina?.seo?.titulo ?? `${ajustes.nombre} — Instalacion y mantenimiento de aire acondicionado`}
   descripcion={pagina?.seo?.descripcion}
   ajustes={ajustes}
+  barrios={distritos}
+  imagen={imagenParaCompartir}
 >
   {
     pagina ? (

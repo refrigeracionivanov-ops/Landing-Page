@@ -3,16 +3,23 @@ import '../styles/global.css';
 import Encabezado from '../components/Encabezado.astro';
 import PieDePagina from '../components/PieDePagina.astro';
 import BarraContacto from '../components/BarraContacto.astro';
+import { fichaDelNegocio } from '../lib/schema';
 import type { Ajustes } from '../tipos';
 
 interface Props {
   titulo: string;
   descripcion?: string;
   ajustes: Ajustes;
+  /** Los barrios de la seccion de cobertura. Alimentan `areaServed`. */
+  barrios?: string[];
+  /** Imagen para compartir y para la ficha del negocio. Absoluta. */
+  imagen?: string;
 }
 
-const { titulo, descripcion, ajustes } = Astro.props;
+const { titulo, descripcion, ajustes, barrios, imagen } = Astro.props;
 const canonica = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
+
+const ficha = fichaDelNegocio(ajustes, { url: canonica.href, imagen, barrios });
 ---
 
 <!doctype html>
@@ -27,6 +34,11 @@ const canonica = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
     <meta property="og:type" content="website" />
     <meta property="og:title" content={titulo} />
     {descripcion && <meta property="og:description" content={descripcion} />}
+    <meta property="og:url" content={canonica.href} />
+    {/* Sin esto, compartir el link por WhatsApp muestra un recuadro de texto
+        pelado. Es la superficie que mas se comparte en este rubro. */}
+    {imagen && <meta property="og:image" content={imagen} />}
+    <meta name="twitter:card" content={imagen ? 'summary_large_image' : 'summary'} />
 
     <link rel="preconnect" href="https://cdn.sanity.io" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -38,20 +50,9 @@ const canonica = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
       rel="stylesheet"
     />
 
-    {/* Datos estructurados: le dicen a Google que esto es un negocio local con telefono y horario. */}
-    <script
-      is:inline
-      type="application/ld+json"
-      set:html={JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'HVACBusiness',
-        name: ajustes.nombre,
-        telephone: ajustes.telefono,
-        email: ajustes.email,
-        address: ajustes.direccion,
-        openingHours: ajustes.horario,
-      })}
-    />
+    {/* Datos estructurados: le dicen a Google que esto es un negocio local, en
+        que barrios trabaja y a que hora abre. Ver src/lib/schema.ts. */}
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(ficha)} />
   </head>
 
   <body>
