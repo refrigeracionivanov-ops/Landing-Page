@@ -10,7 +10,7 @@ visita técnica. Pensada para que la mantenga alguien sin formación técnica.
 - **Cloudflare D1** — solicitudes de visita (datos personales de clientes)
 - **Cloudflare Access** — protege `/solicitudes` y `/administrador`
 - **Google Calendar** — espejo de las visitas agendadas (opcional)
-- **Cloudflare Pages** — hosting (su plan gratuito permite uso comercial)
+- **Cloudflare Workers** — hosting (su plan gratuito permite uso comercial)
 - **Tailwind v4** — estilos, con los tokens cerrados en `src/styles/global.css`
 
 ## Por qué los datos están partidos en dos
@@ -79,6 +79,7 @@ npm run dev
 | `npm run dev` | Servidor de desarrollo |
 | `npm run build` | Build de producción |
 | `npm run check` | Chequeo de tipos |
+| `npm run desplegar` | Compila y publica el Worker |
 | `npm run sembrar` | Carga contenido de ejemplo en Sanity |
 | `npm run tipos` | Regenera los tipos de los bindings de Cloudflare |
 | `npm run db:migrar` | Aplica migraciones a la base local |
@@ -133,18 +134,21 @@ exigiría exponer un token de escritura o montar un proxy con límites de tamañ
 cliente ya tiene las fotos en el teléfono donde está WhatsApp.
 
 **El token de Access se verifica aunque Cloudflare ya filtre en el borde.** La URL
-interna del deployment (`*.pages.dev`) puede quedar accesible sin pasar por Access.
+interna del deployment (`*.workers.dev`) puede quedar accesible sin pasar por Access.
 `src/lib/acceso.ts` valida la firma contra las claves públicas del equipo.
 
 ## Despliegue
 
 El sitio corre como un Worker de Cloudflare, con los archivos estáticos servidos
-desde el mismo deployment. Se publica desde la máquina, no desde un repositorio
-conectado:
+desde el mismo deployment. Se publica a mano desde la máquina:
 
 ```bash
 npm run desplegar
 ```
+
+El comando corre desde la carpeta del proyecto: wrangler saca el nombre del Worker
+del `wrangler.jsonc` que hay ahí. Desde otra carpeta falla con *Required Worker name
+missing*, y se arregla con `--name landing-ventilacion`.
 
 Eso compila y sube. La configuración del Worker la genera el adapter en
 `dist/server/wrangler.json` a partir de `wrangler.jsonc`, así que los bindings (la
@@ -162,6 +166,30 @@ Las `PUBLIC_*` son la excepción: se hornean en el build, así que tienen que es
 el `.env` de la máquina que compila.
 
 La primera vez, además: `npm run db:migrar:prod`.
+
+### Despliegue automático desde GitHub
+
+Con **Workers Builds** conectado al repositorio, cada push a `main` compila y publica
+solo. Se configura en el panel de Cloudflare: Workers & Pages → el Worker → Settings
+→ Builds → Connect.
+
+| Campo | Valor |
+|---|---|
+| Build command | `npm run build` |
+| Deploy command | `npx wrangler deploy` |
+| Root directory | (vacío) |
+
+Las dos variables `PUBLIC_*` hay que cargarlas como **variables de build**. No están
+en el repositorio — viven en el `.env`, que está en `.gitignore` — y sin ellas el
+build falla al validar el esquema de `astro:env`. Falla ruidoso a propósito: es
+preferible eso a publicar un sitio que no puede leer su contenido.
+
+Los secretos del Worker **no** se tocan: viven en Cloudflare y sobreviven a cada
+despliegue. No hacen falta en el build.
+
+La versión de Node la fija `.nvmrc`. Las migraciones de D1 siguen siendo manuales:
+un cambio de esquema que se aplica solo en un push es la clase de cosa que borra una
+columna un martes.
 
 ### Proteger `/solicitudes` y `/administrador`
 
