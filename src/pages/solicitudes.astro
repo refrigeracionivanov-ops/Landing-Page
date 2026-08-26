@@ -9,7 +9,6 @@ import {
   marcarResenaPedida,
   moverSolicitud,
   proximoHueco,
-  solicitudesEntre,
   vaciarSpam,
   ESTADOS,
   ESTADOS_VISIBLES,
@@ -110,10 +109,13 @@ if (Astro.request.method === 'POST') {
         avisoPosponer = 'sin-hueco';
       }
     } else {
-      // `aceptar` y `spam` son atajos de un clic al mismo cambio de estado que
-      // hace el desplegable: un estado por boton, sin campo intermedio.
+      // `aceptar`, `rechazar` y `spam` son atajos de un clic al mismo cambio de
+      // estado que hace el desplegable: un estado por boton, sin campo intermedio.
       const estado =
-        accion === 'aceptar' ? 'agendada' : accion === 'spam' ? 'spam' : String(formulario.get('estado') ?? '');
+        accion === 'aceptar' ? 'agendada' :
+        accion === 'rechazar' ? 'cancelada' :
+        accion === 'spam' ? 'spam' :
+        String(formulario.get('estado') ?? '');
 
       await actualizarSolicitud(db, id, {
         estado: estado || undefined,
@@ -136,53 +138,11 @@ if (Astro.request.method === 'POST') {
 }
 
 const filtro = Astro.url.searchParams.get('estado') ?? '';
-const enCalendario = Astro.url.searchParams.get('vista') === 'calendario';
 
 const [solicitudes, totales] = await Promise.all([listarSolicitudes(db, filtro), contarPorEstado(db)]);
 const ajustes = ajustesDelNegocio;
 // "Todas" no cuenta el spam: tiene que coincidir con lo que se ve al entrar.
 const total = ESTADOS_VISIBLES.reduce((suma, estado) => suma + (totales[estado] ?? 0), 0);
-
-/**
- * Las proximas dos semanas, dia por dia y franja por franja.
- *
- * La agenda de este negocio no son horas exactas sino cupos: lo que hace falta
- * ver de un vistazo no es "que hay a las 14", sino que dias quedan libres para
- * poder ofrecerlos por telefono. Por eso cada franja muestra ocupados sobre
- * total y no una grilla horaria.
- */
-const DIAS_VISIBLES = 14;
-const franjasDelNegocio = ajustes?.franjas?.length
-  ? ajustes.franjas
-  : [{ etiqueta: 'Mañana (8:00 - 12:00)', cupo: 3 }];
-
-const desde = hoy();
-const hasta = (() => {
-  const f = new Date(`${desde}T00:00:00Z`);
-  f.setUTCDate(f.getUTCDate() + DIAS_VISIBLES - 1);
-  return f.toISOString().slice(0, 10);
-})();
-
-const enRango = enCalendario ? await solicitudesEntre(db, desde, hasta) : [];
-
-const agenda = Array.from({ length: DIAS_VISIBLES }, (_, i) => {
-  const f = new Date(`${desde}T00:00:00Z`);
-  f.setUTCDate(f.getUTCDate() + i);
-  const fecha = f.toISOString().slice(0, 10);
-
-  return {
-    fecha,
-    franjas: franjasDelNegocio.map(({ etiqueta, cupo }) => {
-      const visitas = enRango.filter((s) => s.fecha_preferida === fecha && s.franja === etiqueta);
-      // El cupo lo ocupan las que siguen vivas; una cancelada libera el lugar.
-      const ocupadas = visitas.filter((s) => ['nueva', 'contactada', 'agendada'].includes(s.estado));
-      return { etiqueta, cupo, visitas, ocupadas: ocupadas.length, lleno: ocupadas.length >= cupo };
-    }),
-  };
-});
-
-const nombreDelDia = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
 
 const aviso = Astro.url.searchParams.get('aviso');
 
@@ -237,9 +197,19 @@ const formatearFecha = (iso: string) =>
 
   <body class="bg-superficie">
     <header class="border-b border-filete bg-lienzo">
-      <div class="contenedor flex h-12 items-center justify-between">
+      <div class="contenedor flex h-12 items-center justify-between gap-4">
         <h1 class="cuerpo-sm font-semibold text-tinta">Solicitudes de visita</h1>
-        <span class="leyenda text-tinta-media">{acceso.email}</span>
+        <div class="flex items-center gap-6">
+          <a
+            href="https://calendar.google.com/"
+            target="_blank"
+            rel="noopener"
+            class="cuerpo-sm text-azul"
+          >
+            Ver Google Calendar →
+          </a>
+          <span class="leyenda text-tinta-media">{acceso.email}</span>
+        </div>
       </div>
     </header>
 
@@ -276,31 +246,7 @@ const formatearFecha = (iso: string) =>
         )
       }
 
-      {/* Pestanas de Carbon: subrayado de 2px, no pastillas. */}
-      <nav class="flex gap-px border-b border-filete">
-        <a
-          href="/solicitudes"
-          class:list={[
-            'cuerpo-sm flex min-h-12 items-center border-b-2 px-5 font-semibold',
-            !enCalendario ? 'border-azul text-tinta' : 'border-transparent text-tinta-media',
-          ]}
-        >
-          Solicitudes
-        </a>
-        <a
-          href="/solicitudes?vista=calendario"
-          class:list={[
-            'cuerpo-sm flex min-h-12 items-center border-b-2 px-5 font-semibold',
-            enCalendario ? 'border-azul text-tinta' : 'border-transparent text-tinta-media',
-          ]}
-        >
-          Agenda
-        </a>
-      </nav>
-
-      {
-        !enCalendario && (
-          <nav class="flex flex-wrap border-b border-filete">
+      <nav class="flex flex-wrap border-b border-filete">
             <a
               href="/solicitudes"
               class:list={[
@@ -336,86 +282,9 @@ const formatearFecha = (iso: string) =>
               </a>
             )}
           </nav>
-        )
-      }
 
       {
-        enCalendario && (
-          <div class="mt-8 space-y-px">
-            <p class="cuerpo-sm mb-6 text-tinta-media">
-              Las próximas dos semanas. Cada franja muestra cuántas visitas tenés sobre el cupo que aceptás.
-            </p>
-
-            {agenda.map((dia) => {
-              const ocupadasDelDia = dia.franjas.reduce((suma, f) => suma + f.ocupadas, 0);
-
-              return (
-                <article
-                  class:list={[
-                    'grid gap-4 border border-filete p-5 sm:grid-cols-[200px_1fr]',
-                    ocupadasDelDia ? 'bg-lienzo' : 'bg-superficie',
-                  ]}
-                >
-                  {/* `first-letter` y no `capitalize`: este ultimo pone mayuscula
-                      en cada palabra y deja "19 De Agosto". */}
-                  <p
-                    class:list={[
-                      'cuerpo-sm first-letter:uppercase',
-                      ocupadasDelDia ? 'font-semibold text-tinta' : 'text-tinta-media',
-                    ]}
-                  >
-                    {nombreDelDia(dia.fecha)}
-                  </p>
-
-                  <div class="space-y-3">
-                    {dia.franjas.map((franja) => (
-                      <div>
-                        <div class="flex flex-wrap items-center gap-3">
-                          <span class="cuerpo-sm text-tinta-media">{franja.etiqueta}</span>
-                          <span
-                            class:list={[
-                              'leyenda px-2 py-1 font-semibold',
-                              franja.lleno ? 'bg-[#ffd7d9] text-[#a2191f]' : 'bg-superficie-2 text-tinta-media',
-                            ]}
-                          >
-                            {franja.ocupadas} de {franja.cupo}
-                            {franja.lleno ? ' — completa' : ''}
-                          </span>
-                        </div>
-
-                        {franja.visitas.length > 0 && (
-                          <ul class="mt-2 space-y-1">
-                            {franja.visitas.map((visita) => (
-                              <li class="cuerpo-sm flex flex-wrap items-center gap-2">
-                                <span class:list={['leyenda px-2 py-0.5 font-semibold capitalize', COLORES[visita.estado]]}>
-                                  {visita.estado}
-                                </span>
-                                <span class="text-tinta">{visita.nombre}</span>
-                                <span class="text-tinta-media">— {visita.distrito}, {visita.direccion}</span>
-                                <a
-                                  href={`https://wa.me/${paraWhatsapp(visita.telefono)}`}
-                                  target="_blank"
-                                  rel="noopener"
-                                  class="text-azul underline"
-                                >
-                                  WhatsApp
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )
-      }
-
-      {
-        !enCalendario && filtro === 'spam' && solicitudes.length > 0 && (
+        filtro === 'spam' && solicitudes.length > 0 && (
           <form method="POST" class="mt-8 border border-error bg-superficie p-5">
             <input type="hidden" name="accion" value="vaciar-spam" />
             <p class="cuerpo-sm text-tinta">
@@ -430,7 +299,7 @@ const formatearFecha = (iso: string) =>
       }
 
       {
-        enCalendario ? null : solicitudes.length === 0 ? (
+        solicitudes.length === 0 ? (
           <p class="mt-12 text-tinta-media">No hay solicitudes en esta vista.</p>
         ) : (
           <div class="mt-6 space-y-px">
@@ -521,12 +390,22 @@ const formatearFecha = (iso: string) =>
                   El desplegable queda abajo para el resto de los estados.
                 */}
                 <div class="mt-5 flex flex-wrap gap-px border-t border-filete pt-5">
-                  {solicitud.estado !== 'agendada' && solicitud.estado !== 'spam' && (
+                  {solicitud.estado !== 'agendada' && solicitud.estado !== 'spam' && solicitud.estado !== 'completada' && solicitud.estado !== 'cancelada' && (
                     <form method="POST" class="contents">
                       <input type="hidden" name="id" value={solicitud.id} />
                       <input type="hidden" name="accion" value="aceptar" />
                       <button type="submit" class="boton boton-primario">
                         Aceptar la visita
+                      </button>
+                    </form>
+                  )}
+
+                  {solicitud.estado !== 'completada' && solicitud.estado !== 'cancelada' && solicitud.estado !== 'spam' && (
+                    <form method="POST" class="contents">
+                      <input type="hidden" name="id" value={solicitud.id} />
+                      <input type="hidden" name="accion" value="rechazar" />
+                      <button type="submit" class="boton boton-terciario">
+                        Rechazar visita
                       </button>
                     </form>
                   )}

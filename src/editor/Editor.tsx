@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Puck, usePuck } from '@measured/puck';
 import '@measured/puck/puck.css';
 import { configuracion } from './configuracion';
+import Historial from './Historial';
 import { traducirInterfaz } from './traducciones';
 import { deSanityAPuck, dePuckASanity } from './adaptador';
 import type { Ajustes, Bloque } from '../tipos';
@@ -46,10 +47,27 @@ function BotonGuardar({ alGuardar, estado }: { alGuardar: (secciones: Bloque[]) 
 export default function Editor({ secciones, ajustes, distritos }: Props) {
   const [estado, setEstado] = useState<Estado>('listo');
   const [mensaje, setMensaje] = useState<string | null>(null);
+  const [verHistorial, setVerHistorial] = useState(false);
   const contenedor = useRef<HTMLDivElement>(null);
+  const [solicitudesNuevas, setSolicitudesNuevas] = useState(0);
 
   // Puck viene en ingles y no se puede configurar. Ver `traducciones.ts`.
   useEffect(() => (contenedor.current ? traducirInterfaz(contenedor.current) : undefined), []);
+
+  useEffect(() => {
+    const consultar = async () => {
+      try {
+        const r = await fetch('/api/nuevas');
+        if (r.ok) {
+          const datos = (await r.json()) as { total: number };
+          setSolicitudesNuevas(datos.total);
+        }
+      } catch { /* silencioso: el editor no debe romperse si falla */ }
+    };
+    consultar();
+    const intervalo = setInterval(consultar, 30_000);
+    return () => clearInterval(intervalo);
+  }, []);
 
   async function guardar(secciones: Bloque[]) {
     setEstado('guardando');
@@ -112,13 +130,66 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
           headerTitle="Inicio"
           renderHeaderActions={() => (
             <>
-              {/* Los datos del negocio se editan aparte: no son de esta pagina,
-                  valen para todas. Ver src/pages/ajustes.astro. */}
+              <a
+                href="/solicitudes?estado=nueva"
+                style={{
+                  alignSelf: 'center',
+                  marginRight: 16,
+                  fontSize: 14,
+                  color: solicitudesNuevas > 0 ? '#da1e28' : '#525252',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                {solicitudesNuevas > 0 && (
+                  <span style={{
+                    background: '#da1e28',
+                    color: 'white',
+                    borderRadius: '50%',
+                    width: 18,
+                    height: 18,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    display: 'grid',
+                    placeItems: 'center',
+                    flexShrink: 0,
+                  }}>
+                    {solicitudesNuevas > 9 ? '9+' : solicitudesNuevas}
+                  </span>
+                )}
+                Solicitudes
+              </a>
+              <a
+                href="https://calendar.google.com/"
+                target="_blank"
+                rel="noopener"
+                style={{ alignSelf: 'center', marginRight: 16, fontSize: 14, color: '#525252', textDecoration: 'none' }}
+              >
+                Google Calendar
+              </a>
+              <button
+                type="button"
+                onClick={() => setVerHistorial(true)}
+                style={{
+                  alignSelf: 'center',
+                  marginRight: 16,
+                  fontSize: 14,
+                  color: '#0f62fe',
+                  background: 'none',
+                  border: 0,
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                }}
+              >
+                Versiones anteriores
+              </button>
               <a
                 href="/ajustes"
                 style={{ alignSelf: 'center', marginRight: 16, fontSize: 14, color: '#0f62fe' }}
               >
-                Ajustes del negocio
+                Ajustes
               </a>
               <BotonGuardar alGuardar={guardar} estado={estado} />
             </>
@@ -126,6 +197,7 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
         />
       </div>
 
+      {verHistorial && <Historial alCerrar={() => setVerHistorial(false)} />}
     </>
   );
 }

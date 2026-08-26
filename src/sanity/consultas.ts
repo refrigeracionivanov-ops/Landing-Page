@@ -1,19 +1,25 @@
-import { sanityClient } from 'sanity:client';
+import { createClient } from '@sanity/client';
+import { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } from 'astro:env/client';
 import type { Ajustes, Pagina } from '../tipos';
 
 /**
  * Lectura sin CDN.
  *
- * El cliente por defecto usa el CDN de Sanity, que sirve contenido de hasta un
- * minuto atras. Eso servia cuando la pagina se compilaba una vez y listo, pero
- * ahora se renderiza en cada visita y se edita en vivo: guardar y esperar un
- * minuto para ver el cambio haria sentir el editor roto.
+ * El CDN de Sanity sirve contenido de hasta un minuto atras. Eso servia cuando
+ * la pagina se compilaba una vez y listo, pero ahora se renderiza en cada
+ * visita y se edita en vivo: guardar y esperar un minuto para ver el cambio
+ * haria sentir el editor roto.
  *
  * El costo es una consulta a Sanity por visita. Para el trafico de una landing
  * es despreciable; si algun dia crece, la solucion no es volver al CDN sino
  * cachear la respuesta en el borde e invalidarla al guardar.
  */
-const clienteEnVivo = sanityClient.withConfig({ useCdn: false });
+const clienteEnVivo = createClient({
+  projectId: PUBLIC_SANITY_PROJECT_ID,
+  dataset: PUBLIC_SANITY_DATASET,
+  apiVersion: '2024-10-01',
+  useCdn: false,
+});
 
 /**
  * Las promociones vencidas se filtran en la consulta, no en el navegador.

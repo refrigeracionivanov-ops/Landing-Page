@@ -345,3 +345,50 @@ body {
 .banda .tarjeta {
   border-color: var(--color-superficie-2);
 }
+
+/* ---------- Tema: Complejo (oscuro, estilo Dyson) ---------- */
+
+[data-theme="complejo"] {
+  --color-lienzo: #111111;
+  --color-superficie: #1a1a1a;
+  --color-superficie-2: #262626;
+  --color-tinta: #f4f4f4;
+  --color-tinta-media: #c6c6c6;
+  --color-tinta-suave: #8c8c8c;
+  --color-filete: #2e2e2e;
+  --color-filete-fuerte: #8c8c8c;
+  --color-inverso: #f4f4f4;
+  --color-inverso-2: #e0e0e0;
+  --color-inverso-tinta: #111111;
+  --color-inverso-tinta-media: #525252;
+  --font-sans: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Titulares más ligeros y espaciados en complejo, firma del estilo premium. */
+[data-theme="complejo"] .display-xl,
+[data-theme="complejo"] .display-lg,
+[data-theme="complejo"] .titulo-seccion {
+  font-weight: 300;
+  letter-spacing: -1px;
+}
+
+/* Secciones más generosas en complejo — aire Dyson. */
+[data-theme="complejo"] .seccion {
+  padding-block: 96px;
+}
+
+@media (min-width: 768px) {
+  [data-theme="complejo"] .seccion {
+    padding-block: 128px;
+  }
+}
+
+/* Botón primario con borde en complejo: más elegante sobre oscuro. */
+[data-theme="complejo"] .boton-primario {
+  box-shadow: inset 0 0 0 1px var(--color-azul);
+}
+
+/* Focus visible sobre oscuro: blanco en vez de azul. */
+[data-theme="complejo"] :focus-visible {
+  outline-color: #ffffff;
+}

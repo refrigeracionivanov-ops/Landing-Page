@@ -1,7 +1,12 @@
-import type { Image } from '@sanity/types';
 import type { ValorIcono } from './sanity/schemaTypes/iconos';
 
-export type ImagenSanity = Image & { alt?: string };
+export interface ImagenSanity {
+  _type?: string;
+  asset?: { _ref: string; _type?: string };
+  crop?: { top: number; bottom: number; left: number; right: number };
+  hotspot?: { x: number; y: number; width: number; height: number };
+  alt?: string;
+}
 
 export interface Ajustes {
   nombre: string;
@@ -19,6 +24,8 @@ export interface Ajustes {
   mensajeResena?: string;
   franjas?: { etiqueta: string; cupo: number }[];
   diasAnticipacion?: number;
+  /** Tema visual del sitio. 'compacto' = IBM Carbon (por defecto), 'complejo' = oscuro Dyson. */
+  tema?: 'compacto' | 'complejo';
 }
 
 interface BloqueBase {

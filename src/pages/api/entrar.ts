@@ -41,7 +41,7 @@ export const POST: APIRoute = async ({ request }) => {
     intentos.set(ip, { cantidad, hasta: Date.now() + ESPERA });
     return new Response(null, {
       status: 303,
-      headers: { location: `/entrar?error=1&destino=${encodeURIComponent(aDonde)}` },
+      headers: { location: `${aDonde}?error=1` },
     });
   }
 

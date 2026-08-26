@@ -23,7 +23,7 @@ const ficha = fichaDelNegocio(ajustes, { url: canonica.href, imagen, barrios });
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang="es" data-theme={ajustes.tema ?? 'compacto'}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -46,7 +46,7 @@ const ficha = fichaDelNegocio(ajustes, { url: canonica.href, imagen, barrios });
     {/* Una sola familia carga toda la jerarquia. 300 es el peso de los titulares
         grandes, 400 el del cuerpo, 600 el unico enfasis permitido. */}
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap"
       rel="stylesheet"
     />
 

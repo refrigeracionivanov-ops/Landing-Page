@@ -13,9 +13,6 @@ Las tres piden entrar: o con tu correo, o escribiendo una clave, según cómo es
 configurado. Tienen los datos de los clientes y los textos del sitio, así que no
 quedan abiertas a cualquiera.
 
-> Hay una cuarta, **tudominio.com/admin**, que ya casi no vas a necesitar: quedó
-> solo para ver el historial de versiones si algo se rompe.
-
 ---
 
 ## Las tres cosas que vas a hacer siempre
@@ -169,10 +166,11 @@ vacío ni un título suelto.
 agregás un barrio ahí, aparece solo en la lista desplegable del formulario. No hay
 que cargarlo dos veces.
 
-**Si algo se rompió, no borres nada.** El sistema guarda todas las versiones
-anteriores del contenido. Entrá a `/admin`, abrí **Páginas → Inicio**, y en el ícono
-de reloj arriba a la derecha podés ver el historial y volver a como estaba antes. Es
-lo único para lo que sigue haciendo falta ese panel.
+**Si algo se rompió, no borres nada.** El sistema guarda las últimas veinte versiones
+del contenido. Entrá a `/administrador` y tocá **Versiones anteriores** (arriba a la
+derecha): aparece la lista con fecha y cantidad de secciones, y podés volver a
+cualquiera con un clic. Lo que está publicado ahora queda guardado también, así que
+restaurar también se puede deshacer.
 
 **Las solicitudes de los clientes no aparecen en ninguno de los dos paneles.** Están
 aparte, en `/solicitudes`, justamente porque tienen datos personales y ese lugar está

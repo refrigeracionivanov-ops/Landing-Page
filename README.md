@@ -36,9 +36,6 @@ Creá un proyecto en [sanity.io/manage](https://sanity.io/manage) con un dataset
 En **API → Tokens**, generá un token con permiso de **Editor** (solo lo usa el script
 de carga inicial; el sitio publicado no lo necesita).
 
-En **API → CORS origins**, agregá `http://localhost:4321` con credenciales
-habilitadas. Sin esto `/admin` carga en blanco.
-
 ```bash
 cp .env.example .env    # completá PUBLIC_SANITY_PROJECT_ID y SANITY_WRITE_TOKEN
 npm run sembrar
@@ -67,7 +64,6 @@ npm run dev
 - Sitio → http://localhost:4321
 - Editor de la página → http://localhost:4321/administrador
 - Ajustes del negocio → http://localhost:4321/ajustes
-- Historial de versiones → http://localhost:4321/admin
 - Solicitudes → http://localhost:4321/solicitudes
 
 > En desarrollo `/administrador` y `/solicitudes` **no están protegidas** — Cloudflare
@@ -325,20 +321,5 @@ evento hay que revisarlo a mano. Nunca se pierde el trabajo de quien está usand
 panel por un problema de red.
 
 ## Pendientes
-
-**El Studio de Sanity sigue montado en `/admin` por una sola razón: el historial de
-versiones.** Sanity guarda cada revisión y el Studio es lo único que sabe mostrarlas.
-
-Para poder sacarlo hay que reemplazarlo. Dos caminos: leer el historial de Sanity por
-API y dibujarlo, verificando antes cuánta retención da el plan gratuito; o guardar las
-versiones nosotros en D1 — antes de sobrescribir, apilar la anterior y conservar las
-últimas veinte. El segundo no depende del plan de nadie y cubre el caso real, que es
-"toqué algo, quedó feo, quiero lo de antes".
-
-Sacarlo se lleva unas 80 líneas de `astro.config.mjs` que existen solo por él: el
-parche del bug de rutas en Windows, el plugin que evita que el panel quede en blanco
-tras reoptimizar dependencias, y la lista de dependencias CommonJS. Y unos 9 MB de los
-9,3 MB del build — que no le pesan a ningún visitante, porque solo se descargan en
-`/admin`, pero sí a cada compilación.
 
 **Mercado Pago**, si en algún momento se cobra seña de diagnóstico.
