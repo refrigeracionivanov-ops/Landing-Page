@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { createUsePuck } from '@measured/puck';
+import { createUsePuck, usePuck } from '@measured/puck';
 import PanelSolicitudes from './PanelSolicitudes';
 import { dePuckASanity } from './adaptador';
 import type { Bloque } from '../tipos';
@@ -22,9 +22,8 @@ export const EditorCtx = createContext<EditorCtxValue>({
   solicitudesNuevas: 0,
 });
 
-/* ─── Selectores de Puck (creados en nivel de módulo) ────────── */
+/* ─── Selector de contenido (nivel de módulo para estabilidad) ── */
 
-const useHistoria = createUsePuck((s) => s.history);
 const useContenido = createUsePuck((s) => s.state.data.content);
 
 /* ─── Botón Guardar ─────────────────────────────────────────── */
@@ -61,7 +60,12 @@ function BotonGuardar() {
 /* ─── Botones undo / redo ────────────────────────────────────── */
 
 function ControlesHistorial() {
-  const historia = useHistoria();
+  // usePuck().history expone hasPast/hasFuture/back/forward correctamente envueltos.
+  // createUsePuck selecciona el slice crudo del store (histories[], index) que no
+  // tiene esas funciones, causando un crash al llamar historia.hasPast().
+  const { history } = usePuck();
+  const puedoAtras = history.hasPast();
+  const puedoAdelante = history.hasFuture();
 
   const estiloBoton = (activo: boolean): React.CSSProperties => ({
     width: 30,
@@ -83,18 +87,18 @@ function ControlesHistorial() {
       <button
         type="button"
         title="Deshacer"
-        style={estiloBoton(historia.hasPast())}
-        disabled={!historia.hasPast()}
-        onClick={() => historia.hasPast() && historia.back()}
+        style={estiloBoton(puedoAtras)}
+        disabled={!puedoAtras}
+        onClick={() => puedoAtras && history.back()}
       >
         ←
       </button>
       <button
         type="button"
         title="Rehacer"
-        style={estiloBoton(historia.hasFuture())}
-        disabled={!historia.hasFuture()}
-        onClick={() => historia.hasFuture() && historia.forward()}
+        style={estiloBoton(puedoAdelante)}
+        disabled={!puedoAdelante}
+        onClick={() => puedoAdelante && history.forward()}
       >
         →
       </button>
@@ -178,6 +182,26 @@ export default function EditorHeader() {
         >
           Historial
         </button>
+
+        <span style={DIVIDER} />
+
+        <form method="POST" action="/api/salir" style={{ display: 'contents' }}>
+          <button
+            type="submit"
+            title="Cerrar sesión"
+            style={{
+              ...LINK,
+              background: 'transparent',
+              border: 0,
+              color: '#6f6f6f',
+              fontSize: 18,
+              padding: '0 8px',
+              lineHeight: 1,
+            }}
+          >
+            ⏻
+          </button>
+        </form>
 
         <span style={DIVIDER} />
 
