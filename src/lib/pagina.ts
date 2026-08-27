@@ -63,5 +63,8 @@ export async function escribirSecciones(
     console.error('[pagina] No se pudo apilar la version anterior:', error);
   }
 
+  await cliente
+    .createIfNotExists({ _id: id, _type: 'pagina', slug: { _type: 'slug', current: slug }, secciones: [] })
+    .catch(() => {});
   await cliente.patch(id).set({ secciones }).commit();
 }
