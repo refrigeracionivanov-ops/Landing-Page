@@ -346,49 +346,296 @@ body {
   border-color: var(--color-superficie-2);
 }
 
-/* ---------- Tema: Complejo (oscuro, estilo Dyson) ---------- */
+/* ============================================================
+   TEMA COMPLEJO — Dyson visual language, adaptado a la landing
+   ============================================================ */
 
+/* ── 1. Tokens ── */
 [data-theme="complejo"] {
-  --color-lienzo: #111111;
-  --color-superficie: #1a1a1a;
-  --color-superficie-2: #262626;
-  --color-tinta: #f4f4f4;
-  --color-tinta-media: #c6c6c6;
-  --color-tinta-suave: #8c8c8c;
-  --color-filete: #2e2e2e;
-  --color-filete-fuerte: #8c8c8c;
-  --color-inverso: #f4f4f4;
-  --color-inverso-2: #e0e0e0;
-  --color-inverso-tinta: #111111;
-  --color-inverso-tinta-media: #525252;
+  --color-lienzo: #0d0d0d;
+  --color-superficie: #161616;
+  --color-superficie-2: #1e1e1e;
+  --color-tinta: #f0f0f0;
+  --color-tinta-media: #9a9a9a;
+  --color-tinta-suave: #555555;
+  --color-filete: #272727;
+  --color-filete-fuerte: #9a9a9a;
+  --color-inverso: #f0f0f0;
+  --color-inverso-2: #d4d4d4;
+  --color-inverso-tinta: #0d0d0d;
+  --color-inverso-tinta-media: #444444;
+  /* Sin azul IBM: el único acento es blanco / gris */
+  --color-azul: #f0f0f0;
+  --color-azul-hover: #d4d4d4;
+  --color-azul-60: #b0b0b0;
+  --color-azul-80: #909090;
   --font-sans: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
 }
 
-/* Titulares más ligeros y espaciados en complejo, firma del estilo premium. */
-[data-theme="complejo"] .display-xl,
-[data-theme="complejo"] .display-lg,
+/* ── 2. Base ── */
+[data-theme="complejo"] body {
+  letter-spacing: 0;
+}
+
+/* ── 3. Tipografía — más dramática ── */
+[data-theme="complejo"] .display-xl {
+  font-size: clamp(3rem, 9vw, 7rem);
+  font-weight: 200;
+  letter-spacing: -3px;
+  line-height: 1.0;
+}
+[data-theme="complejo"] .display-lg {
+  font-size: clamp(2.5rem, 6vw, 5.5rem);
+  font-weight: 200;
+  letter-spacing: -2px;
+  line-height: 1.05;
+}
 [data-theme="complejo"] .titulo-seccion {
+  font-size: clamp(2rem, 4.5vw, 4rem);
+  font-weight: 200;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+}
+[data-theme="complejo"] .titular {
+  font-weight: 200;
+  letter-spacing: -0.5px;
+}
+[data-theme="complejo"] .titulo-tarjeta {
   font-weight: 300;
-  letter-spacing: -1px;
+  letter-spacing: -0.3px;
+}
+[data-theme="complejo"] .antetitulo {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-tinta-media);
 }
 
-/* Secciones más generosas en complejo — aire Dyson. */
+/* ── 4. Espaciado de secciones ── */
 [data-theme="complejo"] .seccion {
-  padding-block: 96px;
+  padding-block: 100px;
 }
-
 @media (min-width: 768px) {
   [data-theme="complejo"] .seccion {
-    padding-block: 128px;
+    padding-block: 148px;
   }
 }
 
-/* Botón primario con borde en complejo: más elegante sobre oscuro. */
+/* ── 5. Botones — outline blanco en lugar de relleno azul ── */
+[data-theme="complejo"] .boton {
+  letter-spacing: 0.04em;
+  font-weight: 400;
+  transition: background-color 180ms ease, color 180ms ease;
+}
 [data-theme="complejo"] .boton-primario {
-  box-shadow: inset 0 0 0 1px var(--color-azul);
+  background: transparent;
+  color: var(--color-tinta);
+  box-shadow: inset 0 0 0 1px var(--color-tinta);
+}
+[data-theme="complejo"] .boton-primario:hover:not(:disabled) {
+  background: var(--color-tinta);
+  color: var(--color-lienzo);
+}
+[data-theme="complejo"] .boton-primario:active:not(:disabled) {
+  background: var(--color-tinta-media);
+  color: var(--color-lienzo);
+}
+[data-theme="complejo"] .boton-secundario {
+  background: var(--color-tinta);
+  color: var(--color-lienzo);
+}
+[data-theme="complejo"] .boton-secundario:hover:not(:disabled) {
+  background: var(--color-tinta-media);
+}
+[data-theme="complejo"] .boton-terciario-inverso {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4);
+}
+[data-theme="complejo"] .boton-terciario-inverso:hover:not(:disabled) {
+  background: rgba(255,255,255,0.1);
+  color: #ffffff;
 }
 
-/* Focus visible sobre oscuro: blanco en vez de azul. */
+/* ── 6. Header — vidrio oscuro ── */
+/* Oculta la barra de utilidades (horario arriba del nav) */
+[data-theme="complejo"] .bg-superficie.hidden {
+  display: none !important;
+}
+[data-theme="complejo"] header.sticky {
+  background: rgba(13, 13, 13, 0.88);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+/* ── 7. Hero — cinematográfico ── */
+[data-theme="complejo"] section:has(> div > div > h1) {
+  border-bottom: none;
+  min-height: 90svh;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+/* Imagen del hero: sin caja gris, toma altura completa */
+[data-theme="complejo"] section:has(> div > div > h1) .bg-superficie {
+  background: transparent;
+  position: relative;
+}
+[data-theme="complejo"] section:has(> div > div > h1) img {
+  min-height: 480px;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.75) contrast(1.05);
+}
+/* Línea decorativa antes del titular, firma Dyson */
+[data-theme="complejo"] section:has(> div > div > h1) h1::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: var(--color-tinta-media);
+  margin-bottom: 1.5rem;
+}
+
+/* ── 8. Banda gris — transparente en complejo ── */
+[data-theme="complejo"] .banda {
+  background: transparent;
+}
+
+/* ── 9. Grillas 1px (Carbon) → separadores limpios ── */
+/* El truco de gap-px con bg-filete crea las líneas de Carbon.
+   En complejo se reemplaza por filetes top/bottom sobre fondo limpio. */
+[data-theme="complejo"] .grid.gap-px,
+[data-theme="complejo"] dl.grid.gap-px {
+  gap: 0 !important;
+  border-color: transparent !important;
+  background: transparent !important;
+}
+[data-theme="complejo"] .grid.gap-px > article,
+[data-theme="complejo"] .grid.gap-px > li,
+[data-theme="complejo"] .grid.gap-px > figure,
+[data-theme="complejo"] .grid.gap-px > div,
+[data-theme="complejo"] dl.grid.gap-px > div {
+  background: transparent !important;
+  border-bottom: 1px solid var(--color-filete);
+  padding-block: 2.5rem;
+}
+[data-theme="complejo"] .grid.gap-px > article:first-child,
+[data-theme="complejo"] .grid.gap-px > li:first-child,
+[data-theme="complejo"] .grid.gap-px > figure:first-child,
+[data-theme="complejo"] .grid.gap-px > div:first-child,
+[data-theme="complejo"] dl.grid.gap-px > div:first-child {
+  border-top: 1px solid var(--color-filete);
+}
+/* En grid multi-columna: separador vertical entre columnas */
+@media (min-width: 640px) {
+  [data-theme="complejo"] .grid.gap-px > *,
+  [data-theme="complejo"] dl.grid.gap-px > * {
+    border-right: 1px solid var(--color-filete);
+    padding-inline: 2rem;
+  }
+  [data-theme="complejo"] .grid.gap-px > *:last-child,
+  [data-theme="complejo"] dl.grid.gap-px > *:last-child {
+    border-right: none;
+  }
+}
+
+/* ── 10. Planes — fondo de tarjeta oscuro premium ── */
+[data-theme="complejo"] .grid.grid.border.border-superficie-2 {
+  gap: 0 !important;
+  border-color: transparent !important;
+  background: transparent !important;
+}
+[data-theme="complejo"] .grid.border.border-superficie-2 article {
+  background: var(--color-superficie) !important;
+  outline: 1px solid var(--color-filete);
+}
+/* Plan destacado: inversión de contraste */
+[data-theme="complejo"] .grid.border.border-superficie-2 article.bg-superficie {
+  background: var(--color-tinta) !important;
+  color: var(--color-lienzo);
+}
+[data-theme="complejo"] .grid.border.border-superficie-2 article.bg-superficie .text-tinta {
+  color: var(--color-lienzo) !important;
+}
+[data-theme="complejo"] .grid.border.border-superficie-2 article.bg-superficie .text-tinta-media {
+  color: rgba(13,13,13,0.65) !important;
+}
+[data-theme="complejo"] .grid.border.border-superficie-2 article.bg-superficie .text-azul {
+  color: var(--color-lienzo) !important;
+}
+[data-theme="complejo"] .grid.border.border-superficie-2 article.bg-superficie .border-filete {
+  border-color: rgba(13,13,13,0.15) !important;
+}
+[data-theme="complejo"] .grid.border.border-superficie-2 article.bg-superficie .boton-primario {
+  background: var(--color-lienzo);
+  color: var(--color-tinta);
+  box-shadow: none;
+}
+[data-theme="complejo"] .grid.border.border-superficie-2 article.bg-superficie .boton-primario:hover {
+  background: var(--color-superficie);
+}
+
+/* ── 11. Sección CTA — blanca total (inversión Dyson) ── */
+[data-theme="complejo"] .inverso.bg-azul {
+  background: var(--color-tinta) !important;
+}
+[data-theme="complejo"] .inverso.bg-azul h2 {
+  color: var(--color-lienzo) !important;
+}
+[data-theme="complejo"] .inverso.bg-azul p {
+  color: rgba(13,13,13,0.65) !important;
+}
+[data-theme="complejo"] .inverso.bg-azul .boton-secundario {
+  background: var(--color-lienzo);
+  color: var(--color-tinta);
+}
+[data-theme="complejo"] .inverso.bg-azul .boton-secundario:hover {
+  background: var(--color-superficie-2);
+}
+[data-theme="complejo"] .inverso.bg-azul .boton-terciario-inverso {
+  color: var(--color-lienzo);
+  box-shadow: inset 0 0 0 1px rgba(13,13,13,0.4);
+}
+[data-theme="complejo"] .inverso.bg-azul .boton-terciario-inverso:hover {
+  background: rgba(13,13,13,0.08);
+  color: var(--color-lienzo);
+}
+
+/* ── 12. Formularios ── */
+[data-theme="complejo"] .campo {
+  background: var(--color-superficie);
+  color: var(--color-tinta);
+  border-bottom-color: var(--color-filete-fuerte);
+}
+[data-theme="complejo"] .campo::placeholder {
+  color: var(--color-tinta-suave);
+}
+[data-theme="complejo"] .campo:focus-visible {
+  outline-color: var(--color-tinta);
+  border-bottom-color: var(--color-tinta);
+}
+
+/* ── 13. Pie de página — más oscuro que el lienzo ── */
+[data-theme="complejo"] footer {
+  background: #070707 !important;
+  border-top: 1px solid var(--color-filete);
+}
+[data-theme="complejo"] footer .border-inverso-2 {
+  border-color: var(--color-filete) !important;
+}
+
+/* ── 14. Iconos — sin azul en complejo ── */
+[data-theme="complejo"] .text-azul {
+  color: var(--color-tinta-media);
+}
+
+/* ── 15. Estrellas de testimonios ── */
+[data-theme="complejo"] .text-azul svg[viewBox="0 0 24 24"][fill="currentColor"] {
+  color: #c8c8c8;
+}
+
+/* ── 16. Foco ── */
 [data-theme="complejo"] :focus-visible {
   outline-color: #ffffff;
 }
