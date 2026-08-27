@@ -13,6 +13,7 @@
     "check": "astro check",
     "desplegar": "astro build && wrangler deploy",
     "sembrar": "node --env-file=.env scripts/sembrar.mjs",
+    "sembrar-comfortair": "node --env-file=.env scripts/sembrar-comfortair.mjs",
     "tipos": "wrangler types",
     "db:crear": "wrangler d1 create landing-ventilacion",
     "db:migrar": "wrangler d1 migrations apply landing-ventilacion --local",
