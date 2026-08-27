@@ -68,15 +68,15 @@ function ControlesHistorial() {
   const puedoAdelante = history.hasFuture;
 
   const estiloBoton = (activo: boolean): React.CSSProperties => ({
-    width: 30,
-    height: 30,
+    width: 28,
+    height: 28,
     display: 'grid',
     placeItems: 'center',
     background: 'transparent',
-    color: activo ? '#c6c6c6' : '#4d4d4d',
-    border: '1px solid #393939',
+    color: activo ? '#c6c6c6' : '#3d3d3d',
+    border: '1px solid #2e2e2e',
     borderRadius: 2,
-    fontSize: 16,
+    fontSize: 15,
     cursor: activo ? 'pointer' : 'default',
     lineHeight: 1,
     transition: 'color 100ms',
@@ -235,9 +235,9 @@ function ModalClave({ alCerrar }: { alCerrar: () => void }) {
 const LINK: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  height: 32,
-  padding: '0 10px',
-  fontSize: 13,
+  height: 30,
+  padding: '0 9px',
+  fontSize: 12,
   color: '#8d8d8d',
   textDecoration: 'none',
   borderRadius: 2,
@@ -248,8 +248,8 @@ const LINK: React.CSSProperties = {
 
 const DIVIDER: React.CSSProperties = {
   width: 1,
-  height: 20,
-  background: '#393939',
+  height: 18,
+  background: '#2e2e2e',
   flexShrink: 0,
 };
 
@@ -260,13 +260,16 @@ export default function EditorHeader() {
   return (
     <header
       style={{
+        position: 'relative',
+        zIndex: 9999,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         height: 48,
-        padding: '0 12px 0 16px',
-        background: '#161616',
-        borderBottom: '1px solid #262626',
+        padding: '0 12px 0 14px',
+        background: '#111111',
+        borderBottom: '1px solid #2a2a2a',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
         gap: 8,
         flexShrink: 0,
         userSelect: 'none',
@@ -274,32 +277,15 @@ export default function EditorHeader() {
         width: '100%',
       }}
     >
-      {/* ── Izquierda: undo / redo + título ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      {/* ── Izquierda: undo / redo ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <ControlesHistorial />
         <span style={DIVIDER} />
-        <span style={{ color: '#4d4d4d', fontSize: 13 }}>Inicio</span>
+        <span style={{ color: '#555', fontSize: 12, letterSpacing: '0.02em' }}>EDITOR</span>
       </div>
 
-      {/* ── Derecha: nav ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-        <PanelSolicitudes count={solicitudesNuevas} />
-
-        <span style={DIVIDER} />
-
-        <a
-          href="https://calendar.google.com/"
-          target="_blank"
-          rel="noopener"
-          style={LINK}
-        >
-          Calendario
-        </a>
-
-        <a href="/ajustes" style={LINK}>
-          Ajustes
-        </a>
-
+      {/* ── Centro: navegación secundaria ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <button
           type="button"
           onClick={abrirHistorial}
@@ -307,6 +293,16 @@ export default function EditorHeader() {
         >
           Historial
         </button>
+
+        <a href="/ajustes" style={LINK}>
+          Ajustes
+        </a>
+
+        <span style={DIVIDER} />
+
+        <PanelSolicitudes count={solicitudesNuevas} />
+
+        <span style={DIVIDER} />
 
         <button
           type="button"
@@ -317,8 +313,6 @@ export default function EditorHeader() {
           Clave
         </button>
 
-        <span style={DIVIDER} />
-
         <form method="POST" action="/api/salir" style={{ display: 'contents' }}>
           <button
             type="submit"
@@ -327,8 +321,8 @@ export default function EditorHeader() {
               ...LINK,
               background: 'transparent',
               border: 0,
-              color: '#6f6f6f',
-              fontSize: 18,
+              color: '#555',
+              fontSize: 17,
               padding: '0 8px',
               lineHeight: 1,
             }}
@@ -336,24 +330,24 @@ export default function EditorHeader() {
             ⏻
           </button>
         </form>
+      </div>
 
-        {verClave && <ModalClave alCerrar={() => setVerClave(false)} />}
-
-        <span style={DIVIDER} />
-
+      {/* ── Derecha: estado + guardar ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         {estadoGuardado === 'guardado' && (
-          <span style={{ fontSize: 12, color: '#42be65', padding: '0 6px', flexShrink: 0 }}>
-            Guardado
+          <span style={{ fontSize: 12, color: '#42be65', flexShrink: 0 }}>
+            ✓ Guardado
           </span>
         )}
         {estadoGuardado === 'error' && (
-          <span style={{ fontSize: 12, color: '#fa4d56', padding: '0 6px', flexShrink: 0 }}>
-            Error al guardar
+          <span style={{ fontSize: 12, color: '#fa4d56', flexShrink: 0 }}>
+            ✕ Error al guardar
           </span>
         )}
-
         <BotonGuardar />
       </div>
+
+      {verClave && <ModalClave alCerrar={() => setVerClave(false)} />}
     </header>
   );
 }
