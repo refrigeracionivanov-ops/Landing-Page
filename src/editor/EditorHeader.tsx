@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { createUsePuck, usePuck } from '@measured/puck';
+import { usePuck } from '@measured/puck';
 import PanelSolicitudes from './PanelSolicitudes';
 
 /* ─── Contexto compartido con Editor.tsx ──────────────────────── */
@@ -20,7 +20,7 @@ interface EditorCtxValue {
   solicitudesNuevas: number;
   historia: HistoriaState;
   actualizarHistoria: (h: HistoriaState) => void;
-  actualizarContenido: (contenido: unknown[]) => void;
+  actualizarContenido: (contenido: unknown[]) => void;  // usado solo por Editor.tsx
 }
 
 const HISTORIA_VACIA: HistoriaState = {
@@ -40,14 +40,11 @@ export const EditorCtx = createContext<EditorCtxValue>({
   actualizarContenido: () => {},
 });
 
-/* ─── Puente: vive dentro de Puck, sincroniza estado al contexto ─ */
-
-const useContenido = createUsePuck((s) => s.state.data.content);
+/* ─── Puente: vive dentro de Puck, sincroniza historial al contexto ─ */
 
 export function PuckBridge() {
   const { history } = usePuck();
-  const contenido = useContenido();
-  const { actualizarHistoria, actualizarContenido } = useContext(EditorCtx);
+  const { actualizarHistoria } = useContext(EditorCtx);
 
   useEffect(() => {
     actualizarHistoria({
@@ -59,11 +56,6 @@ export function PuckBridge() {
   // history.back/forward son estables cuando hasPast/hasFuture no cambian
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history.hasPast, history.hasFuture]);
-
-  useEffect(() => {
-    actualizarContenido(contenido as unknown[]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contenido]);
 
   // Espaciador que ocupa la zona de header de Puck (48 px) para que el canvas
   // comience justo debajo de nuestro header fijo externo.

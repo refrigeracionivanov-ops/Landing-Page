@@ -67,10 +67,6 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
     }
   }, []);
 
-  const actualizarContenido = useCallback((c: unknown[]) => {
-    contenidoRef.current = c;
-  }, []);
-
   const ctxValue = useMemo(() => ({
     estadoGuardado,
     guardar,
@@ -78,8 +74,8 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
     solicitudesNuevas,
     historia,
     actualizarHistoria: setHistoria,
-    actualizarContenido,
-  }), [estadoGuardado, guardar, solicitudesNuevas, historia, actualizarContenido]);
+    actualizarContenido: (c: unknown[]) => { contenidoRef.current = c; },
+  }), [estadoGuardado, guardar, solicitudesNuevas, historia]);
 
   // La identidad del bridge override debe ser estable para que Puck no
   // desmonte y vuelva a montar el componente en cada render de Editor.
@@ -97,6 +93,7 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
           metadata={{ ajustes, distritos }}
           overrides={{ header: headerOverride }}
           initialUi={{ iframe: { enabled: false } }}
+          onChange={(data: any) => { contenidoRef.current = data.content; }}
         />
       </div>
 
