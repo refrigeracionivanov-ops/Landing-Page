@@ -1,109 +1,73 @@
-import { createContext, useContext, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { createUsePuck, usePuck } from '@measured/puck';
 import PanelSolicitudes from './PanelSolicitudes';
-import { dePuckASanity } from './adaptador';
-import type { Bloque } from '../tipos';
 
 /* ─── Contexto compartido con Editor.tsx ──────────────────────── */
 
 export type EstadoGuardado = 'listo' | 'guardando' | 'guardado' | 'error';
 
+interface HistoriaState {
+  hasPast: boolean;
+  hasFuture: boolean;
+  back: () => void;
+  forward: () => void;
+}
+
 interface EditorCtxValue {
   estadoGuardado: EstadoGuardado;
-  guardar: (secciones: Bloque[]) => void;
+  guardar: () => void;
   abrirHistorial: () => void;
   solicitudesNuevas: number;
+  historia: HistoriaState;
+  actualizarHistoria: (h: HistoriaState) => void;
+  actualizarContenido: (contenido: unknown[]) => void;
 }
+
+const HISTORIA_VACIA: HistoriaState = {
+  hasPast: false,
+  hasFuture: false,
+  back: () => {},
+  forward: () => {},
+};
 
 export const EditorCtx = createContext<EditorCtxValue>({
   estadoGuardado: 'listo',
   guardar: () => {},
   abrirHistorial: () => {},
   solicitudesNuevas: 0,
+  historia: HISTORIA_VACIA,
+  actualizarHistoria: () => {},
+  actualizarContenido: () => {},
 });
 
-/* ─── Selector de contenido (nivel de módulo para estabilidad) ── */
+/* ─── Puente: vive dentro de Puck, sincroniza estado al contexto ─ */
 
 const useContenido = createUsePuck((s) => s.state.data.content);
 
-/* ─── Botón Guardar ─────────────────────────────────────────── */
-
-function BotonGuardar() {
-  const { estadoGuardado, guardar } = useContext(EditorCtx);
-  const contenido = useContenido();
-  const guardando = estadoGuardado === 'guardando';
-
-  return (
-    <button
-      type="button"
-      disabled={guardando}
-      onClick={() => guardar(dePuckASanity(contenido as any))}
-      style={{
-        height: 32,
-        padding: '0 20px',
-        fontSize: 13,
-        fontWeight: 600,
-        background: guardando ? '#4d4d4d' : '#0f62fe',
-        color: '#fff',
-        border: 0,
-        borderRadius: 2,
-        cursor: guardando ? 'default' : 'pointer',
-        transition: 'background 120ms',
-        flexShrink: 0,
-      }}
-    >
-      {guardando ? 'Guardando...' : 'Guardar'}
-    </button>
-  );
-}
-
-/* ─── Botones undo / redo ────────────────────────────────────── */
-
-function ControlesHistorial() {
-  // usePuck().history expone hasPast/hasFuture/back/forward correctamente envueltos.
-  // createUsePuck selecciona el slice crudo del store (histories[], index) que no
-  // tiene esas funciones, causando un crash al llamar historia.hasPast().
+export function PuckBridge() {
   const { history } = usePuck();
-  const puedoAtras = history.hasPast;
-  const puedoAdelante = history.hasFuture;
+  const contenido = useContenido();
+  const { actualizarHistoria, actualizarContenido } = useContext(EditorCtx);
 
-  const estiloBoton = (activo: boolean): React.CSSProperties => ({
-    width: 28,
-    height: 28,
-    display: 'grid',
-    placeItems: 'center',
-    background: 'transparent',
-    color: activo ? '#c6c6c6' : '#3d3d3d',
-    border: '1px solid #2e2e2e',
-    borderRadius: 2,
-    fontSize: 15,
-    cursor: activo ? 'pointer' : 'default',
-    lineHeight: 1,
-    transition: 'color 100ms',
-  });
+  useEffect(() => {
+    actualizarHistoria({
+      hasPast: history.hasPast,
+      hasFuture: history.hasFuture,
+      back: history.back,
+      forward: history.forward,
+    });
+  // history.back/forward son estables cuando hasPast/hasFuture no cambian
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [history.hasPast, history.hasFuture]);
 
-  return (
-    <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-      <button
-        type="button"
-        title="Deshacer"
-        style={estiloBoton(puedoAtras)}
-        disabled={!puedoAtras}
-        onClick={() => puedoAtras && history.back()}
-      >
-        ←
-      </button>
-      <button
-        type="button"
-        title="Rehacer"
-        style={estiloBoton(puedoAdelante)}
-        disabled={!puedoAdelante}
-        onClick={() => puedoAdelante && history.forward()}
-      >
-        →
-      </button>
-    </div>
-  );
+  useEffect(() => {
+    actualizarContenido(contenido as unknown[]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contenido]);
+
+  // Espaciador que ocupa la zona de header de Puck (48 px) para que el canvas
+  // comience justo debajo de nuestro header fijo externo.
+  return <div style={{ height: 48, pointerEvents: 'none' }} aria-hidden="true" />;
 }
 
 /* ─── Modal cambio de clave ─────────────────────────────────── */
@@ -150,16 +114,10 @@ function ModalClave({ alCerrar }: { alCerrar: () => void }) {
   }
 
   const campo: React.CSSProperties = {
-    width: '100%',
-    height: 36,
-    padding: '0 10px',
-    fontSize: 13,
-    background: '#262626',
-    border: '1px solid #393939',
-    borderBottom: '1px solid #6f6f6f',
-    color: '#f4f4f4',
-    outline: 'none',
-    boxSizing: 'border-box',
+    width: '100%', height: 36, padding: '0 10px', fontSize: 13,
+    background: '#262626', border: '1px solid #393939',
+    borderBottom: '1px solid #6f6f6f', color: '#f4f4f4',
+    outline: 'none', boxSizing: 'border-box',
   };
 
   return (
@@ -168,7 +126,7 @@ function ModalClave({ alCerrar }: { alCerrar: () => void }) {
       onClick={(e) => { if (e.target === fondoRef.current) alCerrar(); }}
       style={{
         position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
-        display: 'grid', placeItems: 'center', zIndex: 10000,
+        display: 'grid', placeItems: 'center', zIndex: 20000,
       }}
     >
       <div style={{
@@ -185,9 +143,7 @@ function ModalClave({ alCerrar }: { alCerrar: () => void }) {
 
         <form onSubmit={enviar} style={{ display: 'grid', gap: 12 }}>
           <div>
-            <label style={{ display: 'block', color: '#a8a8a8', fontSize: 11, marginBottom: 4 }}>
-              Clave actual
-            </label>
+            <label style={{ display: 'block', color: '#a8a8a8', fontSize: 11, marginBottom: 4 }}>Clave actual</label>
             <input type="password" required value={actual} onChange={e => setActual(e.target.value)}
               autoComplete="current-password" style={campo} />
           </div>
@@ -212,16 +168,13 @@ function ModalClave({ alCerrar }: { alCerrar: () => void }) {
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={estado === 'enviando' || estado === 'ok'}
+          <button type="submit" disabled={estado === 'enviando' || estado === 'ok'}
             style={{
               height: 36, fontSize: 13, fontWeight: 600,
               background: estado === 'ok' ? '#24a148' : '#0f62fe',
               color: '#fff', border: 0, cursor: estado === 'enviando' ? 'default' : 'pointer',
               opacity: estado === 'enviando' ? 0.7 : 1, transition: 'background 120ms',
-            }}
-          >
+            }}>
             {estado === 'enviando' ? 'Guardando...' : estado === 'ok' ? 'Guardado ✓' : 'Cambiar clave'}
           </button>
         </form>
@@ -230,56 +183,67 @@ function ModalClave({ alCerrar }: { alCerrar: () => void }) {
   );
 }
 
-/* ─── Header ─────────────────────────────────────────────────── */
+/* ─── Header (position: fixed, fuera del árbol de Puck) ──────── */
 
 const LINK: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  height: 30,
-  padding: '0 9px',
-  fontSize: 12,
-  color: '#8d8d8d',
-  textDecoration: 'none',
-  borderRadius: 2,
-  cursor: 'pointer',
-  flexShrink: 0,
-  whiteSpace: 'nowrap',
+  display: 'flex', alignItems: 'center', height: 30, padding: '0 9px',
+  fontSize: 12, color: '#8d8d8d', textDecoration: 'none',
+  borderRadius: 2, cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap',
 };
 
-const DIVIDER: React.CSSProperties = {
-  width: 1,
-  height: 18,
-  background: '#2e2e2e',
-  flexShrink: 0,
-};
+const DIVIDER: React.CSSProperties = { width: 1, height: 18, background: '#2e2e2e', flexShrink: 0 };
+
+const estiloBoton = (activo: boolean): React.CSSProperties => ({
+  width: 28, height: 28, display: 'grid', placeItems: 'center',
+  background: 'transparent', color: activo ? '#c6c6c6' : '#3d3d3d',
+  border: '1px solid #2e2e2e', borderRadius: 2, fontSize: 15,
+  cursor: activo ? 'pointer' : 'default', lineHeight: 1, transition: 'color 100ms',
+});
 
 export default function EditorHeader() {
-  const { abrirHistorial, solicitudesNuevas, estadoGuardado } = useContext(EditorCtx);
+  const { estadoGuardado, guardar, abrirHistorial, solicitudesNuevas, historia } = useContext(EditorCtx);
   const [verClave, setVerClave] = useState(false);
+  const guardando = estadoGuardado === 'guardando';
 
   return (
     <header
       style={{
-        position: 'relative',
-        zIndex: 9999,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 10000,
+        height: 48,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        height: 48,
-        padding: '0 12px 0 14px',
         background: '#111111',
         borderBottom: '1px solid #2a2a2a',
         boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
+        padding: '0 12px 0 14px',
         gap: 8,
-        flexShrink: 0,
         userSelect: 'none',
         boxSizing: 'border-box',
-        width: '100%',
       }}
     >
       {/* ── Izquierda: undo / redo ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <ControlesHistorial />
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          <button
+            type="button"
+            title="Deshacer"
+            style={estiloBoton(historia.hasPast)}
+            disabled={!historia.hasPast}
+            onClick={() => historia.hasPast && historia.back()}
+          >←</button>
+          <button
+            type="button"
+            title="Rehacer"
+            style={estiloBoton(historia.hasFuture)}
+            disabled={!historia.hasFuture}
+            onClick={() => historia.hasFuture && historia.forward()}
+          >→</button>
+        </div>
         <span style={DIVIDER} />
         <span style={{ color: '#555', fontSize: 12, letterSpacing: '0.02em' }}>EDITOR</span>
       </div>
@@ -294,9 +258,7 @@ export default function EditorHeader() {
           Historial
         </button>
 
-        <a href="/ajustes" style={LINK}>
-          Ajustes
-        </a>
+        <a href="/ajustes" style={LINK}>Ajustes</a>
 
         <span style={DIVIDER} />
 
@@ -317,15 +279,7 @@ export default function EditorHeader() {
           <button
             type="submit"
             title="Cerrar sesión"
-            style={{
-              ...LINK,
-              background: 'transparent',
-              border: 0,
-              color: '#555',
-              fontSize: 17,
-              padding: '0 8px',
-              lineHeight: 1,
-            }}
+            style={{ ...LINK, background: 'transparent', border: 0, color: '#555', fontSize: 17, padding: '0 8px', lineHeight: 1 }}
           >
             ⏻
           </button>
@@ -335,16 +289,25 @@ export default function EditorHeader() {
       {/* ── Derecha: estado + guardar ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         {estadoGuardado === 'guardado' && (
-          <span style={{ fontSize: 12, color: '#42be65', flexShrink: 0 }}>
-            ✓ Guardado
-          </span>
+          <span style={{ fontSize: 12, color: '#42be65', flexShrink: 0 }}>✓ Guardado</span>
         )}
         {estadoGuardado === 'error' && (
-          <span style={{ fontSize: 12, color: '#fa4d56', flexShrink: 0 }}>
-            ✕ Error al guardar
-          </span>
+          <span style={{ fontSize: 12, color: '#fa4d56', flexShrink: 0 }}>✕ Error al guardar</span>
         )}
-        <BotonGuardar />
+        <button
+          type="button"
+          disabled={guardando}
+          onClick={guardar}
+          style={{
+            height: 32, padding: '0 20px', fontSize: 13, fontWeight: 600,
+            background: guardando ? '#4d4d4d' : '#0f62fe',
+            color: '#fff', border: 0, borderRadius: 2,
+            cursor: guardando ? 'default' : 'pointer',
+            transition: 'background 120ms', flexShrink: 0,
+          }}
+        >
+          {guardando ? 'Guardando...' : 'Guardar'}
+        </button>
       </div>
 
       {verClave && <ModalClave alCerrar={() => setVerClave(false)} />}
