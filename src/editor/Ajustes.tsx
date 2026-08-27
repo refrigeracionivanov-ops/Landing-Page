@@ -51,12 +51,14 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
 
   const [tema, setTema] = useState<'compacto' | 'complejo'>(ajustes.tema ?? 'compacto');
   const [guardandoTema, setGuardandoTema] = useState(false);
+  const [guardadoTema, setGuardadoTema] = useState(false);
   const [errorTema, setErrorTema] = useState<string | null>(null);
 
   async function cambiarTema(nuevo: 'compacto' | 'complejo') {
     const anterior = tema;
     setTema(nuevo);
     setGuardandoTema(true);
+    setGuardadoTema(false);
     setErrorTema(null);
     try {
       const r = await fetch('/api/tema', {
@@ -66,6 +68,8 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
       });
       const resp = (await r.json()) as { ok?: boolean; error?: string };
       if (!r.ok || !resp.ok) throw new Error(resp.error ?? `Error ${r.status}`);
+      setGuardadoTema(true);
+      setTimeout(() => setGuardadoTema(false), 4000);
     } catch (e) {
       setTema(anterior);
       setErrorTema(e instanceof Error ? e.message : 'No se pudo guardar el tema.');
@@ -167,41 +171,55 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
 
         <section className="mb-10 bg-white p-6">
           <h2 className="mb-2 text-base font-semibold text-[#161616]">Diseño de la página</h2>
-          <p className="mb-6 text-sm text-[#6f6f6f]">
-            El cambio se ve en la próxima visita a la página. No hace falta presionar Guardar.
+          <p className="mb-4 text-sm text-[#6f6f6f]">
+            El cambio se guarda solo al hacer clic. Para verlo, abrí{' '}
+            <a href="/" target="_blank" rel="noopener noreferrer" style={{ color: '#0f62fe' }}>la página</a>.
           </p>
-          <div style={{ display: 'flex', border: '1px solid #e0e0e0', width: 'fit-content', opacity: guardandoTema ? 0.6 : 1 }}>
-            {(['compacto', 'complejo'] as const).map((opcion) => {
-              const activo = tema === opcion;
-              return (
-                <button
-                  key={opcion}
-                  type="button"
-                  onClick={() => cambiarTema(opcion)}
-                  disabled={guardandoTema}
-                  style={{
-                    padding: '10px 28px',
-                    fontSize: 14,
-                    fontWeight: activo ? 600 : 400,
-                    background: activo ? '#161616' : '#f4f4f4',
-                    color: activo ? '#ffffff' : '#525252',
-                    border: 0,
-                    cursor: guardandoTema ? 'default' : 'pointer',
-                    transition: 'background 150ms, color 150ms',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                  }}
-                >
-                  <span style={{
-                    width: 10, height: 10, borderRadius: '50%',
-                    background: activo ? '#ffffff' : '#8d8d8d',
-                    flexShrink: 0,
-                  }} />
-                  {opcion === 'compacto' ? 'Compacto' : 'Complejo'}
-                </button>
-              );
-            })}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', border: '1px solid #e0e0e0', width: 'fit-content', opacity: guardandoTema ? 0.6 : 1 }}>
+              {(['compacto', 'complejo'] as const).map((opcion) => {
+                const activo = tema === opcion;
+                return (
+                  <button
+                    key={opcion}
+                    type="button"
+                    onClick={() => cambiarTema(opcion)}
+                    disabled={guardandoTema}
+                    style={{
+                      padding: '10px 28px',
+                      fontSize: 14,
+                      fontWeight: activo ? 600 : 400,
+                      background: activo ? '#161616' : '#f4f4f4',
+                      color: activo ? '#ffffff' : '#525252',
+                      border: 0,
+                      cursor: guardandoTema ? 'default' : 'pointer',
+                      transition: 'background 150ms, color 150ms',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                    }}
+                  >
+                    <span style={{
+                      width: 10, height: 10, borderRadius: '50%',
+                      background: activo ? '#ffffff' : '#8d8d8d',
+                      flexShrink: 0,
+                    }} />
+                    {opcion === 'compacto' ? 'Compacto' : 'Complejo'}
+                  </button>
+                );
+              })}
+            </div>
+            {guardandoTema && (
+              <span style={{ fontSize: 13, color: '#6f6f6f' }}>Guardando...</span>
+            )}
+            {guardadoTema && !guardandoTema && (
+              <span style={{ fontSize: 13, color: '#24a148' }}>
+                ✓ Guardado —{' '}
+                <a href="/" target="_blank" rel="noopener noreferrer" style={{ color: '#24a148' }}>
+                  ver el sitio
+                </a>
+              </span>
+            )}
           </div>
           <p className="mt-3 text-xs text-[#6f6f6f]">
             <strong>Compacto</strong> — IBM Carbon: blanco, estructura densa, tipografía precisa.{' '}
