@@ -30,7 +30,7 @@ export const POST: APIRoute = async ({ request }) => {
     return respuesta({ error: 'Falta SANITY_WRITE_TOKEN en el servidor. Sin eso no se puede escribir.' }, 500);
   }
 
-  let cuerpo: { secciones?: unknown };
+  let cuerpo: { secciones?: unknown; pagina?: unknown };
   try {
     cuerpo = await request.json();
   } catch {
@@ -41,9 +41,12 @@ export const POST: APIRoute = async ({ request }) => {
   if (problema) return respuesta({ error: problema }, 400);
 
   const secciones = cuerpo.secciones as Bloque[];
+  const slug = typeof cuerpo.pagina === 'string' && /^[a-z0-9-]+$/.test(cuerpo.pagina)
+    ? cuerpo.pagina
+    : 'inicio';
 
   try {
-    await escribirSecciones(cliente, env.DB, secciones, acceso.email ?? null);
+    await escribirSecciones(cliente, env.DB, secciones, acceso.email ?? null, slug);
     console.log(`[guardar] ${acceso.email ?? 'desconocido'} guardo ${secciones.length} secciones.`);
     return respuesta({ ok: true, secciones: secciones.length });
   } catch (error) {

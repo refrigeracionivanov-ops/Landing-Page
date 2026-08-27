@@ -1,60 +1,87 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import LayoutComfortair from '../layouts/LayoutComfortair.astro';
 import Bloques from '../components/Bloques.astro';
-import { obtenerContenido } from '../sanity/consultas';
+import BloquesComfortair from '../components/temas/comfortair/Bloques';
+import Encabezado from '../components/temas/comfortair/Encabezado';
+import PieDePagina from '../components/temas/comfortair/PieDePagina';
+import { obtenerContenido, obtenerPagina } from '../sanity/consultas';
 import { urlImagen } from '../sanity/imagen';
 import type { HeroBloque } from '../tipos';
 
-/**
- * Se renderiza en cada visita, no al compilar.
- *
- * Antes era estatica y el HTML quedaba congelado en el momento del deploy: se
- * guardaba desde /administrador, el contenido cambiaba en Sanity, y la pagina publica
- * seguia mostrando lo viejo hasta el siguiente compilado. Con el editor en vivo
- * eso no tiene sentido; lo que se guarda tiene que verse.
- */
 export const prerender = false;
 
-const { pagina, ajustes, distritos } = await obtenerContenido('inicio');
+// Siempre obtenemos ajustes desde la página de inicio para leer el tema activo.
+const { pagina: paginaInicio, ajustes, distritos } = await obtenerContenido('inicio');
 
-// Sin ajustes cargados no hay telefono ni WhatsApp, y medio sitio depende de eso.
 if (!ajustes) {
   throw new Error(
     'Falta el documento "Ajustes del negocio" en Sanity. Entra a /admin y completalo, o corre `npm run sembrar`.',
   );
 }
-/**
- * La imagen de la portada es tambien la que se ve al compartir el link.
- *
- * Es la unica del sitio que ya esta elegida para representarlo entero, y si no
- * hay ninguna cargada es mejor no emitir la etiqueta: WhatsApp muestra un
- * recuadro roto antes que ignorarla.
- */
-const portada = pagina?.secciones?.find((bloque) => bloque._type === 'heroBloque') as HeroBloque | undefined;
 
+const esComplejo = ajustes.tema === 'complejo';
+
+// Si el tema es complejo, cargamos el contenido de la página ComfortAir.
+const pagina = esComplejo ? await obtenerPagina('comfortair') : paginaInicio;
+
+const portada = pagina?.secciones?.find((b) => b._type === 'heroBloque') as HeroBloque | undefined;
 const imagenParaCompartir = portada?.imagen?.asset
   ? urlImagen(portada.imagen).width(1200).height(630).fit('crop').url()
   : undefined;
+
+const tituloSeo = pagina?.seo?.titulo ?? `${ajustes.nombre} — Instalación y mantenimiento de aire acondicionado`;
+const descripcionSeo = pagina?.seo?.descripcion;
 ---
 
-<Layout
-  titulo={pagina?.seo?.titulo ?? `${ajustes.nombre} — Instalacion y mantenimiento de aire acondicionado`}
-  descripcion={pagina?.seo?.descripcion}
-  ajustes={ajustes}
-  barrios={distritos}
-  imagen={imagenParaCompartir}
->
-  {
-    pagina ? (
+{esComplejo ? (
+  <LayoutComfortair
+    titulo={tituloSeo}
+    descripcion={descripcionSeo}
+    ajustes={ajustes}
+    barrios={distritos}
+    imagen={imagenParaCompartir}
+  >
+    <Encabezado client:load ajustes={ajustes} />
+
+    {pagina ? (
+      <BloquesComfortair
+        client:load
+        secciones={pagina.secciones}
+        ajustes={ajustes}
+        distritos={distritos}
+      />
+    ) : (
+      <main style="min-height:60vh;display:flex;align-items:center;justify-content:center;font-family:Inter,sans-serif">
+        <div style="text-align:center;padding:3rem">
+          <h1 style="font-size:1.5rem;font-weight:700;color:#0f172a">Todavía no hay contenido</h1>
+          <p style="margin-top:1rem;color:#64748b">
+            Entra a <a href="/administrador-comfortair" style="color:#2563eb">/administrador-comfortair</a> y crea el contenido.
+          </p>
+        </div>
+      </main>
+    )}
+
+    <PieDePagina client:load ajustes={ajustes} />
+  </LayoutComfortair>
+) : (
+  <Layout
+    titulo={tituloSeo}
+    descripcion={descripcionSeo}
+    ajustes={ajustes}
+    barrios={distritos}
+    imagen={imagenParaCompartir}
+  >
+    {pagina ? (
       <Bloques secciones={pagina.secciones} ajustes={ajustes} distritos={distritos} />
     ) : (
       <div class="contenedor py-32">
         <h1 class="titulo-seccion">Todavia no hay contenido</h1>
         <p class="cuerpo-lg mt-4 text-tinta-media">
-          Entra a <a href="/admin" class="text-azul underline">/admin</a> y crea una pagina con la direccion{' '}
+          Entra a <a href="/administrador" class="text-azul underline">/administrador</a> y crea una pagina con la direccion{' '}
           <code class="bg-superficie px-1.5 py-0.5">inicio</code>.
         </p>
       </div>
-    )
-  }
-</Layout>
+    )}
+  </Layout>
+)}

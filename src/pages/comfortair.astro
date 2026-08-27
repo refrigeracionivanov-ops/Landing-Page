@@ -1,0 +1,56 @@
+---
+import LayoutComfortair from '../layouts/LayoutComfortair.astro';
+import Encabezado from '../components/temas/comfortair/Encabezado';
+import Bloques from '../components/temas/comfortair/Bloques';
+import PieDePagina from '../components/temas/comfortair/PieDePagina';
+import { obtenerContenido } from '../sanity/consultas';
+import { urlImagen } from '../sanity/imagen';
+import type { HeroBloque } from '../tipos';
+
+export const prerender = false;
+
+const { pagina, ajustes, distritos } = await obtenerContenido('comfortair');
+
+if (!ajustes) {
+  throw new Error(
+    'Falta el documento "Ajustes del negocio" en Sanity. Entra a /admin y completalo.',
+  );
+}
+
+const portada = pagina?.secciones?.find((b) => b._type === 'heroBloque') as HeroBloque | undefined;
+const imagenParaCompartir = portada?.imagen?.asset
+  ? urlImagen(portada.imagen).width(1200).height(630).fit('crop').url()
+  : undefined;
+---
+
+<LayoutComfortair
+  titulo={pagina?.seo?.titulo ?? `${ajustes.nombre} — Instalación y mantenimiento de aire acondicionado`}
+  descripcion={pagina?.seo?.descripcion}
+  ajustes={ajustes}
+  barrios={distritos}
+  imagen={imagenParaCompartir}
+>
+  <Encabezado client:load ajustes={ajustes} />
+
+  {
+    pagina ? (
+      <Bloques
+        client:load
+        secciones={pagina.secciones}
+        ajustes={ajustes}
+        distritos={distritos}
+      />
+    ) : (
+      <main style="min-height:60vh;display:flex;align-items:center;justify-content:center;font-family:Inter,sans-serif">
+        <div style="text-align:center;padding:3rem">
+          <h1 style="font-size:1.5rem;font-weight:700;color:#0f172a">Todavía no hay contenido</h1>
+          <p style="margin-top:1rem;color:#64748b">
+            Entra a <a href="/administrador-comfortair" style="color:#2563eb">/administrador-comfortair</a> y crea el contenido de esta página.
+          </p>
+        </div>
+      </main>
+    )
+  }
+
+  <PieDePagina client:load ajustes={ajustes} />
+</LayoutComfortair>

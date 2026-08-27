@@ -347,29 +347,29 @@ body {
 }
 
 /* ============================================================
-   TEMA COMPLEJO — Dyson visual language, adaptado a la landing
+   TEMA COMPLEJO — ComfortAir visual language
+   Fondo claro, azul real (#2563EB), Inter bold, cards con sombra
    ============================================================ */
 
 /* ── 1. Tokens ── */
 [data-theme="complejo"] {
-  --color-lienzo: #0d0d0d;
-  --color-superficie: #161616;
-  --color-superficie-2: #1e1e1e;
-  --color-tinta: #f0f0f0;
-  --color-tinta-media: #9a9a9a;
-  --color-tinta-suave: #555555;
-  --color-filete: #272727;
-  --color-filete-fuerte: #9a9a9a;
-  --color-inverso: #f0f0f0;
-  --color-inverso-2: #d4d4d4;
-  --color-inverso-tinta: #0d0d0d;
-  --color-inverso-tinta-media: #444444;
-  /* Sin azul IBM: el único acento es blanco / gris */
-  --color-azul: #f0f0f0;
-  --color-azul-hover: #d4d4d4;
-  --color-azul-60: #b0b0b0;
-  --color-azul-80: #909090;
-  --font-sans: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+  --color-azul: #2563EB;
+  --color-azul-hover: #1D4ED8;
+  --color-azul-60: #3B82F6;
+  --color-azul-80: #1E40AF;
+  --color-tinta: #0F172A;
+  --color-tinta-media: #475569;
+  --color-tinta-suave: #94A3B8;
+  --color-lienzo: #ffffff;
+  --color-superficie: #F8FAFC;
+  --color-superficie-2: #E2E8F0;
+  --color-filete: #E2E8F0;
+  --color-filete-fuerte: #334155;
+  --color-inverso: #0F172A;
+  --color-inverso-2: #1E293B;
+  --color-inverso-tinta: #ffffff;
+  --color-inverso-tinta-media: #94A3B8;
+  --font-sans: 'Inter', 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* ── 2. Base ── */
@@ -377,162 +377,192 @@ body {
   letter-spacing: 0;
 }
 
-/* ── 3. Tipografía — más dramática ── */
+/* ── 3. Tipografía — bold y limpia ── */
 [data-theme="complejo"] .display-xl {
-  font-size: clamp(3rem, 9vw, 7rem);
-  font-weight: 200;
-  letter-spacing: -3px;
-  line-height: 1.0;
-}
-[data-theme="complejo"] .display-lg {
-  font-size: clamp(2.5rem, 6vw, 5.5rem);
-  font-weight: 200;
-  letter-spacing: -2px;
-  line-height: 1.05;
-}
-[data-theme="complejo"] .titulo-seccion {
-  font-size: clamp(2rem, 4.5vw, 4rem);
-  font-weight: 200;
-  letter-spacing: -1.5px;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: -1px;
   line-height: 1.1;
 }
-[data-theme="complejo"] .titular {
-  font-weight: 200;
+[data-theme="complejo"] .display-lg {
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 700;
   letter-spacing: -0.5px;
+  line-height: 1.15;
+}
+[data-theme="complejo"] .titulo-seccion {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+[data-theme="complejo"] .titular {
+  font-weight: 600;
+  letter-spacing: -0.2px;
 }
 [data-theme="complejo"] .titulo-tarjeta {
-  font-weight: 300;
-  letter-spacing: -0.3px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
 }
 [data-theme="complejo"] .antetitulo {
-  font-size: 0.7rem;
-  font-weight: 400;
-  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-tinta-media);
+  color: var(--color-azul);
 }
 
-/* ── 4. Espaciado de secciones ── */
+/* ── 4. Espaciado ── */
 [data-theme="complejo"] .seccion {
-  padding-block: 100px;
+  padding-block: 80px;
 }
 @media (min-width: 768px) {
   [data-theme="complejo"] .seccion {
-    padding-block: 148px;
+    padding-block: 104px;
   }
 }
 
-/* ── 5. Botones — outline blanco en lugar de relleno azul ── */
+/* ── 5. Botones — redondeados, relleno azul sólido ── */
 [data-theme="complejo"] .boton {
-  letter-spacing: 0.04em;
-  font-weight: 400;
-  transition: background-color 180ms ease, color 180ms ease;
+  border-radius: 6px;
+  letter-spacing: 0;
+  font-weight: 600;
+  transition: background-color 150ms ease, color 150ms ease;
 }
 [data-theme="complejo"] .boton-primario {
-  background: transparent;
-  color: var(--color-tinta);
-  box-shadow: inset 0 0 0 1px var(--color-tinta);
+  background: var(--color-azul);
+  color: #ffffff;
+  box-shadow: none;
 }
 [data-theme="complejo"] .boton-primario:hover:not(:disabled) {
-  background: var(--color-tinta);
-  color: var(--color-lienzo);
+  background: var(--color-azul-hover);
+  color: #ffffff;
 }
 [data-theme="complejo"] .boton-primario:active:not(:disabled) {
-  background: var(--color-tinta-media);
-  color: var(--color-lienzo);
+  background: var(--color-azul-80);
+  color: #ffffff;
 }
 [data-theme="complejo"] .boton-secundario {
   background: var(--color-tinta);
-  color: var(--color-lienzo);
+  color: #ffffff;
+  border-radius: 6px;
 }
 [data-theme="complejo"] .boton-secundario:hover:not(:disabled) {
-  background: var(--color-tinta-media);
+  background: var(--color-inverso-2);
+}
+[data-theme="complejo"] .boton-terciario {
+  background: transparent;
+  color: var(--color-azul);
+  box-shadow: inset 0 0 0 2px var(--color-azul);
+  border-radius: 6px;
+}
+[data-theme="complejo"] .boton-terciario:hover:not(:disabled) {
+  background: var(--color-azul);
+  color: #ffffff;
 }
 [data-theme="complejo"] .boton-terciario-inverso {
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4);
+  border-radius: 6px;
+  color: #ffffff;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.5);
+  background: transparent;
 }
 [data-theme="complejo"] .boton-terciario-inverso:hover:not(:disabled) {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.15);
   color: #ffffff;
 }
 
-/* ── 6. Header — vidrio oscuro ── */
-/* Oculta la barra de utilidades (horario arriba del nav) */
-[data-theme="complejo"] .bg-superficie.hidden {
-  display: none !important;
-}
+/* ── 6. Header — blanco limpio ── */
 [data-theme="complejo"] header.sticky {
-  background: rgba(13, 13, 13, 0.88);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 1px solid var(--color-filete);
+}
+[data-theme="complejo"] header .boton-primario {
+  border-radius: 6px;
 }
 
-/* ── 7. Hero — cinematográfico ── */
+/* ── 7. Hero — foto a pantalla completa con overlay oscuro ── */
 [data-theme="complejo"] section:has(> div > div > h1) {
-  border-bottom: none;
-  min-height: 90svh;
+  position: relative;
+  min-height: 85svh;
   display: flex;
   align-items: center;
-  position: relative;
+  overflow: hidden;
+  border-bottom: none;
+  background: #0a1628;
 }
-/* Imagen del hero: sin caja gris, toma altura completa */
-[data-theme="complejo"] section:has(> div > div > h1) .bg-superficie {
-  background: transparent;
+[data-theme="complejo"] section:has(> div > div > h1)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, rgba(7,12,26,0.82) 35%, rgba(7,12,26,0.45) 100%);
+  z-index: 1;
+}
+[data-theme="complejo"] section:has(> div > div > h1) > .contenedor {
   position: relative;
+  z-index: 2;
+  display: block;
+  padding-block: 6rem;
+}
+[data-theme="complejo"] section:has(> div > div > h1) .bg-superficie {
+  position: absolute;
+  inset: 0;
+  background: transparent;
 }
 [data-theme="complejo"] section:has(> div > div > h1) img {
-  min-height: 480px;
+  width: 100%;
   height: 100%;
+  min-height: 85svh;
   object-fit: cover;
-  filter: brightness(0.75) contrast(1.05);
+  filter: none;
 }
-/* Línea decorativa antes del titular, firma Dyson */
+[data-theme="complejo"] section:has(> div > div > h1) h1 {
+  color: #ffffff;
+  max-width: 700px;
+}
 [data-theme="complejo"] section:has(> div > div > h1) h1::before {
-  content: '';
-  display: block;
-  width: 40px;
-  height: 1px;
-  background: var(--color-tinta-media);
-  margin-bottom: 1.5rem;
+  display: none;
+}
+[data-theme="complejo"] section:has(> div > div > h1) > .contenedor > div > p {
+  color: rgba(255,255,255,0.82);
+  max-width: 580px;
+}
+[data-theme="complejo"] section:has(> div > div > h1) > .contenedor > div > .flex {
+  gap: 0.75rem;
 }
 
-/* ── 8. Banda gris — transparente en complejo ── */
+/* ── 8. Banda gris ── */
 [data-theme="complejo"] .banda {
-  background: transparent;
+  background: var(--color-superficie);
 }
 
-/* ── 9. Grillas 1px (Carbon) → separadores limpios ── */
-/* El truco de gap-px con bg-filete crea las líneas de Carbon.
-   En complejo se reemplaza por filetes top/bottom sobre fondo limpio. */
+/* ── 9. Grillas gap-px — revertir Dyson, volver a Carbon estándar ── */
 [data-theme="complejo"] .grid.gap-px,
 [data-theme="complejo"] dl.grid.gap-px {
-  gap: 0 !important;
-  border-color: transparent !important;
-  background: transparent !important;
+  gap: 1px;
+  background: var(--color-filete);
 }
 [data-theme="complejo"] .grid.gap-px > article,
 [data-theme="complejo"] .grid.gap-px > li,
 [data-theme="complejo"] .grid.gap-px > figure,
 [data-theme="complejo"] .grid.gap-px > div,
 [data-theme="complejo"] dl.grid.gap-px > div {
-  background: transparent !important;
-  border-bottom: 1px solid var(--color-filete);
-  padding-block: 2.5rem;
+  background: var(--color-lienzo);
+  border-top: none;
+  border-bottom: none;
+  border-right: none;
+  padding-block: unset;
 }
-[data-theme="complejo"] .grid.gap-px > article:first-child,
-[data-theme="complejo"] .grid.gap-px > li:first-child,
-[data-theme="complejo"] .grid.gap-px > figure:first-child,
-[data-theme="complejo"] .grid.gap-px > div:first-child,
-[data-theme="complejo"] dl.grid.gap-px > div:first-child {
-  border-top: 1px solid var(--color-filete);
+[data-theme="complejo"] .grid.gap-px > *:first-child,
+[data-theme="complejo"] dl.grid.gap-px > *:first-child {
+  border-top: none;
 }
-/* En grid multi-columna: separador vertical entre columnas */
 @media (min-width: 640px) {
   [data-theme="complejo"] .grid.gap-px > *,
   [data-theme="complejo"] dl.grid.gap-px > * {
-    border-right: 1px solid var(--color-filete);
-    padding-inline: 2rem;
+    border-right: none;
+    padding-inline: unset;
   }
   [data-theme="complejo"] .grid.gap-px > *:last-child,
   [data-theme="complejo"] dl.grid.gap-px > *:last-child {
@@ -540,69 +570,148 @@ body {
   }
 }
 
-/* ── 10. Planes — fondo de tarjeta oscuro premium ── */
-[data-theme="complejo"] .grid.grid.border.border-superficie-2 {
-  gap: 0 !important;
-  border-color: transparent !important;
+/* ── 10. Beneficios — tarjetas en forma de casa ── */
+[data-theme="complejo"] #beneficios .grid > div {
+  background: #EEF2FF;
+  clip-path: polygon(50% 0%, 100% 20%, 100% 100%, 0% 100%, 0% 20%);
+  padding: 5rem 1.5rem 2rem;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border: none;
+}
+[data-theme="complejo"] #beneficios .grid > div hr {
+  display: none;
+}
+[data-theme="complejo"] #beneficios .grid > div svg {
+  background: var(--color-azul);
+  color: #ffffff;
+  padding: 0.75rem;
+  border-radius: 50%;
+  width: 3.5rem;
+  height: 3.5rem;
+  flex-shrink: 0;
+}
+[data-theme="complejo"] #beneficios .grid > div h3 {
+  margin-top: 1.25rem;
+}
+[data-theme="complejo"] #beneficios .grid > div p {
+  margin-top: 0.5rem;
+  color: var(--color-tinta-media);
+}
+
+/* ── 11. Servicios — cards con sombra y bordes redondeados ── */
+[data-theme="complejo"] #servicios .grid.gap-px {
+  gap: 1.5rem !important;
+  border: none !important;
   background: transparent !important;
 }
-[data-theme="complejo"] .grid.border.border-superficie-2 article {
-  background: var(--color-superficie) !important;
-  outline: 1px solid var(--color-filete);
+[data-theme="complejo"] #servicios .grid.gap-px article {
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.06);
+  border: 1px solid var(--color-filete) !important;
+  background: #ffffff !important;
 }
-/* Plan destacado: inversión de contraste */
+
+/* ── 12. Confianza — cifras en azul, cards con sombra ── */
+[data-theme="complejo"] #confianza dl.grid.gap-px {
+  gap: 1.5rem !important;
+  border: none !important;
+  background: transparent !important;
+}
+[data-theme="complejo"] #confianza dl.grid.gap-px > div {
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid var(--color-filete) !important;
+  background: #ffffff !important;
+}
+[data-theme="complejo"] #confianza dl.grid.gap-px > div dt {
+  color: var(--color-azul);
+}
+
+/* ── 13. Testimonios — cards con sombra, estrellas amarillas Google ── */
+[data-theme="complejo"] #testimonios .grid.gap-px {
+  gap: 1.5rem !important;
+  border: none !important;
+  background: transparent !important;
+}
+[data-theme="complejo"] #testimonios .grid.gap-px figure {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  border: 1px solid var(--color-filete) !important;
+  background: #ffffff !important;
+}
+[data-theme="complejo"] #testimonios .grid.gap-px figure .text-azul {
+  color: #FBBC05 !important;
+}
+[data-theme="complejo"] #testimonios .grid.gap-px figure img {
+  border-radius: 50%;
+}
+
+/* ── 14. Planes — plan destacado en azul ── */
+[data-theme="complejo"] .grid.border.border-superficie-2 {
+  gap: 1px !important;
+  border: none !important;
+  background: var(--color-filete) !important;
+}
+[data-theme="complejo"] .grid.border.border-superficie-2 article {
+  background: var(--color-lienzo) !important;
+  outline: none !important;
+}
 [data-theme="complejo"] .grid.border.border-superficie-2 article.bg-superficie {
-  background: var(--color-tinta) !important;
-  color: var(--color-lienzo);
+  background: var(--color-azul) !important;
+  color: #ffffff;
 }
 [data-theme="complejo"] .grid.border.border-superficie-2 article.bg-superficie .text-tinta {
-  color: var(--color-lienzo) !important;
+  color: #ffffff !important;
 }
 [data-theme="complejo"] .grid.border.border-superficie-2 article.bg-superficie .text-tinta-media {
-  color: rgba(13,13,13,0.65) !important;
+  color: rgba(255,255,255,0.78) !important;
 }
 [data-theme="complejo"] .grid.border.border-superficie-2 article.bg-superficie .text-azul {
-  color: var(--color-lienzo) !important;
+  color: #ffffff !important;
 }
 [data-theme="complejo"] .grid.border.border-superficie-2 article.bg-superficie .border-filete {
-  border-color: rgba(13,13,13,0.15) !important;
+  border-color: rgba(255,255,255,0.3) !important;
 }
 [data-theme="complejo"] .grid.border.border-superficie-2 article.bg-superficie .boton-primario {
-  background: var(--color-lienzo);
-  color: var(--color-tinta);
+  background: #ffffff;
+  color: var(--color-azul);
   box-shadow: none;
 }
 [data-theme="complejo"] .grid.border.border-superficie-2 article.bg-superficie .boton-primario:hover {
   background: var(--color-superficie);
+  color: var(--color-azul);
 }
 
-/* ── 11. Sección CTA — blanca total (inversión Dyson) ── */
+/* ── 15. Sección CTA — navy oscuro ── */
 [data-theme="complejo"] .inverso.bg-azul {
   background: var(--color-tinta) !important;
 }
 [data-theme="complejo"] .inverso.bg-azul h2 {
-  color: var(--color-lienzo) !important;
+  color: #ffffff !important;
 }
 [data-theme="complejo"] .inverso.bg-azul p {
-  color: rgba(13,13,13,0.65) !important;
+  color: rgba(255,255,255,0.75) !important;
 }
 [data-theme="complejo"] .inverso.bg-azul .boton-secundario {
-  background: var(--color-lienzo);
-  color: var(--color-tinta);
+  background: var(--color-azul);
+  color: #ffffff;
 }
 [data-theme="complejo"] .inverso.bg-azul .boton-secundario:hover {
-  background: var(--color-superficie-2);
+  background: var(--color-azul-hover);
 }
 [data-theme="complejo"] .inverso.bg-azul .boton-terciario-inverso {
-  color: var(--color-lienzo);
-  box-shadow: inset 0 0 0 1px rgba(13,13,13,0.4);
+  color: #ffffff;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.4);
 }
 [data-theme="complejo"] .inverso.bg-azul .boton-terciario-inverso:hover {
-  background: rgba(13,13,13,0.08);
-  color: var(--color-lienzo);
+  background: rgba(255,255,255,0.1);
 }
 
-/* ── 12. Formularios ── */
+/* ── 16. Formularios ── */
 [data-theme="complejo"] .campo {
   background: var(--color-superficie);
   color: var(--color-tinta);
@@ -612,30 +721,44 @@ body {
   color: var(--color-tinta-suave);
 }
 [data-theme="complejo"] .campo:focus-visible {
-  outline-color: var(--color-tinta);
-  border-bottom-color: var(--color-tinta);
+  outline-color: var(--color-azul);
+  border-bottom-color: var(--color-azul);
 }
 
-/* ── 13. Pie de página — más oscuro que el lienzo ── */
+/* ── 17. Pie de página — gris claro ── */
 [data-theme="complejo"] footer {
-  background: #070707 !important;
+  background: var(--color-superficie) !important;
   border-top: 1px solid var(--color-filete);
+  color: var(--color-tinta-media);
 }
 [data-theme="complejo"] footer .border-inverso-2 {
   border-color: var(--color-filete) !important;
 }
-
-/* ── 14. Iconos — sin azul en complejo ── */
-[data-theme="complejo"] .text-azul {
+[data-theme="complejo"] footer .text-white {
+  color: var(--color-tinta) !important;
+}
+[data-theme="complejo"] footer .subtitulo {
+  color: var(--color-tinta) !important;
+}
+[data-theme="complejo"] footer .cuerpo-sm.font-semibold {
+  color: var(--color-tinta) !important;
+}
+[data-theme="complejo"] footer a {
+  color: var(--color-tinta-media);
+}
+[data-theme="complejo"] footer a:hover {
+  color: var(--color-azul) !important;
+}
+[data-theme="complejo"] footer .leyenda {
   color: var(--color-tinta-media);
 }
 
-/* ── 15. Estrellas de testimonios ── */
-[data-theme="complejo"] .text-azul svg[viewBox="0 0 24 24"][fill="currentColor"] {
-  color: #c8c8c8;
+/* ── 18. Íconos ── */
+[data-theme="complejo"] .text-azul {
+  color: var(--color-azul);
 }
 
-/* ── 16. Foco ── */
+/* ── 19. Foco ── */
 [data-theme="complejo"] :focus-visible {
-  outline-color: #ffffff;
+  outline-color: var(--color-azul);
 }

@@ -1,0 +1,34 @@
+/* Estilos exclusivos del tema ComfortAir — no comparte nada con Carbon/IBM */
+
+/* Tarjeta de estadística en forma de casa (pentágono) */
+.ca-casa {
+  clip-path: polygon(50% 0%, 100% 20%, 100% 100%, 0% 100%, 0% 20%);
+}
+
+/* Overlay de servicio sobre foto */
+.ca-servicio-overlay {
+  background: linear-gradient(to bottom, transparent 30%, rgba(7, 12, 26, 0.9) 100%);
+}
+
+/* Scrollbar oculto para el carrusel de testimonios */
+.ca-scroll-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.ca-scroll-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth focus ring en azul */
+.ca-foco:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Animación sutil en botones */
+.ca-boton {
+  transition: background-color 150ms ease, transform 100ms ease;
+}
+.ca-boton:active {
+  transform: scale(0.98);
+}

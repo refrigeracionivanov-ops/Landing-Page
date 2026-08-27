@@ -1,66 +1,60 @@
 ---
-import '../styles/global.css';
-import Encabezado from '../components/Encabezado.astro';
-import PieDePagina from '../components/PieDePagina.astro';
-import BarraContacto from '../components/BarraContacto.astro';
-import { fichaDelNegocio } from '../lib/schema';
+import '../styles/comfortair.css';
 import type { Ajustes } from '../tipos';
+import { fichaDelNegocio } from '../lib/schema';
 
 interface Props {
   titulo: string;
   descripcion?: string;
   ajustes: Ajustes;
-  /** Los barrios de la seccion de cobertura. Alimentan `areaServed`. */
   barrios?: string[];
-  /** Imagen para compartir y para la ficha del negocio. Absoluta. */
   imagen?: string;
 }
 
 const { titulo, descripcion, ajustes, barrios, imagen } = Astro.props;
 const canonica = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
-
 const ficha = fichaDelNegocio(ajustes, { url: canonica.href, imagen, barrios });
 ---
 
 <!doctype html>
-<html lang="es" data-theme={ajustes.tema ?? 'compacto'}>
+<html lang="es">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{titulo}</title>
     {descripcion && <meta name="description" content={descripcion} />}
     <link rel="canonical" href={canonica} />
-
     <meta property="og:type" content="website" />
     <meta property="og:title" content={titulo} />
     {descripcion && <meta property="og:description" content={descripcion} />}
-    <meta property="og:url" content={canonica.href} />
-    {/* Sin esto, compartir el link por WhatsApp muestra un recuadro de texto
-        pelado. Es la superficie que mas se comparte en este rubro. */}
     {imagen && <meta property="og:image" content={imagen} />}
     <meta name="twitter:card" content={imagen ? 'summary_large_image' : 'summary'} />
 
     <link rel="preconnect" href="https://cdn.sanity.io" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    {/* Una sola familia carga toda la jerarquia. 300 es el peso de los titulares
-        grandes, 400 el del cuerpo, 600 el unico enfasis permitido. */}
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500&family=IBM+Plex+Sans:wght@300;400;600&family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
-    {/* Datos estructurados: le dicen a Google que esto es un negocio local, en
-        que barrios trabaja y a que hora abre. Ver src/lib/schema.ts. */}
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      html { scroll-behavior: smooth; scroll-padding-top: 4.5rem; }
+      body {
+        margin: 0;
+        font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        color: #0f172a;
+        background: #ffffff;
+      }
+    </style>
+
     <script is:inline type="application/ld+json" set:html={JSON.stringify(ficha)} />
   </head>
-
   <body>
-    <Encabezado ajustes={ajustes} />
-    <main>
-      <slot />
-    </main>
-    <PieDePagina ajustes={ajustes} />
-    <BarraContacto ajustes={ajustes} />
+    <slot />
   </body>
 </html>

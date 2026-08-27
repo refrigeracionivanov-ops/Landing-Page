@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import { usePuck } from '@measured/puck';
 import PanelSolicitudes from './PanelSolicitudes';
 
@@ -21,6 +21,8 @@ interface EditorCtxValue {
   historia: HistoriaState;
   actualizarHistoria: (h: HistoriaState) => void;
   actualizarContenido: (contenido: unknown[]) => void;  // usado solo por Editor.tsx
+  temaPublico: 'compacto' | 'complejo';
+  cambiarTema: (t: 'compacto' | 'complejo') => Promise<void>;
 }
 
 const HISTORIA_VACIA: HistoriaState = {
@@ -38,6 +40,8 @@ export const EditorCtx = createContext<EditorCtxValue>({
   historia: HISTORIA_VACIA,
   actualizarHistoria: () => {},
   actualizarContenido: () => {},
+  temaPublico: 'compacto',
+  cambiarTema: async () => {},
 });
 
 /* ─── Puente: vive dentro de Puck, sincroniza historial al contexto ─ */
@@ -80,8 +84,16 @@ const estiloBoton = (activo: boolean): React.CSSProperties => ({
 });
 
 export default function EditorHeader() {
-  const { estadoGuardado, guardar, abrirHistorial, solicitudesNuevas, historia } = useContext(EditorCtx);
+  const { estadoGuardado, guardar, abrirHistorial, solicitudesNuevas, historia, temaPublico, cambiarTema } = useContext(EditorCtx);
   const guardando = estadoGuardado === 'guardando';
+  const [cambiandoTema, setCambiandoTema] = React.useState(false);
+
+  const alternarTema = async () => {
+    setCambiandoTema(true);
+    const nuevo = temaPublico === 'compacto' ? 'complejo' : 'compacto';
+    await cambiarTema(nuevo);
+    setCambiandoTema(false);
+  };
 
   return (
     <header
@@ -112,6 +124,41 @@ export default function EditorHeader() {
       {/* ── Centro: navegación secundaria ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <a href="/ajustes" style={LINK}>Ajustes</a>
+
+        <span style={DIVIDER} />
+
+        {/* Toggle modo público */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 6px' }}>
+          <span style={{ fontSize: 11, color: '#555', letterSpacing: '0.03em' }}>SITIO</span>
+          <button
+            type="button"
+            onClick={alternarTema}
+            disabled={cambiandoTema}
+            title={`Cambiar a modo ${temaPublico === 'compacto' ? 'complejo' : 'compacto'}`}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 0,
+              background: '#1a1a1a', border: '1px solid #333',
+              borderRadius: 20, padding: 2, cursor: cambiandoTema ? 'default' : 'pointer',
+              opacity: cambiandoTema ? 0.5 : 1, transition: 'opacity 150ms',
+            }}
+          >
+            {(['compacto', 'complejo'] as const).map((t) => (
+              <span
+                key={t}
+                style={{
+                  fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 16,
+                  background: temaPublico === t ? (t === 'compacto' ? '#0f62fe' : '#7c3aed') : 'transparent',
+                  color: temaPublico === t ? '#fff' : '#555',
+                  transition: 'background 150ms, color 150ms',
+                  textTransform: 'capitalize',
+                  letterSpacing: '0.02em',
+                }}
+              >
+                {t}
+              </span>
+            ))}
+          </button>
+        </div>
 
         <span style={DIVIDER} />
 

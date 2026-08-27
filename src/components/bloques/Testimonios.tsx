@@ -7,7 +7,7 @@ interface Props {
 
 export default function Testimonios({ bloque }: Props) {
   return (
-    <section className="seccion">
+    <section id="testimonios" className="seccion">
       <div className="contenedor">
         {bloque.titulo && <h2 className="titulo-seccion max-w-2xl text-tinta">{bloque.titulo}</h2>}
 

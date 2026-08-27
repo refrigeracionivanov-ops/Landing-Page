@@ -13,8 +13,13 @@ import type { Bloque } from '../tipos';
  * terminaria olvidandoselo.
  */
 
-/** El documento de Sanity que dibuja la portada. Hoy hay una sola pagina. */
-export const ID_PAGINA = 'pagina-inicio';
+/** Convierte un slug legible en un ID de documento Sanity. */
+export function idPaginaDe(slug: string): string {
+  return `pagina-${slug.replace(/[^a-z0-9]/g, '-')}`;
+}
+
+/** Compatibilidad con código que referencia el ID directamente. */
+export const ID_PAGINA = idPaginaDe('inicio');
 
 /**
  * El token de escritura nunca viaja al navegador: este cliente solo se arma
@@ -48,13 +53,15 @@ export async function escribirSecciones(
   db: D1Database,
   secciones: Bloque[],
   autor: string | null,
+  slug = 'inicio',
 ): Promise<void> {
+  const id = idPaginaDe(slug);
   try {
-    const anteriores = await cliente.fetch<Bloque[] | null>(`*[_id == "${ID_PAGINA}"][0].secciones`);
+    const anteriores = await cliente.fetch<Bloque[] | null>(`*[_id == "${id}"][0].secciones`);
     if (anteriores?.length) await apilarVersion(db, anteriores, autor);
   } catch (error) {
     console.error('[pagina] No se pudo apilar la version anterior:', error);
   }
 
-  await cliente.patch(ID_PAGINA).set({ secciones }).commit();
+  await cliente.patch(id).set({ secciones }).commit();
 }

@@ -9,7 +9,7 @@ export default function Confianza({ bloque }: Props) {
   return (
     /* Antes esta seccion era azul oscuro. Carbon invierte una sola superficie en toda
        la pagina y es el pie: aca las cifras se sostienen con tamano y peso 300. */
-    <section className="seccion">
+    <section id="confianza" className="seccion">
       <div className="contenedor">
         {bloque.titulo && <h2 className="titulo-seccion max-w-2xl text-tinta">{bloque.titulo}</h2>}
 
