@@ -218,25 +218,8 @@ export default function EditorHeader() {
         boxSizing: 'border-box',
       }}
     >
-      {/* ── Izquierda: undo / redo ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-          <button
-            type="button"
-            title="Deshacer"
-            style={estiloBoton(historia.hasPast)}
-            disabled={!historia.hasPast}
-            onClick={() => historia.hasPast && historia.back()}
-          >←</button>
-          <button
-            type="button"
-            title="Rehacer"
-            style={estiloBoton(historia.hasFuture)}
-            disabled={!historia.hasFuture}
-            onClick={() => historia.hasFuture && historia.forward()}
-          >→</button>
-        </div>
-        <span style={DIVIDER} />
+      {/* ── Izquierda: etiqueta ── */}
+      <div style={{ display: 'flex', alignItems: 'center' }}>
         <span style={{ color: '#555', fontSize: 12, letterSpacing: '0.02em' }}>EDITOR</span>
       </div>
 
@@ -278,14 +261,42 @@ export default function EditorHeader() {
         </form>
       </div>
 
-      {/* ── Derecha: estado + guardar ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      {/* ── Derecha: undo / redo + estado + guardar ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         {estadoGuardado === 'guardado' && (
-          <span style={{ fontSize: 12, color: '#42be65', flexShrink: 0 }}>✓ Guardado</span>
+          <span style={{ fontSize: 12, color: '#42be65', flexShrink: 0, marginRight: 4 }}>✓ Guardado</span>
         )}
         {estadoGuardado === 'error' && (
-          <span style={{ fontSize: 12, color: '#fa4d56', flexShrink: 0 }}>✕ Error al guardar</span>
+          <span style={{ fontSize: 12, color: '#fa4d56', flexShrink: 0, marginRight: 4 }}>✕ Error al guardar</span>
         )}
+
+        <button
+          type="button"
+          title="Deshacer"
+          style={estiloBoton(historia.hasPast)}
+          disabled={!historia.hasPast}
+          onClick={() => historia.hasPast && historia.back()}
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M3 7v6h6" />
+            <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          title="Rehacer"
+          style={estiloBoton(historia.hasFuture)}
+          disabled={!historia.hasFuture}
+          onClick={() => historia.hasFuture && historia.forward()}
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M21 7v6h-6" />
+            <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
+          </svg>
+        </button>
+
+        <span style={{ ...DIVIDER, margin: '0 4px' }} />
+
         <button
           type="button"
           disabled={guardando}
