@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import CampoImagen from './CampoImagen';
 import type { Ajustes as DatosAjustes, ImagenSanity } from '../tipos';
 
@@ -17,6 +17,120 @@ type Estado = 'listo' | 'guardando' | 'guardado' | 'error';
  * de una pagina, y esto es un documento suelto que no aparece en ningun lado y
  * a la vez esta en todos. Meterlo ahi seria pelearle a la herramienta.
  */
+
+/* ─── Modal cambio de clave ───────────────────────────────────── */
+
+type EstadoModal = 'listo' | 'enviando' | 'ok' | 'error';
+
+function ModalClave({ alCerrar }: { alCerrar: () => void }) {
+  const [actual, setActual] = useState('');
+  const [nueva, setNueva] = useState('');
+  const [confirmar, setConfirmar] = useState('');
+  const [estado, setEstado] = useState<EstadoModal>('listo');
+  const [mensaje, setMensaje] = useState('');
+  const fondoRef = useRef<HTMLDivElement>(null);
+
+  async function enviar(e: React.FormEvent) {
+    e.preventDefault();
+    if (nueva !== confirmar) {
+      setMensaje('Las claves nuevas no coinciden.');
+      setEstado('error');
+      return;
+    }
+    setEstado('enviando');
+    setMensaje('');
+    try {
+      const r = await fetch('/api/cambiar-clave', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ claveActual: actual, claveNueva: nueva }),
+      });
+      const datos = (await r.json()) as { ok?: boolean; error?: string };
+      if (!r.ok || !datos.ok) {
+        setMensaje(datos.error ?? 'Error desconocido.');
+        setEstado('error');
+      } else {
+        setEstado('ok');
+        setMensaje('Clave cambiada correctamente.');
+        setActual(''); setNueva(''); setConfirmar('');
+        setTimeout(alCerrar, 1500);
+      }
+    } catch {
+      setMensaje('No se pudo conectar.');
+      setEstado('error');
+    }
+  }
+
+  const campoClave: React.CSSProperties = {
+    width: '100%', height: 36, padding: '0 10px', fontSize: 13,
+    background: '#f4f4f4', border: '0', borderBottom: '1px solid #8d8d8d',
+    color: '#161616', outline: 'none', boxSizing: 'border-box',
+  };
+
+  return (
+    <div
+      ref={fondoRef}
+      onClick={(e) => { if (e.target === fondoRef.current) alCerrar(); }}
+      style={{
+        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
+        display: 'grid', placeItems: 'center', zIndex: 20000,
+      }}
+    >
+      <div style={{
+        background: '#ffffff', border: '1px solid #e0e0e0',
+        width: 'min(360px, 90vw)', padding: 24, display: 'grid', gap: 16,
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ color: '#161616', fontSize: 14, fontWeight: 600 }}>Cambiar clave</span>
+          <button type="button" onClick={alCerrar}
+            style={{ background: 'transparent', border: 0, color: '#525252', fontSize: 18, cursor: 'pointer', lineHeight: 1 }}>
+            ×
+          </button>
+        </div>
+
+        <form onSubmit={enviar} style={{ display: 'grid', gap: 12 }}>
+          <div>
+            <label style={{ display: 'block', color: '#525252', fontSize: 11, fontWeight: 600, marginBottom: 4 }}>Clave actual</label>
+            <input type="password" required value={actual} onChange={e => setActual(e.target.value)}
+              autoComplete="current-password" style={campoClave} />
+          </div>
+          <div>
+            <label style={{ display: 'block', color: '#525252', fontSize: 11, fontWeight: 600, marginBottom: 4 }}>
+              Clave nueva (mín. 8 caracteres)
+            </label>
+            <input type="password" required minLength={8} value={nueva} onChange={e => setNueva(e.target.value)}
+              autoComplete="new-password" style={campoClave} />
+          </div>
+          <div>
+            <label style={{ display: 'block', color: '#525252', fontSize: 11, fontWeight: 600, marginBottom: 4 }}>
+              Confirmar clave nueva
+            </label>
+            <input type="password" required value={confirmar} onChange={e => setConfirmar(e.target.value)}
+              autoComplete="new-password" style={campoClave} />
+          </div>
+
+          {mensaje && (
+            <p style={{ margin: 0, fontSize: 12, color: estado === 'ok' ? '#24a148' : '#da1e28' }}>
+              {mensaje}
+            </p>
+          )}
+
+          <button type="submit" disabled={estado === 'enviando' || estado === 'ok'}
+            style={{
+              height: 36, fontSize: 13, fontWeight: 600,
+              background: estado === 'ok' ? '#24a148' : '#0f62fe',
+              color: '#fff', border: 0, cursor: estado === 'enviando' ? 'default' : 'pointer',
+              opacity: estado === 'enviando' ? 0.7 : 1, transition: 'background 120ms',
+            }}>
+            {estado === 'enviando' ? 'Guardando...' : estado === 'ok' ? 'Guardado ✓' : 'Cambiar clave'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────── */
 
 const ETIQUETA = 'block text-sm font-semibold text-[#161616] mb-2';
 const CAMPO =
@@ -48,6 +162,7 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
   });
   const [estado, setEstado] = useState<Estado>('listo');
   const [mensaje, setMensaje] = useState<string | null>(null);
+  const [verClave, setVerClave] = useState(false);
 
   const [tema, setTema] = useState<'compacto' | 'complejo'>(ajustes.tema ?? 'compacto');
   const [guardandoTema, setGuardandoTema] = useState(false);
@@ -427,7 +542,27 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
             </Campo>
           </div>
         </section>
+
+        <section className="mt-10 bg-white p-6">
+          <h2 className="mb-2 text-base font-semibold text-[#161616]">Acceso al editor</h2>
+          <p className="mb-4 text-sm text-[#6f6f6f]">
+            Cambiá la clave que usás para entrar al panel.
+          </p>
+          <button
+            type="button"
+            onClick={() => setVerClave(true)}
+            style={{
+              height: 36, padding: '0 20px', fontSize: 13, fontWeight: 600,
+              background: 'transparent', color: '#0f62fe',
+              border: '1px solid #0f62fe', cursor: 'pointer',
+            }}
+          >
+            Cambiar clave
+          </button>
+        </section>
       </div>
+
+      {verClave && <ModalClave alCerrar={() => setVerClave(false)} />}
     </div>
   );
 }
