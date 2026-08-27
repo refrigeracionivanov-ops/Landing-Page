@@ -77,6 +77,7 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
           data={deSanityAPuck(secciones) as any}
           metadata={{ ajustes, distritos }}
           overrides={{ header: headerOverride }}
+          initialUi={{ iframe: { enabled: false } }}
         />
       </div>
 

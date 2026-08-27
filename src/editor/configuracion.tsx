@@ -15,7 +15,7 @@ import AntesDespues from '../components/bloques/AntesDespues';
 import Confianza from '../components/bloques/Confianza';
 import Cobertura from '../components/bloques/Cobertura';
 import Testimonios from '../components/bloques/Testimonios';
-import Faq from '../components/bloques/Faq';
+import Faq from '../components/bloques/FaqEditor';
 import Agendar from '../components/bloques/Agendar';
 import Cta from '../components/bloques/Cta';
 
