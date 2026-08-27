@@ -64,8 +64,8 @@ function ControlesHistorial() {
   // createUsePuck selecciona el slice crudo del store (histories[], index) que no
   // tiene esas funciones, causando un crash al llamar historia.hasPast().
   const { history } = usePuck();
-  const puedoAtras = history.hasPast();
-  const puedoAdelante = history.hasFuture();
+  const puedoAtras = history.hasPast;
+  const puedoAdelante = history.hasFuture;
 
   const estiloBoton = (activo: boolean): React.CSSProperties => ({
     width: 30,
