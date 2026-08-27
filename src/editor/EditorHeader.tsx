@@ -87,12 +87,16 @@ export default function EditorHeader() {
   const { estadoGuardado, guardar, abrirHistorial, solicitudesNuevas, historia, temaPublico, cambiarTema } = useContext(EditorCtx);
   const guardando = estadoGuardado === 'guardando';
   const [cambiandoTema, setCambiandoTema] = React.useState(false);
+  const [temaConfirmado, setTemaConfirmado] = React.useState(false);
 
   const alternarTema = async () => {
     setCambiandoTema(true);
+    setTemaConfirmado(false);
     const nuevo = temaPublico === 'compacto' ? 'complejo' : 'compacto';
     await cambiarTema(nuevo);
     setCambiandoTema(false);
+    setTemaConfirmado(true);
+    setTimeout(() => setTemaConfirmado(false), 3000);
   };
 
   return (
@@ -158,6 +162,18 @@ export default function EditorHeader() {
               </span>
             ))}
           </button>
+          {temaConfirmado && (
+            <span style={{ fontSize: 11, color: '#42be65' }}>✓</span>
+          )}
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener"
+            title="Ver sitio público"
+            style={{ fontSize: 13, color: '#555', textDecoration: 'none', lineHeight: 1 }}
+          >
+            ↗
+          </a>
         </div>
 
         <span style={DIVIDER} />
