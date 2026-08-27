@@ -1,6 +1,5 @@
 import type { APIRoute } from 'astro';
-import { CLAVE_EDITOR } from 'astro:env/server';
-import { COOKIE_CLAVE, firmaDeClave } from '../../lib/acceso';
+import { COOKIE_CLAVE, firmaDeClave, iguales, obtenerHashClave } from '../../lib/acceso';
 
 export const prerender = false;
 
@@ -16,7 +15,8 @@ const MAXIMO = 8;
 const ESPERA = 10 * 60 * 1000;
 
 export const POST: APIRoute = async ({ request }) => {
-  if (!CLAVE_EDITOR) {
+  const hashEsperado = await obtenerHashClave();
+  if (!hashEsperado) {
     return new Response('No hay clave configurada en el servidor.', { status: 500 });
   }
 
@@ -36,7 +36,8 @@ export const POST: APIRoute = async ({ request }) => {
   // si no, cualquiera podria armar un enlace que redirija a otro sitio.
   const aDonde = destino.startsWith('/') && !destino.startsWith('//') ? destino : '/administrador';
 
-  if (clave !== CLAVE_EDITOR) {
+  const hashIngresado = await firmaDeClave(clave);
+  if (!iguales(hashIngresado, hashEsperado)) {
     const cantidad = (registro?.cantidad ?? 0) + 1;
     intentos.set(ip, { cantidad, hasta: Date.now() + ESPERA });
     return new Response(null, {
@@ -52,7 +53,7 @@ export const POST: APIRoute = async ({ request }) => {
     headers: {
       location: aDonde,
       'set-cookie': [
-        `${COOKIE_CLAVE}=${await firmaDeClave(CLAVE_EDITOR)}`,
+        `${COOKIE_CLAVE}=${hashEsperado}`,
         'Path=/',
         'HttpOnly',
         'Secure',

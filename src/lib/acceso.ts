@@ -1,4 +1,5 @@
 import { CF_ACCESS_TEAM_DOMAIN, CF_ACCESS_AUD, CLAVE_EDITOR } from 'astro:env/server';
+import { env } from 'cloudflare:workers';
 
 /**
  * Verificacion del token de Cloudflare Access.
@@ -69,8 +70,29 @@ export async function firmaDeClave(clave: string): Promise<string> {
   return [...new Uint8Array(bytes)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+/**
+ * Devuelve el hash de autenticación vigente.
+ *
+ * Primero mira la tabla `configuracion` de D1 (donde el panel guarda los
+ * cambios de clave). Si no hay entrada, calcula el hash de CLAVE_EDITOR.
+ * Si tampoco existe eso, devuelve null: sin proteccion configurada.
+ */
+export async function obtenerHashClave(): Promise<string | null> {
+  try {
+    if (env.DB) {
+      const fila = await env.DB
+        .prepare('SELECT valor FROM configuracion WHERE clave = ?')
+        .bind('clave_hash')
+        .first<{ valor: string }>();
+      if (fila?.valor) return fila.valor;
+    }
+  } catch { /* tabla no existe todavia o D1 no disponible: sigue con env */ }
+  if (CLAVE_EDITOR) return firmaDeClave(CLAVE_EDITOR);
+  return null;
+}
+
 /** Comparacion de tiempo constante: no revela cuantos caracteres coinciden. */
-function iguales(a: string, b: string): boolean {
+export function iguales(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   let diferencia = 0;
   for (let i = 0; i < a.length; i++) diferencia |= a.charCodeAt(i) ^ b.charCodeAt(i);
@@ -98,7 +120,8 @@ export async function verificarAcceso(request: Request): Promise<ResultadoAcceso
    * existan las variables de Access, esta rama deja de usarse sola.
    */
   if (!CF_ACCESS_TEAM_DOMAIN || !CF_ACCESS_AUD) {
-    if (!CLAVE_EDITOR) {
+    const hashEsperado = await obtenerHashClave();
+    if (!hashEsperado) {
       return {
         autorizado: false,
         motivo: 'No hay ninguna proteccion configurada. Falta CLAVE_EDITOR, o las dos variables de Cloudflare Access.',
@@ -106,7 +129,7 @@ export async function verificarAcceso(request: Request): Promise<ResultadoAcceso
     }
 
     const cookie = leerCookie(request, COOKIE_CLAVE);
-    if (cookie && iguales(cookie, await firmaDeClave(CLAVE_EDITOR))) {
+    if (cookie && iguales(cookie, hashEsperado)) {
       return { autorizado: true, email: 'clave-compartida' };
     }
 
