@@ -130,41 +130,20 @@ export default function EditorHeader() {
         {/* Selector de tema */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 6px' }}>
           <span style={{ fontSize: 11, color: '#555', letterSpacing: '0.03em' }}>TEMA</span>
-          <div style={{ display: 'flex', background: '#1a1a1a', border: '1px solid #333', borderRadius: 4, overflow: 'hidden' }}>
-            {(['compacto', 'complejo'] as const).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setTemaLocal(t)}
-                style={{
-                  fontSize: 11, fontWeight: 600, padding: '4px 10px',
-                  background: temaLocal === t ? (t === 'compacto' ? '#0f62fe' : '#7c3aed') : 'transparent',
-                  color: temaLocal === t ? '#fff' : '#555',
-                  border: 0, cursor: 'pointer',
-                  transition: 'background 120ms, color 120ms',
-                  textTransform: 'capitalize',
-                }}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-          {temaModificado && (
-            <button
-              type="button"
-              onClick={aplicarTema}
-              disabled={cambiandoTema}
-              style={{
-                fontSize: 11, fontWeight: 600, padding: '4px 10px',
-                background: '#42be65', color: '#000', border: 0,
-                borderRadius: 4, cursor: cambiandoTema ? 'default' : 'pointer',
-                opacity: cambiandoTema ? 0.5 : 1,
-              }}
-            >
-              {cambiandoTema ? '...' : 'Guardar'}
-            </button>
-          )}
-          <a
+          <select
+            value={temaLocal}
+            onChange={(e) => setTemaLocal(e.target.value as 'compacto' | 'complejo')}
+            style={{
+              fontSize: 11, fontWeight: 600,
+              background: '#1a1a1a', color: '#c6c6c6',
+              border: '1px solid #333', borderRadius: 4,
+              padding: '3px 6px', cursor: 'pointer',
+            }}
+          >
+            <option value="compacto">Compacto</option>
+            <option value="complejo">Complejo</option>
+          </select>
+          <
             href="/"
             target="_blank"
             rel="noopener"
@@ -240,17 +219,17 @@ export default function EditorHeader() {
 
         <button
           type="button"
-          disabled={guardando}
-          onClick={guardar}
+          disabled={guardando || cambiandoTema}
+          onClick={temaModificado ? aplicarTema : guardar}
           style={{
             height: 32, padding: '0 20px', fontSize: 13, fontWeight: 600,
-            background: guardando ? '#4d4d4d' : '#0f62fe',
+            background: (guardando || cambiandoTema) ? '#4d4d4d' : '#0f62fe',
             color: '#fff', border: 0, borderRadius: 2,
-            cursor: guardando ? 'default' : 'pointer',
+            cursor: (guardando || cambiandoTema) ? 'default' : 'pointer',
             transition: 'background 120ms', flexShrink: 0,
           }}
         >
-          {guardando ? 'Guardando...' : 'Guardar'}
+          {(guardando || cambiandoTema) ? 'Guardando...' : 'Guardar'}
         </button>
       </div>
     </header>
