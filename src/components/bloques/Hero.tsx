@@ -13,16 +13,16 @@ export default function Hero({ bloque, ajustes }: Props) {
   return (
     /* Carbon no oscurece el hero ni pone la foto de fondo: el titular vive sobre
        lienzo blanco y la imagen es un bloque plano al costado. */
-    <section className="border-b border-filete bg-lienzo flex items-center min-h-[calc(100svh-5rem)]">
-      <div className="contenedor grid items-center gap-10 py-12 lg:grid-cols-2 lg:gap-16 lg:py-16 w-full">
-        <div>
+    <section className="border-b border-filete bg-lienzo flex items-center h-[calc(100svh-5rem)] overflow-hidden">
+      <div className="contenedor grid items-center gap-6 py-8 lg:grid-cols-2 lg:gap-16 lg:py-12 w-full h-full">
+        <div className="flex flex-col justify-center">
           <h1 className="display-xl text-tinta text-balance">{bloque.titular}</h1>
 
           {bloque.subtitulo && (
-            <p className="cuerpo-lg mt-6 max-w-xl text-tinta-media text-pretty">{bloque.subtitulo}</p>
+            <p className="cuerpo-lg mt-4 max-w-xl text-tinta-media text-pretty">{bloque.subtitulo}</p>
           )}
 
-          <div className="mt-10 flex flex-wrap gap-px">
+          <div className="mt-6 flex flex-wrap gap-px">
             <a href="#agendar" className="boton boton-primario">
               {bloque.textoBotonAgendar ?? 'Agendar visita'}
             </a>
@@ -34,10 +34,10 @@ export default function Hero({ bloque, ajustes }: Props) {
             )}
           </div>
 
-          {ajustes.horario && <p className="cuerpo-sm mt-6 text-tinta-media">{ajustes.horario}</p>}
+          {ajustes.horario && <p className="cuerpo-sm mt-4 text-tinta-media">{ajustes.horario}</p>}
 
           {ajustes.googlePuntuacion && (
-            <div className="mt-6">
+            <div className="mt-4">
               <a
                 href={ajustes.googleResenas || undefined}
                 target={ajustes.googleResenas ? '_blank' : undefined}
@@ -57,7 +57,7 @@ export default function Hero({ bloque, ajustes }: Props) {
         </div>
 
         {foto && (
-          <div className="bg-superficie self-stretch flex">
+          <div className="hidden lg:flex bg-superficie self-stretch">
             <img
               src={foto}
               alt={bloque.imagen?.alt ?? ''}
