@@ -2,14 +2,26 @@ import type { PromocionesBloque } from '../../tipos';
 
 interface Props {
   bloque: PromocionesBloque;
+  editing?: boolean;
 }
 
 const formatearFecha = (iso: string) =>
   new Date(`${iso}T00:00:00`).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
 
-export default function Promociones({ bloque }: Props) {
-  // Si todas las promos vencieron, la consulta devuelve una lista vacia y la seccion no se dibuja.
-  if (!bloque.promos || bloque.promos.length === 0) return null;
+export default function Promociones({ bloque, editing }: Props) {
+  if (!bloque.promos || bloque.promos.length === 0) {
+    if (!editing) return null;
+    return (
+      <section className="seccion">
+        <div className="contenedor">
+          {bloque.titulo && <h2 className="titulo-seccion max-w-2xl text-tinta">{bloque.titulo}</h2>}
+          <div className="mt-12 border border-dashed border-filete p-12 text-center cuerpo-sm text-tinta-media">
+            Agregá una promoción desde el panel lateral para verla aquí
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="seccion">

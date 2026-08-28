@@ -224,19 +224,25 @@ export async function contarPorSubSlot(
 
   const { results } = await db
     .prepare(
-      `SELECT fecha_preferida, franja, hora_visita, COUNT(*) AS total
+      `SELECT fecha_preferida, franja, hora_visita
        FROM solicitudes
        WHERE (${condiciones})
          AND estado NOT IN ('cancelada', 'spam')
-         AND hora_visita IS NOT NULL
-       GROUP BY fecha_preferida, franja, hora_visita`,
+         AND hora_visita IS NOT NULL`,
     )
     .bind(...valores)
-    .all<{ fecha_preferida: string; franja: string; hora_visita: string; total: number }>();
+    .all<{ fecha_preferida: string; franja: string; hora_visita: string }>();
 
+  // hora_visita puede ser un slot único "08:00-09:00" o varios separados por
+  // coma "08:00-09:00,09:00-10:00" cuando la visita ocupa más de una hora.
   const mapa = new Map<string, number>();
   for (const fila of results ?? []) {
-    mapa.set(`${fila.fecha_preferida}|${fila.franja}|${fila.hora_visita}`, fila.total);
+    for (const slot of fila.hora_visita.split(',')) {
+      const s = slot.trim();
+      if (!s) continue;
+      const clave = `${fila.fecha_preferida}|${fila.franja}|${s}`;
+      mapa.set(clave, (mapa.get(clave) ?? 0) + 1);
+    }
   }
   return mapa;
 }

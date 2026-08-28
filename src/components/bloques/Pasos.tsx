@@ -4,6 +4,13 @@ interface Props {
   bloque: PasosBloque;
 }
 
+function clasesGrilla(n: number): string {
+  if (n <= 1) return 'grid-cols-1';
+  if (n === 2) return 'grid-cols-1 sm:grid-cols-2';
+  if (n === 3) return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+  return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4';
+}
+
 /**
  * Como trabajamos, paso a paso.
  *
@@ -11,6 +18,7 @@ interface Props {
  * que renumerar nada a mano.
  */
 export default function Pasos({ bloque }: Props) {
+  const n = bloque.pasos?.length ?? 0;
   return (
     <section className="seccion">
       <div className="contenedor">
@@ -19,7 +27,7 @@ export default function Pasos({ bloque }: Props) {
           {bloque.intro && <p className="cuerpo-lg mt-4 text-tinta-media text-pretty">{bloque.intro}</p>}
         </div>
 
-        <ol className="mt-12 grid gap-px border border-filete bg-filete sm:grid-cols-2 lg:grid-cols-4">
+        <ol className={`mt-12 grid gap-px border border-filete bg-filete ${clasesGrilla(n)}`}>
           {bloque.pasos?.map((paso, i) => (
             <li key={paso._key} className="bg-lienzo p-6">
               {/* El numero es tipografia, no una pastilla de color: sigue la

@@ -118,7 +118,12 @@ if (Astro.request.method === 'POST') {
         accion === 'spam' ? 'spam' :
         String(formulario.get('estado') ?? '');
 
-      const horaVisitaRaw = formulario.has('hora_visita') ? String(formulario.get('hora_visita')) : undefined;
+      // hora_visita_enviada indica que el formulario incluía el campo de hora
+      // (presente solo cuando la franja tiene sub-slots). Si no está, no tocar.
+      const horaVisitaEnviada = formulario.has('hora_visita_enviada');
+      const horaVisitaRaw = horaVisitaEnviada
+        ? (formulario.getAll('hora_visita') as string[]).filter(Boolean).join(',')
+        : undefined;
       await actualizarSolicitud(db, id, {
         estado: estado || undefined,
         notas: formulario.has('notas') ? String(formulario.get('notas')).slice(0, 2000) : undefined,
@@ -471,24 +476,32 @@ function subSlotsDeFranja(franja: string): string[] {
                   </label>
 
                   {subSlotsDeFranja(solicitud.franja).length > 0 && (
-                    <label class="block">
-                      <span class="etiqueta-campo">Hora de visita</span>
-                      <select name="hora_visita" class="campo">
-                        <option value="">— Franja completa —</option>
+                    <fieldset class="block">
+                      <legend class="etiqueta-campo">Hora de visita</legend>
+                      <input type="hidden" name="hora_visita_enviada" value="1" />
+                      <div class="campo flex flex-col gap-1 py-2">
                         {subSlotsDeFranja(solicitud.franja).map((slot) => {
                           const clave = `${solicitud.fecha_preferida}|${solicitud.franja}|${slot}`;
                           const conteo = ocupacion.get(clave) ?? 0;
-                          // Descuenta 1 si este mismo registro ya ocupa ese slot,
-                          // para que no aparezca como tomado por sí mismo.
-                          const ocupado = conteo - (slot === solicitud.hora_visita ? 1 : 0) >= 1;
+                          const slotsActuales = solicitud.hora_visita?.split(',') ?? [];
+                          const ocupado = conteo - (slotsActuales.includes(slot) ? 1 : 0) >= 1;
                           return (
-                            <option value={slot} selected={slot === solicitud.hora_visita} disabled={ocupado}>
-                              {slot.replace('-', ' - ')}{ocupado ? ' (ocupado)' : ''}
-                            </option>
+                            <label class:list={['flex items-center gap-2', ocupado ? 'opacity-50' : 'cursor-pointer']}>
+                              <input
+                                type="checkbox"
+                                name="hora_visita"
+                                value={slot}
+                                checked={slotsActuales.includes(slot)}
+                                disabled={ocupado}
+                              />
+                              <span class="cuerpo-sm">
+                                {slot.replace('-', ' - ')}{ocupado ? ' (ocupado)' : ''}
+                              </span>
+                            </label>
                           );
                         })}
-                      </select>
-                    </label>
+                      </div>
+                    </fieldset>
                   )}
 
                   <label class="block grow">

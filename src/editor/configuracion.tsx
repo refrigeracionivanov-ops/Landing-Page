@@ -247,7 +247,7 @@ export const configuracion: Config = {
         },
       },
       defaultProps: { titulo: 'Promociones del mes', promos: [] },
-      render: (props: any) => <Promociones bloque={comoBloque(props)} />,
+      render: (props: any) => <Promociones bloque={comoBloque(props)} editing />,
     },
 
     'Antes y despues': {

@@ -121,13 +121,25 @@ function horasDeFranja(franja: string): { desde: string; hasta: string } | null 
 }
 
 function horasDeSubSlot(horaVisita: string): { desde: string; hasta: string } | null {
-  const m = horaVisita.match(/^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/);
-  if (!m) return null;
-  const [, h1, m1, h2, m2] = m;
-  return {
-    desde: `${h1!.padStart(2, '0')}:${m1}:00`,
-    hasta: `${h2!.padStart(2, '0')}:${m2}:00`,
-  };
+  const minutos = (h: string, m: string) => parseInt(h) * 60 + parseInt(m);
+  const toHHMM = (mins: number) =>
+    `${String(Math.floor(mins / 60)).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}:00`;
+
+  let inicio = Infinity;
+  let fin = -Infinity;
+
+  for (const slot of horaVisita.split(',')) {
+    const m = slot.trim().match(/^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/);
+    if (!m) continue;
+    const [, h1, m1, h2, m2] = m;
+    const desde = minutos(h1!, m1!);
+    const hasta = minutos(h2!, m2!);
+    if (desde < inicio) inicio = desde;
+    if (hasta > fin) fin = hasta;
+  }
+
+  if (inicio === Infinity) return null;
+  return { desde: toHHMM(inicio), hasta: toHHMM(fin) };
 }
 
 function construirEvento(solicitud: Solicitud) {
@@ -153,7 +165,7 @@ function construirEvento(solicitud: Solicitud) {
       `Servicio: ${solicitud.tipo_servicio}`,
       `Equipo: ${solicitud.tipo_equipo ?? '-'}`,
       `Franja: ${solicitud.franja}`,
-      solicitud.hora_visita ? `Hora: ${solicitud.hora_visita.replace('-', ' - ')}` : '',
+      solicitud.hora_visita ? `Hora: ${solicitud.hora_visita.split(',').map((s) => s.trim().replace('-', ' - ')).join(', ')}` : '',
       '',
       `Problema: ${solicitud.descripcion ?? '-'}`,
       solicitud.notas ? `\nNotas: ${solicitud.notas}` : '',
