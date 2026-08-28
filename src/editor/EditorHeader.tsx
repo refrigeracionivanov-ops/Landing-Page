@@ -118,7 +118,7 @@ export default function EditorHeader() {
     >
       {/* ── Izquierda: etiqueta ── */}
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <span style={{ color: '#555', fontSize: 12, letterSpacing: '0.02em' }}>EDITOR</span>
+        <span style={{ color: '#555', fontSize: 12 }}>Editor</span>
       </div>
 
       {/* ── Centro: navegación secundaria ── */}
@@ -129,15 +129,14 @@ export default function EditorHeader() {
 
         {/* Selector de tema */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 6px' }}>
-          <span style={{ fontSize: 11, color: '#555', letterSpacing: '0.03em' }}>TEMA</span>
           <select
             value={temaLocal}
             onChange={(e) => setTemaLocal(e.target.value as 'compacto' | 'complejo')}
             style={{
-              fontSize: 11, fontWeight: 600,
-              background: '#1a1a1a', color: '#c6c6c6',
-              border: '1px solid #333', borderRadius: 4,
-              padding: '3px 6px', cursor: 'pointer',
+              fontSize: 12,
+              background: '#1a1a1a', color: '#8d8d8d',
+              border: '1px solid #333', borderRadius: 2,
+              padding: '0 6px', height: 30, cursor: 'pointer',
             }}
           >
             <option value="compacto">Compacto</option>
