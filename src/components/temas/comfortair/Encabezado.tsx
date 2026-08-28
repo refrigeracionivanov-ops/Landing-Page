@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { urlImagen } from '../../../sanity/imagen';
 import type { Ajustes } from '../../../tipos';
 
@@ -7,8 +8,22 @@ interface Props {
 
 export default function Encabezado({ ajustes }: Props) {
   const tel = ajustes.telefono.replace(/\s/g, '');
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 bg-transparent">
+    <header
+      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        scrolled
+          ? 'bg-slate-950/95 backdrop-blur-sm border-b border-white/10'
+          : 'bg-transparent'
+      }`}
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-8 flex h-16 items-center justify-between gap-6">
 
         {/* Logo */}
