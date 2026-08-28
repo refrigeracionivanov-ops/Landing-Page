@@ -13,8 +13,8 @@ export default function Hero({ bloque, ajustes }: Props) {
   return (
     /* Carbon no oscurece el hero ni pone la foto de fondo: el titular vive sobre
        lienzo blanco y la imagen es un bloque plano al costado. */
-    <section className="border-b border-filete bg-lienzo">
-      <div className="contenedor grid items-center gap-10 py-16 lg:grid-cols-2 lg:gap-16 lg:py-24">
+    <section className="border-b border-filete bg-lienzo flex items-center min-h-[calc(100svh-5rem)]">
+      <div className="contenedor grid items-center gap-10 py-12 lg:grid-cols-2 lg:gap-16 lg:py-16 w-full">
         <div>
           <h1 className="display-xl text-tinta text-balance">{bloque.titular}</h1>
 
@@ -57,11 +57,11 @@ export default function Hero({ bloque, ajustes }: Props) {
         </div>
 
         {foto && (
-          <div className="bg-superficie">
+          <div className="bg-superficie self-stretch flex">
             <img
               src={foto}
               alt={bloque.imagen?.alt ?? ''}
-              className="aspect-4/3 w-full object-cover"
+              className="w-full object-cover"
               fetchPriority="high"
             />
           </div>
