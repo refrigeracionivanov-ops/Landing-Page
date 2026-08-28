@@ -35,6 +35,25 @@ export default function Hero({ bloque, ajustes }: Props) {
           </div>
 
           {ajustes.horario && <p className="cuerpo-sm mt-6 text-tinta-media">{ajustes.horario}</p>}
+
+          {ajustes.googlePuntuacion && (
+            <div className="mt-6">
+              <a
+                href={ajustes.googleResenas || undefined}
+                target={ajustes.googleResenas ? '_blank' : undefined}
+                rel="noopener"
+                className="inline-flex items-center gap-2 text-tinta-media hover:text-tinta transition-colors"
+              >
+                <span className="text-[#fbbc04] text-sm leading-none" aria-hidden="true">★★★★★</span>
+                <span className="cuerpo-sm font-semibold text-tinta">{ajustes.googlePuntuacion}</span>
+                <span className="cuerpo-sm text-tinta-media">
+                  {ajustes.googleCantidadResenas
+                    ? `· ${ajustes.googleCantidadResenas} reseñas en Google`
+                    : '· Servicio calificado en Google'}
+                </span>
+              </a>
+            </div>
+          )}
         </div>
 
         {foto && (

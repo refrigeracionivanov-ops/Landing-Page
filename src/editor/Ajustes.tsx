@@ -452,6 +452,33 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
             />
           </Campo>
 
+          <div className="mt-6 grid grid-cols-2 gap-4">
+            <Campo
+              etiqueta="Puntuación en Google"
+              ayuda="Ej: 5.0. Aparece como badge en el hero del sitio."
+            >
+              <input
+                className={CAMPO}
+                placeholder="5.0"
+                value={datos.googlePuntuacion ?? ''}
+                onChange={(e) => cambiar('googlePuntuacion', e.target.value)}
+              />
+            </Campo>
+            <Campo
+              etiqueta="Cantidad de reseñas"
+              ayuda="Número total de reseñas verificadas en Google."
+            >
+              <input
+                className={CAMPO}
+                type="number"
+                min={0}
+                placeholder="33"
+                value={datos.googleCantidadResenas ?? ''}
+                onChange={(e) => cambiar('googleCantidadResenas', e.target.value ? Number(e.target.value) : undefined)}
+              />
+            </Campo>
+          </div>
+
           <div className="mt-6">
             <Campo
               etiqueta="Mensaje que se manda"

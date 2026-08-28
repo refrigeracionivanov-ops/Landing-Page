@@ -20,6 +20,10 @@ export interface Ajustes {
   mostrarBarraContacto?: boolean;
   /** Enlace corto del perfil de Google para dejar resenas. */
   googleResenas?: string;
+  /** Puntuación media en Google (ej. "5.0"). Se muestra en el hero como badge de confianza. */
+  googlePuntuacion?: string;
+  /** Cantidad de reseñas verificadas en Google (ej. 33). */
+  googleCantidadResenas?: number;
   /** Mensaje de WhatsApp para pedirla. `{nombre}` se reemplaza por el del cliente. */
   mensajeResena?: string;
   franjas?: { etiqueta: string; cupo: number }[];

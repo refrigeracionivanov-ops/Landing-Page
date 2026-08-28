@@ -97,6 +97,8 @@ function armar(datos: Record<string, unknown>) {
     direccion: texto(datos.direccion),
     horario: texto(datos.horario),
     googleResenas: texto(datos.googleResenas),
+    googlePuntuacion: texto(datos.googlePuntuacion),
+    googleCantidadResenas: typeof datos.googleCantidadResenas === 'number' ? datos.googleCantidadResenas : undefined,
     mensajeResena: texto(datos.mensajeResena),
     mostrarBarraContacto: datos.mostrarBarraContacto !== false,
     diasAnticipacion: typeof datos.diasAnticipacion === 'number' ? datos.diasAnticipacion : 1,
