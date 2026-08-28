@@ -151,7 +151,7 @@ export default function EditorHeader() {
             <option value="compacto">Compacto</option>
             <option value="complejo">Complejo</option>
           </select>
-          <
+          <a
             href="/"
             target="_blank"
             rel="noopener"
