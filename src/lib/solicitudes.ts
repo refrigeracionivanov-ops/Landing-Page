@@ -208,6 +208,39 @@ export async function moverSolicitud(db: D1Database, id: number, fecha: string, 
   return resultado.success;
 }
 
+/**
+ * Cuántas solicitudes activas tienen asignado cada sub-slot, para un conjunto
+ * de combinaciones fecha+franja. Devuelve un Map con clave "fecha|franja|slot".
+ * Con cupo 1 por slot, si el valor >= 1 el slot está ocupado.
+ */
+export async function contarPorSubSlot(
+  db: D1Database,
+  combinaciones: { fecha: string; franja: string }[],
+): Promise<Map<string, number>> {
+  if (!combinaciones.length) return new Map();
+
+  const condiciones = combinaciones.map(() => '(fecha_preferida = ? AND franja = ?)').join(' OR ');
+  const valores = combinaciones.flatMap((c) => [c.fecha, c.franja]);
+
+  const { results } = await db
+    .prepare(
+      `SELECT fecha_preferida, franja, hora_visita, COUNT(*) AS total
+       FROM solicitudes
+       WHERE (${condiciones})
+         AND estado NOT IN ('cancelada', 'spam')
+         AND hora_visita IS NOT NULL
+       GROUP BY fecha_preferida, franja, hora_visita`,
+    )
+    .bind(...valores)
+    .all<{ fecha_preferida: string; franja: string; hora_visita: string; total: number }>();
+
+  const mapa = new Map<string, number>();
+  for (const fila of results ?? []) {
+    mapa.set(`${fila.fecha_preferida}|${fila.franja}|${fila.hora_visita}`, fila.total);
+  }
+  return mapa;
+}
+
 /** Las visitas de un rango de fechas, para la vista de calendario. */
 export async function solicitudesEntre(db: D1Database, desde: string, hasta: string): Promise<Solicitud[]> {
   const { results } = await db

@@ -5,6 +5,7 @@ import { verificarAcceso } from '../lib/acceso';
 import {
   actualizarSolicitud,
   contarPorEstado,
+  contarPorSubSlot,
   listarSolicitudes,
   marcarResenaPedida,
   moverSolicitud,
@@ -143,6 +144,14 @@ const filtro = Astro.url.searchParams.get('estado') ?? '';
 
 const [solicitudes, totales] = await Promise.all([listarSolicitudes(db, filtro), contarPorEstado(db)]);
 const ajustes = ajustesDelNegocio;
+
+// Una sola query para saber qué sub-slots ya están tomados en las franjas visibles.
+const combinacionesUnicas = [...new Map(
+  solicitudes
+    .filter((s) => s.franja.match(/\d{1,2}:\d{2}/))
+    .map((s) => [`${s.fecha_preferida}|${s.franja}`, { fecha: s.fecha_preferida, franja: s.franja }])
+).values()];
+const ocupacion = await contarPorSubSlot(db, combinacionesUnicas);
 // "Todas" no cuenta el spam: tiene que coincidir con lo que se ve al entrar.
 const total = ESTADOS_VISIBLES.reduce((suma, estado) => suma + (totales[estado] ?? 0), 0);
 
@@ -466,11 +475,18 @@ function subSlotsDeFranja(franja: string): string[] {
                       <span class="etiqueta-campo">Hora de visita</span>
                       <select name="hora_visita" class="campo">
                         <option value="">— Franja completa —</option>
-                        {subSlotsDeFranja(solicitud.franja).map((slot) => (
-                          <option value={slot} selected={slot === solicitud.hora_visita}>
-                            {slot.replace('-', ' - ')}
-                          </option>
-                        ))}
+                        {subSlotsDeFranja(solicitud.franja).map((slot) => {
+                          const clave = `${solicitud.fecha_preferida}|${solicitud.franja}|${slot}`;
+                          const conteo = ocupacion.get(clave) ?? 0;
+                          // Descuenta 1 si este mismo registro ya ocupa ese slot,
+                          // para que no aparezca como tomado por sí mismo.
+                          const ocupado = conteo - (slot === solicitud.hora_visita ? 1 : 0) >= 1;
+                          return (
+                            <option value={slot} selected={slot === solicitud.hora_visita} disabled={ocupado}>
+                              {slot.replace('-', ' - ')}{ocupado ? ' (ocupado)' : ''}
+                            </option>
+                          );
+                        })}
                       </select>
                     </label>
                   )}
