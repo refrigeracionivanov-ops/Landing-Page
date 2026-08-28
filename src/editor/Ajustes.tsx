@@ -236,13 +236,8 @@ export default function Ajustes({ ajustes, proyecto, dataset }: Props) {
 
   return (
     <div className="min-h-screen bg-[#f4f4f4] pb-24">
-      <header className="flex items-center justify-between gap-4 border-b border-[#e0e0e0] bg-white px-6 py-4">
-        <div className="flex items-center gap-4">
-          <a href="/administrador" className="text-sm text-[#0f62fe] underline">
-            ← Volver al editor
-          </a>
-          <h1 className="text-sm font-semibold text-[#161616]">Ajustes del negocio</h1>
-        </div>
+      <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e0e0e0] bg-white px-6 py-4">
+        <h1 className="text-sm font-semibold text-[#161616]">Ajustes del negocio</h1>
 
         <button
           type="button"
