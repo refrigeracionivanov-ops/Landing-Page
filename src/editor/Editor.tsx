@@ -62,6 +62,12 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
       });
       const datos = (await r.json()) as { ok?: boolean; error?: string };
       if (!r.ok || !datos.ok) throw new Error(datos.error ?? `Error ${r.status}`);
+      // Publicar el tema solo al guardar explícitamente, nunca al cambiar el selector.
+      await fetch('/api/tema', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ tema: 'compacto' }),
+      });
       setEstadoGuardado('guardado');
       setHayPendientes(false);
       setTimeout(() => setEstadoGuardado('listo'), 3000);

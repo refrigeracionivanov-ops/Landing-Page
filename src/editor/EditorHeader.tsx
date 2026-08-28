@@ -92,9 +92,8 @@ export default function EditorHeader() {
   const [cambiandoTema, setCambiandoTema] = React.useState(false);
   const [modalTema, setModalTema] = React.useState<'compacto' | 'complejo' | null>(null);
 
-  const irATema = async (nuevo: 'compacto' | 'complejo') => {
+  const irATema = (nuevo: 'compacto' | 'complejo') => {
     setCambiandoTema(true);
-    await cambiarTema(nuevo);
     window.location.href = nuevo === 'complejo' ? '/administrador-comfortair' : '/administrador';
   };
 
@@ -281,7 +280,7 @@ export default function EditorHeader() {
             </button>
             <button
               type="button"
-              onClick={() => { setModalTema(null); void irATema(modalTema); }}
+              onClick={() => { setModalTema(null); irATema(modalTema); }}
               style={{
                 fontSize: 12, padding: '8px 16px', background: '#3d3d3d',
                 color: '#f4f4f4', border: '1px solid #555', borderRadius: 4, cursor: 'pointer',
@@ -291,7 +290,7 @@ export default function EditorHeader() {
             </button>
             <button
               type="button"
-              onClick={async () => { setModalTema(null); await guardar(); void irATema(modalTema); }}
+              onClick={async () => { setModalTema(null); await guardar(); irATema(modalTema); }}
               style={{
                 fontSize: 12, padding: '8px 16px', background: '#0f62fe',
                 color: '#fff', border: 0, borderRadius: 4, cursor: 'pointer', fontWeight: 600,
