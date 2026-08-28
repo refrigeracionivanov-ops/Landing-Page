@@ -87,38 +87,32 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
   const token = useRef('');
 
   useEffect(() => {
-    if (!PUBLIC_TURNSTILE_SITEKEY || !cajaTurnstile.current) return;
+    const el = cajaTurnstile.current;
+    if (!PUBLIC_TURNSTILE_SITEKEY || !(el instanceof HTMLElement)) return;
+
+    const renderizar = () => {
+      if (!window.turnstile || !(el instanceof HTMLElement)) return;
+      idTurnstile.current = window.turnstile.render(el, {
+        sitekey: PUBLIC_TURNSTILE_SITEKEY,
+        action: 'agendar',
+        callback: (nuevo) => { token.current = nuevo; },
+        'error-callback': () => { token.current = ''; },
+        'expired-callback': () => { token.current = ''; },
+      });
+    };
+
+    if (window.turnstile) {
+      renderizar();
+      return;
+    }
 
     const script = document.createElement('script');
     script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
     script.async = true;
     script.defer = true;
-
-    script.onload = () => {
-      if (!window.turnstile || !cajaTurnstile.current) return;
-
-      idTurnstile.current = window.turnstile.render(cajaTurnstile.current, {
-        sitekey: PUBLIC_TURNSTILE_SITEKEY,
-        // El servidor comprueba que la accion sea esta: un token sacado de otro
-        // formulario del mismo dominio no sirve para agendar.
-        action: 'agendar',
-        callback: (nuevo) => {
-          token.current = nuevo;
-        },
-        'error-callback': () => {
-          token.current = '';
-        },
-        'expired-callback': () => {
-          token.current = '';
-        },
-      });
-    };
-
+    script.onload = renderizar;
     document.head.appendChild(script);
-
-    return () => {
-      script.remove();
-    };
+    return () => { script.remove(); };
   }, []);
 
   /** Un token gastado no sirve dos veces: se pide uno nuevo tras cada fallo. */

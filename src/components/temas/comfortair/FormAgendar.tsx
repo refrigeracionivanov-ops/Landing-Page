@@ -60,14 +60,12 @@ export default function FormAgendar({ bloque, ajustes, distritos }: Props) {
   }, [enviado]);
 
   useEffect(() => {
-    if (!PUBLIC_TURNSTILE_SITEKEY || !cajaTurnstile.current) return;
-    const script = document.createElement('script');
-    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      if (!window.turnstile || !cajaTurnstile.current) return;
-      idTurnstile.current = window.turnstile.render(cajaTurnstile.current, {
+    const el = cajaTurnstile.current;
+    if (!PUBLIC_TURNSTILE_SITEKEY || !(el instanceof HTMLElement)) return;
+
+    const renderizar = () => {
+      if (!window.turnstile || !(el instanceof HTMLElement)) return;
+      idTurnstile.current = window.turnstile.render(el, {
         sitekey: PUBLIC_TURNSTILE_SITEKEY,
         action: 'agendar',
         callback: (t) => { token.current = t; },
@@ -75,6 +73,17 @@ export default function FormAgendar({ bloque, ajustes, distritos }: Props) {
         'expired-callback': () => { token.current = ''; },
       });
     };
+
+    if (window.turnstile) {
+      renderizar();
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    script.async = true;
+    script.defer = true;
+    script.onload = renderizar;
     document.head.appendChild(script);
     return () => { script.remove(); };
   }, []);
