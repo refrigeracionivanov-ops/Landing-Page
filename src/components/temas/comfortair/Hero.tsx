@@ -11,7 +11,7 @@ export default function Hero({ bloque, ajustes }: Props) {
   const wa = `https://wa.me/${ajustes.whatsapp}?text=${encodeURIComponent(ajustes.mensajeWhatsapp ?? '')}`;
 
   return (
-    <section className="relative min-h-[88svh] flex items-center overflow-hidden bg-slate-950">
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-slate-950">
 
       {/* Imagen de fondo */}
       {foto && (
@@ -32,14 +32,6 @@ export default function Hero({ bloque, ajustes }: Props) {
 
       {/* Contenido */}
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-8 py-24 w-full">
-
-        {/* Badge de rating */}
-        <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-8">
-          <svg className="size-4 text-yellow-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2-5.5-2.9-5.5 2.9 1-6.2L3 9.6l6.2-.9z"/>
-          </svg>
-          <span className="text-white text-sm font-medium">Servicio calificado 4.9 / 5</span>
-        </div>
 
         <h1 className="text-white font-bold text-4xl sm:text-5xl lg:text-[4.25rem] leading-[1.08] tracking-tight max-w-2xl text-balance">
           {bloque.titular}
