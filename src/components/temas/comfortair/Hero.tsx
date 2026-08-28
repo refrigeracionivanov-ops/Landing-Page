@@ -31,14 +31,14 @@ export default function Hero({ bloque, ajustes }: Props) {
       />
 
       {/* Contenido */}
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-8 py-24 w-full">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-8 lg:px-16 py-32 w-full">
 
-        <h1 className="text-white font-bold text-4xl sm:text-5xl lg:text-[4.25rem] leading-[1.08] tracking-tight max-w-2xl text-balance">
+        <h1 className="text-white font-medium text-4xl sm:text-5xl lg:text-[4.5rem] leading-[1.1] tracking-tight max-w-xl text-balance">
           {bloque.titular}
         </h1>
 
         {bloque.subtitulo && (
-          <p className="mt-6 text-white/80 text-lg max-w-xl leading-relaxed text-pretty">
+          <p className="mt-6 text-white/70 text-base max-w-md leading-relaxed text-pretty">
             {bloque.subtitulo}
           </p>
         )}

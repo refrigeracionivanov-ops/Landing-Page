@@ -45,10 +45,10 @@ export default function Encabezado({ ajustes }: Props) {
 
         {/* Nav links */}
         <nav className="hidden md:flex items-center gap-8" aria-label="Secciones">
-          <a href="#ca-servicios" className="text-sm text-white/80 hover:text-white transition-colors">Servicios</a>
-          <a href="#ca-sobre"     className="text-sm text-white/80 hover:text-white transition-colors">Nosotros</a>
-          <a href="#ca-testimonios" className="text-sm text-white/80 hover:text-white transition-colors">Reseñas</a>
-          <a href="#ca-preguntas" className="text-sm text-white/80 hover:text-white transition-colors">FAQ</a>
+          <a href="#ca-servicios" className="text-sm font-semibold text-white/80 hover:text-white transition-colors">Servicios</a>
+          <a href="#ca-sobre"     className="text-sm font-semibold text-white/80 hover:text-white transition-colors">Nosotros</a>
+          <a href="#ca-testimonios" className="text-sm font-semibold text-white/80 hover:text-white transition-colors">Reseñas</a>
+          <a href="#ca-preguntas" className="text-sm font-semibold text-white/80 hover:text-white transition-colors">FAQ</a>
         </nav>
 
         {/* CTA */}
