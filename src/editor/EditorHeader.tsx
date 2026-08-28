@@ -86,15 +86,14 @@ const estiloBoton = (activo: boolean): React.CSSProperties => ({
 export default function EditorHeader() {
   const { estadoGuardado, guardar, abrirHistorial, solicitudesNuevas, historia, temaPublico, cambiarTema } = useContext(EditorCtx);
   const guardando = estadoGuardado === 'guardando';
+  const [temaLocal, setTemaLocal] = React.useState<'compacto' | 'complejo'>(temaPublico);
   const [cambiandoTema, setCambiandoTema] = React.useState(false);
-  const [temaConfirmado, setTemaConfirmado] = React.useState(false);
+  const temaModificado = temaLocal !== temaPublico;
 
-  const alternarTema = async () => {
+  const aplicarTema = async () => {
     setCambiandoTema(true);
-    setTemaConfirmado(false);
-    const nuevo = temaPublico === 'compacto' ? 'complejo' : 'compacto';
-    await cambiarTema(nuevo);
-    window.location.href = nuevo === 'complejo' ? '/administrador-comfortair' : '/administrador';
+    await cambiarTema(temaLocal);
+    window.location.href = temaLocal === 'complejo' ? '/administrador-comfortair' : '/administrador';
   };
 
   return (
@@ -106,14 +105,13 @@ export default function EditorHeader() {
         right: 0,
         zIndex: 10000,
         height: 48,
-        display: 'flex',
+        display: 'grid',
+        gridTemplateColumns: '1fr auto 1fr',
         alignItems: 'center',
-        justifyContent: 'space-between',
         background: '#111111',
         borderBottom: '1px solid #2a2a2a',
         boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
         padding: '0 12px 0 14px',
-        gap: 8,
         userSelect: 'none',
         boxSizing: 'border-box',
       }}
@@ -129,39 +127,42 @@ export default function EditorHeader() {
 
         <span style={DIVIDER} />
 
-        {/* Toggle modo público */}
+        {/* Selector de tema */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 6px' }}>
-          <span style={{ fontSize: 11, color: '#555', letterSpacing: '0.03em' }}>SITIO</span>
-          <button
-            type="button"
-            onClick={alternarTema}
-            disabled={cambiandoTema}
-            title={`Cambiar a modo ${temaPublico === 'compacto' ? 'complejo' : 'compacto'}`}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 0,
-              background: '#1a1a1a', border: '1px solid #333',
-              borderRadius: 20, padding: 2, cursor: cambiandoTema ? 'default' : 'pointer',
-              opacity: cambiandoTema ? 0.5 : 1, transition: 'opacity 150ms',
-            }}
-          >
+          <span style={{ fontSize: 11, color: '#555', letterSpacing: '0.03em' }}>TEMA</span>
+          <div style={{ display: 'flex', background: '#1a1a1a', border: '1px solid #333', borderRadius: 4, overflow: 'hidden' }}>
             {(['compacto', 'complejo'] as const).map((t) => (
-              <span
+              <button
                 key={t}
+                type="button"
+                onClick={() => setTemaLocal(t)}
                 style={{
-                  fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 16,
-                  background: temaPublico === t ? (t === 'compacto' ? '#0f62fe' : '#7c3aed') : 'transparent',
-                  color: temaPublico === t ? '#fff' : '#555',
-                  transition: 'background 150ms, color 150ms',
+                  fontSize: 11, fontWeight: 600, padding: '4px 10px',
+                  background: temaLocal === t ? (t === 'compacto' ? '#0f62fe' : '#7c3aed') : 'transparent',
+                  color: temaLocal === t ? '#fff' : '#555',
+                  border: 0, cursor: 'pointer',
+                  transition: 'background 120ms, color 120ms',
                   textTransform: 'capitalize',
-                  letterSpacing: '0.02em',
                 }}
               >
                 {t}
-              </span>
+              </button>
             ))}
-          </button>
-          {temaConfirmado && (
-            <span style={{ fontSize: 11, color: '#42be65' }}>✓</span>
+          </div>
+          {temaModificado && (
+            <button
+              type="button"
+              onClick={aplicarTema}
+              disabled={cambiandoTema}
+              style={{
+                fontSize: 11, fontWeight: 600, padding: '4px 10px',
+                background: '#42be65', color: '#000', border: 0,
+                borderRadius: 4, cursor: cambiandoTema ? 'default' : 'pointer',
+                opacity: cambiandoTema ? 0.5 : 1,
+              }}
+            >
+              {cambiandoTema ? '...' : 'Guardar'}
+            </button>
           )}
           <a
             href="/"
@@ -192,7 +193,7 @@ export default function EditorHeader() {
       </div>
 
       {/* ── Derecha: estado + historial + undo / redo + guardar ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
         {estadoGuardado === 'guardado' && (
           <span style={{ fontSize: 12, color: '#42be65', flexShrink: 0, marginRight: 4 }}>✓ Guardado</span>
         )}
