@@ -281,7 +281,7 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
                       autoComplete="tel-national"
                       inputMode="tel"
                       placeholder={pais.ejemplo}
-                      className="campo grow"
+                      className="campo flex-1 min-w-0"
                     />
                   </div>
                 </label>

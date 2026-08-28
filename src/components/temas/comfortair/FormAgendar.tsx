@@ -207,7 +207,7 @@ export default function FormAgendar({ bloque, ajustes, distritos }: Props) {
                   <option key={p.codigo} value={p.codigo}>+{p.codigo} {p.nombre.slice(0, 3)}</option>
                 ))}
               </select>
-              <input name="telefono" type="tel" required autoComplete="tel-national" inputMode="tel" placeholder={pais.ejemplo} className={`${INPUT} grow`} />
+              <input name="telefono" type="tel" required autoComplete="tel-national" inputMode="tel" placeholder={pais.ejemplo} className={`${INPUT} flex-1 min-w-0`} />
             </div>
           </label>
 
