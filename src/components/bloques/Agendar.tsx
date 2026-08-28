@@ -479,7 +479,8 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
                   </>
                 ) : (
                   ' por WhatsApp.'
-                )}
+                )}{' '}
+                <a href="/privacidad" className="underline">Política de privacidad.</a>
               </p>
             </div>
           </form>

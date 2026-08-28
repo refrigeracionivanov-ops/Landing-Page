@@ -325,7 +325,8 @@ export default function FormAgendar({ bloque, ajustes, distritos }: Props) {
 
         <p className="mt-4 text-xs text-slate-400 leading-relaxed">
           Usamos tus datos solo para coordinar esta visita. No se comparten con terceros.{' '}
-          {ajustes.email && <a href={`mailto:${ajustes.email}`} className="underline">{ajustes.email}</a>}
+          {ajustes.email && <><a href={`mailto:${ajustes.email}`} className="underline">{ajustes.email}</a>.{' '}</>}
+          <a href="/privacidad" className="underline">Política de privacidad.</a>
         </p>
       </div>
     </form>

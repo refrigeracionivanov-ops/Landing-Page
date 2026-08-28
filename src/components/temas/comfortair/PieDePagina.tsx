@@ -88,6 +88,7 @@ export default function PieDePagina({ ajustes }: Props) {
       <div className="border-t border-slate-200">
         <div className="mx-auto max-w-7xl px-4 sm:px-8 py-5 flex flex-wrap items-center justify-between gap-3">
           <p className="text-slate-400 text-xs">© {anio} {ajustes.nombre}. Todos los derechos reservados.</p>
+          <a href="/privacidad" className="text-slate-400 hover:text-slate-600 text-xs transition-colors">Política de privacidad</a>
           <div className="flex gap-4">
             {/* Redes sociales: iconos simples */}
             {[
