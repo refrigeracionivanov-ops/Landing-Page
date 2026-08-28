@@ -20,7 +20,7 @@ export default function Encabezado({ ajustes }: Props) {
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         scrolled
-          ? 'bg-slate-950/95 backdrop-blur-sm border-b border-white/10'
+          ? 'bg-neutral-800/90 backdrop-blur-sm border-b border-white/10'
           : 'bg-transparent'
       }`}
     >
