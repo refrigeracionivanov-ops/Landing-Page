@@ -120,8 +120,20 @@ function horasDeFranja(franja: string): { desde: string; hasta: string } | null 
   };
 }
 
+function horasDeSubSlot(horaVisita: string): { desde: string; hasta: string } | null {
+  const m = horaVisita.match(/^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/);
+  if (!m) return null;
+  const [, h1, m1, h2, m2] = m;
+  return {
+    desde: `${h1!.padStart(2, '0')}:${m1}:00`,
+    hasta: `${h2!.padStart(2, '0')}:${m2}:00`,
+  };
+}
+
 function construirEvento(solicitud: Solicitud) {
-  const horas = horasDeFranja(solicitud.franja);
+  const horas = solicitud.hora_visita
+    ? horasDeSubSlot(solicitud.hora_visita)
+    : horasDeFranja(solicitud.franja);
 
   const cuando = horas
     ? {
@@ -141,10 +153,11 @@ function construirEvento(solicitud: Solicitud) {
       `Servicio: ${solicitud.tipo_servicio}`,
       `Equipo: ${solicitud.tipo_equipo ?? '-'}`,
       `Franja: ${solicitud.franja}`,
+      solicitud.hora_visita ? `Hora: ${solicitud.hora_visita.replace('-', ' - ')}` : '',
       '',
       `Problema: ${solicitud.descripcion ?? '-'}`,
       solicitud.notas ? `\nNotas: ${solicitud.notas}` : '',
-    ].join('\n'),
+    ].filter(Boolean).join('\n'),
     ...cuando,
   };
 }

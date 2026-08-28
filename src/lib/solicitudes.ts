@@ -28,6 +28,8 @@ export interface Solicitud {
   descripcion: string | null;
   fecha_preferida: string;
   franja: string;
+  /** Sub-slot elegido por el admin, ej. "09:00-10:00". Null si usa toda la franja. */
+  hora_visita: string | null;
   notas: string | null;
   /** Id del evento espejado en Google Calendar. Null si no llego a agendarse. */
   evento_id: string | null;
@@ -122,12 +124,12 @@ export async function guardarEventoId(db: D1Database, id: number, eventoId: stri
 export async function actualizarSolicitud(
   db: D1Database,
   id: number,
-  cambios: { estado?: string; notas?: string },
+  cambios: { estado?: string; notas?: string; hora_visita?: string | null },
 ): Promise<boolean> {
   if (cambios.estado && !ESTADOS.includes(cambios.estado as Estado)) return false;
 
   const campos: string[] = [];
-  const valores: (string | number)[] = [];
+  const valores: (string | number | null)[] = [];
 
   if (cambios.estado) {
     campos.push('estado = ?');
@@ -136,6 +138,10 @@ export async function actualizarSolicitud(
   if (cambios.notas !== undefined) {
     campos.push('notas = ?');
     valores.push(cambios.notas);
+  }
+  if (cambios.hora_visita !== undefined) {
+    campos.push('hora_visita = ?');
+    valores.push(cambios.hora_visita);
   }
   if (!campos.length) return false;
 
