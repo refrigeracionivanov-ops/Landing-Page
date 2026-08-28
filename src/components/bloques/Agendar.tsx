@@ -75,6 +75,7 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
   useEffect(() => setListo(true), []);
 
   const [codigoPais, setCodigoPais] = useState(PAIS_POR_DEFECTO);
+  const [datosEnviados, setDatosEnviados] = useState<Record<string, string> | null>(null);
 
   const cajaTurnstile = useRef<HTMLDivElement>(null);
   const idTurnstile = useRef<string | null>(null);
@@ -144,6 +145,27 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
   }
   const pais = PAISES.find((p) => p.codigo === codigoPais) ?? PAISES[0];
 
+  const mensajeWa = (datos: Record<string, string>) => {
+    const fecha = datos.fechaPreferida
+      ? new Date(`${datos.fechaPreferida}T00:00:00`).toLocaleDateString('es-AR', {
+          weekday: 'long', day: 'numeric', month: 'long',
+        })
+      : '';
+    return [
+      'Hola, acabo de solicitar una visita técnica por la web. Mis datos:',
+      '',
+      `• Nombre: ${datos.nombre}`,
+      `• Servicio: ${datos.tipoServicio}`,
+      datos.tipoEquipo ? `• Equipo: ${datos.tipoEquipo}` : '',
+      `• Dirección: ${datos.direccion}, ${datos.distrito}`,
+      fecha ? `• Fecha: ${fecha}` : '',
+      `• Franja: ${datos.franja}`,
+      datos.descripcion ? `• Problema: ${datos.descripcion}` : '',
+      '',
+      'Les adjunto fotos del equipo.',
+    ].filter(Boolean).join('\n');
+  };
+
   const enPaso2 = paso === 2;
 
   /**
@@ -206,6 +228,8 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
       }
 
       setEnviado(true);
+      const { turnstile: _t, sitioWeb: _s, ...guardar } = cuerpo;
+      setDatosEnviados(guardar);
     } catch {
       setError('Parece que se cortó la conexión. Escribinos por WhatsApp y te atendemos igual.');
       reiniciarTurnstile();
@@ -481,15 +505,15 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
             <p className="mt-3 max-w-md text-tinta-media text-pretty">{bloque.mensajeExito}</p>
             <a
               href={`https://wa.me/${ajustes.whatsapp}?text=${encodeURIComponent(
-                'Hola, acabo de solicitar una visita por la web y les mando fotos del equipo.',
+                datosEnviados ? mensajeWa(datosEnviados) : 'Hola, acabo de solicitar una visita técnica por la web.',
               )}`}
               target="_blank"
               rel="noopener"
               className="boton boton-whatsapp mt-6"
             >
-              Enviar fotos del equipo por WhatsApp
+              Enviar resumen por WhatsApp
             </a>
-            <p className="cuerpo-sm mt-3 text-tinta-media">Con una foto podemos estimar el trabajo antes de ir.</p>
+            <p className="cuerpo-sm mt-3 text-tinta-media">Con una foto del equipo podemos estimar el trabajo antes de ir.</p>
           </div>
         )}
       </div>
