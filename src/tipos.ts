@@ -147,6 +147,12 @@ export interface AvisoBloque extends BloqueBase {
   accion?: 'agendar' | 'whatsapp' | 'llamar';
 }
 
+export interface VideoBloque extends BloqueBase {
+  _type: 'videoBloque';
+  titulo?: string;
+  url?: string;
+}
+
 export type Bloque =
   | HeroBloque
   | TextoBloque
@@ -162,7 +168,8 @@ export type Bloque =
   | TestimoniosBloque
   | FaqBloque
   | AgendarBloque
-  | CtaBloque;
+  | CtaBloque
+  | VideoBloque;
 
 export interface Pagina {
   titulo: string;

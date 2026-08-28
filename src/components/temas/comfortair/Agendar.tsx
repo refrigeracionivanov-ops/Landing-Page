@@ -1,4 +1,4 @@
-import AgendarBase from '../../bloques/Agendar';
+import FormAgendar from './FormAgendar';
 import type { AgendarBloque, Ajustes } from '../../../tipos';
 
 interface Props {
@@ -60,7 +60,7 @@ export default function Agendar({ bloque, ajustes, distritos }: Props) {
 
         {/* Columna derecha: formulario base (mismo que el resto del sitio) */}
         <div className="bg-slate-50 rounded-2xl p-6 sm:p-8 border border-slate-100">
-          <AgendarBase bloque={bloque} ajustes={ajustes} distritos={distritos} />
+          <FormAgendar bloque={bloque} ajustes={ajustes} distritos={distritos} />
         </div>
       </div>
     </section>

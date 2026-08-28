@@ -155,6 +155,14 @@ const pagina = {
       ],
     },
 
+    // ── Video ─────────────────────────────────────────────────────────
+    {
+      _key: k(),
+      _type: 'videoBloque',
+      titulo: 'Miranos en acción',
+      url: '',
+    },
+
     // ── Confianza (cifras + logos) ────────────────────────────────────
     {
       _key: k(),

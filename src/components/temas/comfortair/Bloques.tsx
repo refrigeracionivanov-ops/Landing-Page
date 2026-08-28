@@ -8,6 +8,7 @@ import Confianza from './Confianza';
 import Faq from './Faq';
 import Agendar from './Agendar';
 import Cta from './Cta';
+import Video from './Video';
 
 interface Props {
   secciones: Bloque[];
@@ -50,6 +51,9 @@ export default function Bloques({ secciones, ajustes, distritos }: Props) {
 
           case 'ctaBloque':
             return <Cta key={bloque._key} bloque={bloque as any} ajustes={ajustes} />;
+
+          case 'videoBloque':
+            return <Video key={bloque._key} bloque={bloque as any} />;
 
           default:
             return null;

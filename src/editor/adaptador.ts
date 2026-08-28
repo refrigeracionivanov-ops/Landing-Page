@@ -31,6 +31,7 @@ export const TIPOS: Record<string, string> = {
   faqBloque: 'Preguntas frecuentes',
   agendarBloque: 'Agendar visita',
   ctaBloque: 'Cierre',
+  videoBloque: 'Video',
 };
 
 const TIPOS_INVERSO = Object.fromEntries(Object.entries(TIPOS).map(([sanity, puck]) => [puck, sanity]));

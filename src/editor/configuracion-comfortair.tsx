@@ -12,6 +12,7 @@ import Confianza from '../components/temas/comfortair/Confianza';
 import Faq from '../components/temas/comfortair/Faq';
 import Agendar from '../components/temas/comfortair/Agendar';
 import Cta from '../components/temas/comfortair/Cta';
+import Video from '../components/temas/comfortair/Video';
 
 const opcionesIcono = OPCIONES_ICONO.map((o) => ({ label: o.title, value: o.value }));
 
@@ -201,6 +202,16 @@ export const configuracionComfortair: Config = {
           distritos={props.puck.metadata.distritos}
         />
       ),
+    },
+
+    Video: {
+      label: 'Video',
+      fields: {
+        titulo: { type: 'text', label: 'Título de la sección' },
+        url: { type: 'text', label: 'URL del video (YouTube)' },
+      },
+      defaultProps: { titulo: 'Miranos en acción' },
+      render: (props: any) => <Video bloque={comoBloque(props)} />,
     },
 
     Cierre: {
