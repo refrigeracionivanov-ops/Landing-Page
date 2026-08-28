@@ -282,36 +282,40 @@ body {
 /* ---------- Formularios ---------- */
 
 /* Chrome de input de Carbon: relleno gris, sin borde salvo la regla inferior.
-   El foco reemplaza esa regla por un subrayado azul de 2px. */
-.campo {
-  width: 100%;
-  min-height: 48px;
-  background: var(--color-superficie);
-  color: var(--color-tinta);
-  border: 0;
-  border-bottom: 1px solid var(--color-filete-fuerte);
-  border-radius: 0;
-  padding: 11px 16px;
-  /* 16px y no 14px: por debajo de 16px iOS hace zoom al enfocar el campo. */
-  font-size: 16px;
-  line-height: 1.5;
-  letter-spacing: 0.16px;
-  outline: none;
-  appearance: none;
-}
+   El foco reemplaza esa regla por un subrayado azul de 2px.
+   Está en @layer components para que las utilidades de Tailwind (w-28, flex-1,
+   etc.) puedan sobreescribir width y flex cuando haga falta. */
+@layer components {
+  .campo {
+    width: 100%;
+    min-height: 48px;
+    background: var(--color-superficie);
+    color: var(--color-tinta);
+    border: 0;
+    border-bottom: 1px solid var(--color-filete-fuerte);
+    border-radius: 0;
+    padding: 11px 16px;
+    /* 16px y no 14px: por debajo de 16px iOS hace zoom al enfocar el campo. */
+    font-size: 16px;
+    line-height: 1.5;
+    letter-spacing: 0.16px;
+    outline: none;
+    appearance: none;
+  }
 
-.campo:focus-visible {
-  outline: 2px solid var(--color-azul);
-  outline-offset: -2px;
-  border-bottom-color: var(--color-azul);
-}
+  .campo:focus-visible {
+    outline: 2px solid var(--color-azul);
+    outline-offset: -2px;
+    border-bottom-color: var(--color-azul);
+  }
 
-.campo[aria-invalid='true'] {
-  border-bottom: 2px solid var(--color-error);
-}
+  .campo[aria-invalid='true'] {
+    border-bottom: 2px solid var(--color-error);
+  }
 
-.campo::placeholder {
-  color: var(--color-tinta-media);
+  .campo::placeholder {
+    color: var(--color-tinta-media);
+  }
 }
 
 .etiqueta-campo {
