@@ -94,9 +94,7 @@ export default function EditorHeader() {
     setTemaConfirmado(false);
     const nuevo = temaPublico === 'compacto' ? 'complejo' : 'compacto';
     await cambiarTema(nuevo);
-    setCambiandoTema(false);
-    setTemaConfirmado(true);
-    setTimeout(() => setTemaConfirmado(false), 3000);
+    window.location.href = nuevo === 'complejo' ? '/administrador-comfortair' : '/administrador';
   };
 
   return (
