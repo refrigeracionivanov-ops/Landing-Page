@@ -5,6 +5,7 @@ interface ResumenVersion {
   guardada_en: string;
   autor: string | null;
   cantidad_secciones: number;
+  tema: string | null;
 }
 
 interface Props {
@@ -125,13 +126,15 @@ export default function Historial({ alCerrar }: Props) {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ id: version.id }),
       });
-      const datos = (await r.json()) as { ok?: boolean; error?: string };
+      const datos = (await r.json()) as { ok?: boolean; error?: string; tema?: string | null };
 
       if (!r.ok || !datos.ok) throw new Error(datos.error ?? `El servidor respondió ${r.status}.`);
 
-      // El editor tiene el contenido viejo en memoria: la unica forma honesta de
-      // mostrar lo restaurado es volver a pedir la pagina.
-      window.location.reload();
+      // Redirige al editor que corresponde al tema de la versión restaurada.
+      const destino = (datos.tema ?? version.tema) === 'complejo'
+        ? '/administrador-comfortair'
+        : '/administrador';
+      window.location.href = destino;
     } catch (fallo) {
       setError(fallo instanceof Error ? fallo.message : 'No se pudo restaurar.');
       setRestaurando(null);
@@ -168,7 +171,8 @@ export default function Historial({ alCerrar }: Props) {
                 <div>{aFechaLocal(version.guardada_en)}</div>
                 <div style={{ color: '#525252', fontSize: 13 }}>
                   {version.cantidad_secciones} secciones
-                  {version.autor ? ` — ${version.autor}` : ''}
+                  {version.autor && version.autor !== 'clave-compartida' ? ` — ${version.autor}` : ''}
+                  {version.tema ? ` · ${version.tema}` : ''}
                 </div>
               </div>
 

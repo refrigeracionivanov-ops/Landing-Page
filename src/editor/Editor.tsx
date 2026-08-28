@@ -58,7 +58,7 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
       const r = await fetch('/api/guardar', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ secciones: dePuckASanity(contenidoRef.current as any) }),
+        body: JSON.stringify({ secciones: dePuckASanity(contenidoRef.current as any), tema: 'compacto' }),
       });
       const datos = (await r.json()) as { ok?: boolean; error?: string };
       if (!r.ok || !datos.ok) throw new Error(datos.error ?? `Error ${r.status}`);

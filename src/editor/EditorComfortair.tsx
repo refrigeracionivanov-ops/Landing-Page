@@ -66,6 +66,7 @@ export default function EditorComfortair({ secciones, ajustes, distritos }: Prop
         body: JSON.stringify({
           secciones: dePuckASanity(contenidoRef.current as any),
           pagina: 'comfortair',
+          tema: 'complejo',
         }),
       });
       const datos = (await r.json()) as { ok?: boolean; error?: string };

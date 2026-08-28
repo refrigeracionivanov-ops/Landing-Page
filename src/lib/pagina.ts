@@ -54,11 +54,12 @@ export async function escribirSecciones(
   secciones: Bloque[],
   autor: string | null,
   slug = 'inicio',
+  tema: string | null = null,
 ): Promise<void> {
   const id = idPaginaDe(slug);
   try {
     const anteriores = await cliente.fetch<Bloque[] | null>(`*[_id == "${id}"][0].secciones`);
-    if (anteriores?.length) await apilarVersion(db, anteriores, autor);
+    if (anteriores?.length) await apilarVersion(db, anteriores, autor, tema);
   } catch (error) {
     console.error('[pagina] No se pudo apilar la version anterior:', error);
   }

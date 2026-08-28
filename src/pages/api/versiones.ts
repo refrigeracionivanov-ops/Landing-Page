@@ -50,8 +50,10 @@ export const POST: APIRoute = async ({ request }) => {
   const id = Number(cuerpo.id);
   if (!Number.isInteger(id) || id < 1) return respuesta({ error: 'Falta el número de versión.' }, 400);
 
-  const secciones = await obtenerVersion(env.DB, id);
-  if (!secciones) return respuesta({ error: 'Esa versión ya no está en el historial.' }, 404);
+  const version = await obtenerVersion(env.DB, id);
+  if (!version) return respuesta({ error: 'Esa versión ya no está en el historial.' }, 404);
+
+  const { secciones, tema } = version;
 
   /**
    * Se valida aunque la escribimos nosotros: entre aquel guardado y hoy pudo
@@ -66,7 +68,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     await escribirSecciones(cliente, env.DB, secciones, acceso.email ?? null);
     console.log(`[versiones] ${acceso.email ?? 'desconocido'} restauro la version ${id}.`);
-    return respuesta({ ok: true, secciones: secciones.length });
+    return respuesta({ ok: true, secciones: secciones.length, tema });
   } catch (error) {
     const detalle = error instanceof Error ? error.message : 'Error desconocido';
     console.error('[versiones] Fallo la restauracion:', detalle);

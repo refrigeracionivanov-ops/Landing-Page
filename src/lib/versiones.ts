@@ -19,6 +19,8 @@ export interface ResumenVersion {
   guardada_en: string;
   autor: string | null;
   cantidad_secciones: number;
+  /** Editor desde el que se guardó: 'compacto' | 'complejo'. Null en versiones antiguas. */
+  tema: string | null;
 }
 
 /**
@@ -27,10 +29,10 @@ export interface ResumenVersion {
  * El borrado va en el mismo paso que la insercion y no en una limpieza aparte:
  * una tabla que se poda sola no necesita que nadie se acuerde de podarla.
  */
-export async function apilarVersion(db: D1Database, secciones: Bloque[], autor: string | null): Promise<void> {
+export async function apilarVersion(db: D1Database, secciones: Bloque[], autor: string | null, tema: string | null = null): Promise<void> {
   await db
-    .prepare('INSERT INTO versiones (autor, cantidad_secciones, secciones) VALUES (?, ?, ?)')
-    .bind(autor, secciones.length, JSON.stringify(secciones))
+    .prepare('INSERT INTO versiones (autor, cantidad_secciones, secciones, tema) VALUES (?, ?, ?, ?)')
+    .bind(autor, secciones.length, JSON.stringify(secciones), tema)
     .run();
 
   await db
@@ -42,7 +44,7 @@ export async function apilarVersion(db: D1Database, secciones: Bloque[], autor: 
 /** De la mas nueva a la mas vieja, que es el orden en que se buscan. */
 export async function listarVersiones(db: D1Database): Promise<ResumenVersion[]> {
   const { results } = await db
-    .prepare('SELECT id, guardada_en, autor, cantidad_secciones FROM versiones ORDER BY id DESC')
+    .prepare('SELECT id, guardada_en, autor, cantidad_secciones, tema FROM versiones ORDER BY id DESC')
     .all<ResumenVersion>();
 
   return results ?? [];
@@ -55,17 +57,17 @@ export async function listarVersiones(db: D1Database): Promise<ResumenVersion[]>
  * escribimos nosotros. Se trata igual que la version inexistente: quien esta
  * mirando el historial no puede hacer nada distinto con esa diferencia.
  */
-export async function obtenerVersion(db: D1Database, id: number): Promise<Bloque[] | null> {
+export async function obtenerVersion(db: D1Database, id: number): Promise<{ secciones: Bloque[]; tema: string | null } | null> {
   const fila = await db
-    .prepare('SELECT secciones FROM versiones WHERE id = ?')
+    .prepare('SELECT secciones, tema FROM versiones WHERE id = ?')
     .bind(id)
-    .first<{ secciones: string }>();
+    .first<{ secciones: string; tema: string | null }>();
 
   if (!fila) return null;
 
   try {
     const secciones = JSON.parse(fila.secciones);
-    return Array.isArray(secciones) ? (secciones as Bloque[]) : null;
+    return Array.isArray(secciones) ? { secciones: secciones as Bloque[], tema: fila.tema } : null;
   } catch {
     console.error(`[versiones] La version ${id} tiene un JSON ilegible.`);
     return null;
