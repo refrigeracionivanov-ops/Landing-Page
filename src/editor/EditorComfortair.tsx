@@ -18,6 +18,7 @@ export default function EditorComfortair({ secciones, ajustes, distritos }: Prop
   const [estadoGuardado, setEstadoGuardado] = useState<EstadoGuardado>('listo');
   const [verHistorial, setVerHistorial] = useState(false);
   const [solicitudesNuevas, setSolicitudesNuevas] = useState(0);
+  const [hayPendientes, setHayPendientes] = useState(false);
   const [temaPublico, setTemaPublico] = useState<'compacto' | 'complejo'>(ajustes.tema ?? 'complejo');
   const [historia, setHistoria] = useState({
     hasPast: false,
@@ -70,6 +71,7 @@ export default function EditorComfortair({ secciones, ajustes, distritos }: Prop
       const datos = (await r.json()) as { ok?: boolean; error?: string };
       if (!r.ok || !datos.ok) throw new Error(datos.error ?? `Error ${r.status}`);
       setEstadoGuardado('guardado');
+      setHayPendientes(false);
       setTimeout(() => setEstadoGuardado('listo'), 3000);
     } catch {
       setEstadoGuardado('error');
@@ -84,9 +86,10 @@ export default function EditorComfortair({ secciones, ajustes, distritos }: Prop
     historia,
     actualizarHistoria: setHistoria,
     actualizarContenido: (c: unknown[]) => { contenidoRef.current = c; },
+    hayPendientes,
     temaPublico,
     cambiarTema,
-  }), [estadoGuardado, guardar, solicitudesNuevas, historia, temaPublico, cambiarTema]);
+  }), [estadoGuardado, guardar, solicitudesNuevas, historia, hayPendientes, temaPublico, cambiarTema]);
 
   const headerOverride = useMemo(() => () => <PuckBridge />, []);
 
@@ -101,7 +104,7 @@ export default function EditorComfortair({ secciones, ajustes, distritos }: Prop
           metadata={{ ajustes, distritos }}
           overrides={{ header: headerOverride }}
           initialUi={{ iframe: { enabled: false } }}
-          onChange={(data: any) => { contenidoRef.current = data.content; }}
+          onChange={(data: any) => { contenidoRef.current = data.content; setHayPendientes(true); }}
         />
       </div>
 

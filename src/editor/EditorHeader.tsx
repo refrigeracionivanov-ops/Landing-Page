@@ -20,7 +20,8 @@ interface EditorCtxValue {
   solicitudesNuevas: number;
   historia: HistoriaState;
   actualizarHistoria: (h: HistoriaState) => void;
-  actualizarContenido: (contenido: unknown[]) => void;  // usado solo por Editor.tsx
+  actualizarContenido: (contenido: unknown[]) => void;
+  hayPendientes: boolean;
   temaPublico: 'compacto' | 'complejo';
   cambiarTema: (t: 'compacto' | 'complejo') => Promise<void>;
 }
@@ -40,6 +41,7 @@ export const EditorCtx = createContext<EditorCtxValue>({
   historia: HISTORIA_VACIA,
   actualizarHistoria: () => {},
   actualizarContenido: () => {},
+  hayPendientes: false,
   temaPublico: 'compacto',
   cambiarTema: async () => {},
 });
@@ -84,19 +86,29 @@ const estiloBoton = (activo: boolean): React.CSSProperties => ({
 });
 
 export default function EditorHeader() {
-  const { estadoGuardado, guardar, abrirHistorial, solicitudesNuevas, historia, temaPublico, cambiarTema } = useContext(EditorCtx);
+  const { estadoGuardado, guardar, abrirHistorial, solicitudesNuevas, historia, hayPendientes, temaPublico, cambiarTema } = useContext(EditorCtx);
   const guardando = estadoGuardado === 'guardando';
   const [temaLocal, setTemaLocal] = React.useState<'compacto' | 'complejo'>(temaPublico);
   const [cambiandoTema, setCambiandoTema] = React.useState(false);
-  const temaModificado = temaLocal !== temaPublico;
+  const [modalTema, setModalTema] = React.useState<'compacto' | 'complejo' | null>(null);
 
-  const aplicarTema = async () => {
+  const irATema = async (nuevo: 'compacto' | 'complejo') => {
     setCambiandoTema(true);
-    await cambiarTema(temaLocal);
-    window.location.href = temaLocal === 'complejo' ? '/administrador-comfortair' : '/administrador';
+    await cambiarTema(nuevo);
+    window.location.href = nuevo === 'complejo' ? '/administrador-comfortair' : '/administrador';
+  };
+
+  const alCambiarSelect = (nuevo: 'compacto' | 'complejo') => {
+    setTemaLocal(nuevo);
+    if (hayPendientes) {
+      setModalTema(nuevo);
+    } else {
+      void irATema(nuevo);
+    }
   };
 
   return (
+    <>
     <header
       style={{
         position: 'fixed',
@@ -132,13 +144,7 @@ export default function EditorHeader() {
           <select
             value={temaLocal}
             disabled={cambiandoTema}
-            onChange={async (e) => {
-              const nuevo = e.target.value as 'compacto' | 'complejo';
-              setTemaLocal(nuevo);
-              setCambiandoTema(true);
-              await cambiarTema(nuevo);
-              window.location.href = nuevo === 'complejo' ? '/administrador-comfortair' : '/administrador';
-            }}
+            onChange={(e) => alCambiarSelect(e.target.value as 'compacto' | 'complejo')}
             style={{
               fontSize: 12,
               background: '#1a1a1a', color: '#8d8d8d',
@@ -241,5 +247,58 @@ export default function EditorHeader() {
         </button>
       </div>
     </header>
+
+    {modalTema && (
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 20000,
+        background: 'rgba(0,0,0,0.6)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <div style={{
+          background: '#1c1c1c', border: '1px solid #333', borderRadius: 6,
+          padding: '28px 32px', width: 340, boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+        }}>
+          <p style={{ color: '#f4f4f4', fontSize: 14, fontWeight: 600, margin: 0 }}>
+            Tenés cambios sin guardar
+          </p>
+          <p style={{ color: '#8d8d8d', fontSize: 12, margin: '8px 0 24px' }}>
+            ¿Qué querés hacer antes de cambiar al modo {modalTema}?
+          </p>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+            <button
+              type="button"
+              onClick={() => { setModalTema(null); setTemaLocal(temaPublico); }}
+              style={{
+                fontSize: 12, padding: '8px 16px', background: 'transparent',
+                color: '#8d8d8d', border: '1px solid #444', borderRadius: 4, cursor: 'pointer',
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => { setModalTema(null); void irATema(modalTema); }}
+              style={{
+                fontSize: 12, padding: '8px 16px', background: '#3d3d3d',
+                color: '#f4f4f4', border: '1px solid #555', borderRadius: 4, cursor: 'pointer',
+              }}
+            >
+              Salir sin guardar
+            </button>
+            <button
+              type="button"
+              onClick={async () => { setModalTema(null); await guardar(); void irATema(modalTema); }}
+              style={{
+                fontSize: 12, padding: '8px 16px', background: '#0f62fe',
+                color: '#fff', border: 0, borderRadius: 4, cursor: 'pointer', fontWeight: 600,
+              }}
+            >
+              Guardar y salir
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+  </>
   );
 }

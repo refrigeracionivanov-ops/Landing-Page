@@ -18,6 +18,7 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
   const [estadoGuardado, setEstadoGuardado] = useState<EstadoGuardado>('listo');
   const [verHistorial, setVerHistorial] = useState(false);
   const [solicitudesNuevas, setSolicitudesNuevas] = useState(0);
+  const [hayPendientes, setHayPendientes] = useState(false);
   const [temaPublico, setTemaPublico] = useState<'compacto' | 'complejo'>(ajustes.tema ?? 'compacto');
   const [historia, setHistoria] = useState({
     hasPast: false,
@@ -62,6 +63,7 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
       const datos = (await r.json()) as { ok?: boolean; error?: string };
       if (!r.ok || !datos.ok) throw new Error(datos.error ?? `Error ${r.status}`);
       setEstadoGuardado('guardado');
+      setHayPendientes(false);
       setTimeout(() => setEstadoGuardado('listo'), 3000);
     } catch {
       setEstadoGuardado('error');
@@ -85,9 +87,10 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
     historia,
     actualizarHistoria: setHistoria,
     actualizarContenido: (c: unknown[]) => { contenidoRef.current = c; },
+    hayPendientes,
     temaPublico,
     cambiarTema,
-  }), [estadoGuardado, guardar, solicitudesNuevas, historia, temaPublico, cambiarTema]);
+  }), [estadoGuardado, guardar, solicitudesNuevas, historia, hayPendientes, temaPublico, cambiarTema]);
 
   // La identidad del bridge override debe ser estable para que Puck no
   // desmonte y vuelva a montar el componente en cada render de Editor.
@@ -105,7 +108,7 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
           metadata={{ ajustes, distritos }}
           overrides={{ header: headerOverride }}
           initialUi={{ iframe: { enabled: false } }}
-          onChange={(data: any) => { contenidoRef.current = data.content; }}
+          onChange={(data: any) => { contenidoRef.current = data.content; setHayPendientes(true); }}
         />
       </div>
 
