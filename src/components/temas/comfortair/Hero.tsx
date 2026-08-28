@@ -23,12 +23,8 @@ export default function Hero({ bloque, ajustes }: Props) {
         />
       )}
 
-      {/* Overlay con gradiente */}
-      <div
-        className="absolute inset-0"
-        style={{ background: 'linear-gradient(105deg, rgba(7,12,26,0.84) 38%, rgba(7,12,26,0.42) 100%)' }}
-        aria-hidden="true"
-      />
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
 
       {/* Contenido */}
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-8 lg:px-16 py-32 w-full">
