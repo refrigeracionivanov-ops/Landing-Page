@@ -18,7 +18,7 @@ export default function EditorComfortair({ secciones, ajustes, distritos }: Prop
   const [estadoGuardado, setEstadoGuardado] = useState<EstadoGuardado>('listo');
   const [verHistorial, setVerHistorial] = useState(false);
   const [solicitudesNuevas, setSolicitudesNuevas] = useState(0);
-  const [temaPublico, setTemaPublico] = useState<'compacto' | 'complejo'>(ajustes.tema ?? 'compacto');
+  const [temaPublico, setTemaPublico] = useState<'compacto' | 'complejo'>(ajustes.tema ?? 'complejo');
   const [historia, setHistoria] = useState({
     hasPast: false,
     hasFuture: false,
