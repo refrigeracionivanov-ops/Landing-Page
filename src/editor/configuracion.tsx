@@ -18,6 +18,7 @@ import Testimonios from '../components/bloques/Testimonios';
 import Faq from '../components/bloques/FaqEditor';
 import Agendar from '../components/bloques/Agendar';
 import Cta from '../components/bloques/Cta';
+import Video from '../components/bloques/Video';
 
 /**
  * Que puede editar cada bloque, y con que se dibuja en el lienzo.
@@ -368,6 +369,16 @@ export const configuracion: Config = {
           distritos={props.puck.metadata.distritos}
         />
       ),
+    },
+
+    Video: {
+      label: 'Video',
+      fields: {
+        titulo: { type: 'text', label: 'Título de la sección' },
+        url: { type: 'text', label: 'URL del video (YouTube)' },
+      },
+      defaultProps: { titulo: 'Miranos en acción' },
+      render: (props: any) => <Video bloque={comoBloque(props)} />,
     },
 
     Cierre: {

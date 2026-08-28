@@ -24,8 +24,10 @@ declare global { interface Window { turnstile?: Turnstile } }
 
 const aIso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
-const INPUT = 'w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition';
+const FIELD = 'border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition';
+const INPUT = `w-full ${FIELD}`;
 const SELECT = `${INPUT} cursor-pointer`;
+const SELECT_ANCHO = `${FIELD} cursor-pointer`; // sin w-full, para selects con ancho fijo
 const LABEL = 'block text-sm font-medium text-slate-700 mb-1.5';
 
 export default function FormAgendar({ bloque, ajustes, distritos }: Props) {
@@ -190,7 +192,7 @@ export default function FormAgendar({ bloque, ajustes, distritos }: Props) {
                 value={codigoPais}
                 onChange={(e) => setCodigoPais(e.target.value)}
                 aria-label="Código de país"
-                className={`${SELECT} w-28 shrink-0`}
+                className={`${SELECT_ANCHO} w-28 shrink-0`}
               >
                 {PAISES.map((p) => (
                   <option key={p.codigo} value={p.codigo}>+{p.codigo} {p.nombre.slice(0, 3)}</option>
