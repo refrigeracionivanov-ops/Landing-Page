@@ -155,7 +155,7 @@ export default function PanelSolicitudes({ count }: Props) {
               style={{ color: '#78a9ff', fontSize: 12, textDecoration: 'none' }}
               onClick={() => setAbierto(false)}
             >
-              Ver todas →
+              Ver todas
             </a>
           </div>
 

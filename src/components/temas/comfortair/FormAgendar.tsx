@@ -235,7 +235,7 @@ export default function FormAgendar({ bloque, ajustes, distritos }: Props) {
           disabled={!listo}
           className="mt-6 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-3 px-6 rounded-lg transition-colors text-sm"
         >
-          Siguiente →
+          Siguiente
         </button>
       </div>
 
