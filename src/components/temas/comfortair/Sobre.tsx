@@ -9,8 +9,8 @@ export default function Sobre({ bloque }: Props) {
   if (!bloque.pasos?.length) return null;
 
   return (
-    <section id="ca-sobre" className="bg-white py-20 sm:py-28">
-      <div className="mx-auto max-w-7xl px-4 sm:px-8 space-y-24">
+    <section id="ca-sobre" className="bg-white py-12 sm:py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-8 space-y-14">
         {bloque.pasos.map((paso, idx) => {
           const esImpar = idx % 2 === 0;
           const num = String(idx + 1).padStart(2, '0');

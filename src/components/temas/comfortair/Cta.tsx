@@ -8,7 +8,7 @@ interface Props {
 export default function Cta({ bloque, ajustes }: Props) {
   const tel = ajustes.telefono.replace(/\s/g, '');
   return (
-    <section className="bg-slate-900 py-16 sm:py-20">
+    <section className="bg-slate-900 py-10 sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-8 grid lg:grid-cols-2 gap-8 items-end">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-white leading-snug text-balance">

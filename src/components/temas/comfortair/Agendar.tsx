@@ -14,7 +14,7 @@ interface Props {
  */
 export default function Agendar({ bloque, ajustes, distritos }: Props) {
   return (
-    <section id="ca-agendar" className="bg-white py-20 sm:py-28">
+    <section id="ca-agendar" className="bg-white py-12 sm:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-8 grid lg:grid-cols-2 gap-16 items-start">
 
         {/* Columna izquierda: texto introductorio */}

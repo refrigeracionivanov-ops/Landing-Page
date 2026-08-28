@@ -21,7 +21,7 @@ export default function Video({ bloque }: Props) {
   const embed = urlEmbed(bloque.url ?? '');
 
   return (
-    <section className="bg-slate-50 py-16 sm:py-24">
+    <section className="bg-slate-50 py-10 sm:py-14">
       <div className="mx-auto max-w-4xl px-4 sm:px-8">
         {bloque.titulo && (
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 text-center mb-10 tracking-tight">

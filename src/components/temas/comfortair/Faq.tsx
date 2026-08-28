@@ -33,7 +33,7 @@ function Item({ pregunta, respuesta }: { pregunta: string; respuesta: string }) 
 
 export default function Faq({ bloque }: Props) {
   return (
-    <section id="ca-preguntas" className="bg-slate-50 py-20 sm:py-28">
+    <section id="ca-preguntas" className="bg-slate-50 py-12 sm:py-16">
       <div className="mx-auto max-w-3xl px-4 sm:px-8">
         {bloque.titulo && (
           <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight mb-10 text-center">

@@ -7,7 +7,7 @@ interface Props {
 
 export default function Servicios({ bloque }: Props) {
   return (
-    <section id="ca-servicios" className="bg-slate-50 py-20 sm:py-28">
+    <section id="ca-servicios" className="bg-slate-50 py-12 sm:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-8">
 
         {/* Encabezado */}

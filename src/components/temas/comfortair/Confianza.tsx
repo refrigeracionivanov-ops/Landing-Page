@@ -7,7 +7,7 @@ interface Props {
 
 export default function Confianza({ bloque }: Props) {
   return (
-    <section className="bg-white py-20 sm:py-28">
+    <section className="bg-white py-12 sm:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-8">
 
         {/* Cifras */}

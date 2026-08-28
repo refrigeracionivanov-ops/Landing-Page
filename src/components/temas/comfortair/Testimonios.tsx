@@ -19,7 +19,7 @@ function Estrellas({ n = 5 }: { n?: number }) {
 
 export default function Testimonios({ bloque }: Props) {
   return (
-    <section id="ca-testimonios" className="bg-slate-50 py-20 sm:py-28">
+    <section id="ca-testimonios" className="bg-slate-50 py-12 sm:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-8">
 
         {/* Encabezado */}
