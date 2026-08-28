@@ -89,19 +89,6 @@ export default function PieDePagina({ ajustes }: Props) {
         <div className="mx-auto max-w-7xl px-4 sm:px-8 py-5 flex flex-wrap items-center justify-between gap-3">
           <p className="text-slate-400 text-xs">© {anio} {ajustes.nombre}. Todos los derechos reservados.</p>
           <a href="/privacidad" className="text-slate-400 hover:text-slate-600 text-xs transition-colors">Política de privacidad</a>
-          <div className="flex gap-4">
-            {/* Redes sociales: iconos simples */}
-            {[
-              { label: 'Instagram', path: 'M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z M4 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z' },
-              { label: 'Facebook', path: 'M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z' },
-            ].map(({ label, path }) => (
-              <a key={label} href="#" aria-label={label} className="text-slate-400 hover:text-blue-600 transition-colors">
-                <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d={path}/>
-                </svg>
-              </a>
-            ))}
-          </div>
         </div>
       </div>
     </footer>
