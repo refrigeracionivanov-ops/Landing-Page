@@ -19,7 +19,7 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
   const [verHistorial, setVerHistorial] = useState(false);
   const [solicitudesNuevas, setSolicitudesNuevas] = useState(0);
   const [hayPendientes, setHayPendientes] = useState(false);
-  const [temaPublico, setTemaPublico] = useState<'compacto' | 'complejo'>(ajustes.tema ?? 'compacto');
+  const [temaPublico, setTemaPublico] = useState<'compacto' | 'complejo'>('compacto');
   const [historia, setHistoria] = useState({
     hasPast: false,
     hasFuture: false,
