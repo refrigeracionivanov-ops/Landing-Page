@@ -132,20 +132,12 @@ export default function EditorHeader() {
           <span style={{ fontSize: 11, color: '#555', letterSpacing: '0.03em' }}>TEMA</span>
           <select
             value={temaLocal}
-            disabled={cambiandoTema}
-            onChange={async (e) => {
-              const nuevo = e.target.value as 'compacto' | 'complejo';
-              setTemaLocal(nuevo);
-              setCambiandoTema(true);
-              await cambiarTema(nuevo);
-              window.location.href = nuevo === 'complejo' ? '/administrador-comfortair' : '/administrador';
-            }}
+            onChange={(e) => setTemaLocal(e.target.value as 'compacto' | 'complejo')}
             style={{
               fontSize: 11, fontWeight: 600,
               background: '#1a1a1a', color: '#c6c6c6',
               border: '1px solid #333', borderRadius: 4,
-              padding: '3px 6px', cursor: cambiandoTema ? 'default' : 'pointer',
-              opacity: cambiandoTema ? 0.5 : 1,
+              padding: '3px 6px', cursor: 'pointer',
             }}
           >
             <option value="compacto">Compacto</option>
@@ -228,7 +220,7 @@ export default function EditorHeader() {
         <button
           type="button"
           disabled={guardando || cambiandoTema}
-          onClick={guardar}
+          onClick={temaModificado ? aplicarTema : guardar}
           style={{
             height: 32, padding: '0 20px', fontSize: 13, fontWeight: 600,
             background: (guardando || cambiandoTema) ? '#4d4d4d' : '#0f62fe',
