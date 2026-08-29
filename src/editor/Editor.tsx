@@ -36,20 +36,22 @@ export default function Editor({ secciones, ajustes, distritos }: Props) {
   // Puck viene en inglés. Ver `traducciones.ts`.
   useEffect(() => (contenedor.current ? traducirInterfaz(contenedor.current) : undefined), []);
 
-  // Badge de solicitudes nuevas: polling cada 30s.
+  // Badge de solicitudes nuevas: SSE en tiempo real (reconecta automáticamente).
   useEffect(() => {
-    const consultar = async () => {
-      try {
-        const r = await fetch('/api/nuevas');
-        if (r.ok) {
-          const datos = (await r.json()) as { total: number };
+    let es: EventSource | null = null;
+
+    const conectar = () => {
+      es = new EventSource('/api/solicitudes-sse');
+      es.onmessage = (e) => {
+        try {
+          const datos = JSON.parse(e.data as string) as { total: number };
           setSolicitudesNuevas(datos.total);
-        }
-      } catch { /* silencioso */ }
+        } catch { /* silencioso */ }
+      };
     };
-    consultar();
-    const intervalo = setInterval(consultar, 30_000);
-    return () => clearInterval(intervalo);
+
+    conectar();
+    return () => es?.close();
   }, []);
 
   const guardar = useCallback(async () => {

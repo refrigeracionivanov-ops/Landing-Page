@@ -33,19 +33,22 @@ export default function EditorComfortair({ secciones, ajustes, distritos }: Prop
 
   useEffect(() => (contenedor.current ? traducirInterfaz(contenedor.current) : undefined), []);
 
+  // Badge de solicitudes nuevas: SSE en tiempo real (reconecta automáticamente).
   useEffect(() => {
-    const consultar = async () => {
-      try {
-        const r = await fetch('/api/nuevas');
-        if (r.ok) {
-          const datos = (await r.json()) as { total: number };
+    let es: EventSource | null = null;
+
+    const conectar = () => {
+      es = new EventSource('/api/solicitudes-sse');
+      es.onmessage = (e) => {
+        try {
+          const datos = JSON.parse(e.data as string) as { total: number };
           setSolicitudesNuevas(datos.total);
-        }
-      } catch { /* silencioso */ }
+        } catch { /* silencioso */ }
+      };
     };
-    consultar();
-    const intervalo = setInterval(consultar, 30_000);
-    return () => clearInterval(intervalo);
+
+    conectar();
+    return () => es?.close();
   }, []);
 
   const cambiarTema = useCallback(async (nuevo: 'compacto' | 'complejo') => {

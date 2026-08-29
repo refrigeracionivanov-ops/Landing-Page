@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface SolicitudResumen {
   id: number;
@@ -35,8 +35,9 @@ export default function PanelSolicitudes({ count }: Props) {
   const [cargando, setCargando] = useState(false);
   const [acciones, setAcciones] = useState<Record<number, 'cargando' | 'listo'>>({});
   const contenedor = useRef<HTMLDivElement>(null);
+  const countPrevio = useRef(count);
 
-  async function cargar() {
+  const cargar = useCallback(async () => {
     setCargando(true);
     try {
       const r = await fetch('/api/solicitudes-panel');
@@ -46,14 +47,20 @@ export default function PanelSolicitudes({ count }: Props) {
       }
     } catch { /* silencioso */ }
     finally { setCargando(false); }
-  }
+  }, []);
 
   useEffect(() => {
     if (!abierto) return;
     cargar();
-    const intervalo = setInterval(cargar, 15_000);
+    const intervalo = setInterval(cargar, 30_000);
     return () => clearInterval(intervalo);
-  }, [abierto]);
+  }, [abierto, cargar]);
+
+  // Cuando llega una nueva solicitud por SSE y el panel está abierto, recargar al instante.
+  useEffect(() => {
+    if (count > countPrevio.current && abierto) cargar();
+    countPrevio.current = count;
+  }, [count, abierto, cargar]);
 
   useEffect(() => {
     if (!abierto) return;
